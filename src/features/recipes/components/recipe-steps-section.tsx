@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import type { UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
 
@@ -16,6 +18,7 @@ import {
   emptyStep,
   type EditorValues,
 } from "@/features/recipes/components/recipe-editor-types";
+import { useI18n } from "@/components/i18n-provider";
 
 interface RecipeStepsSectionProps {
   form: UseFormReturn<EditorValues>;
@@ -28,15 +31,16 @@ export function RecipeStepsSection({
   fieldArray,
   validationMessages,
 }: RecipeStepsSectionProps) {
+  const { t, formatNumber } = useI18n();
   return (
     <Card>
       <CardHeader className="flex-row items-start justify-between gap-4">
         <div>
           <CardTitle>
-            <h2>Instructions</h2>
+            <h2>{t("Instructions")}</h2>
           </CardTitle>
           <CardDescription>
-            Keep each action in its own clear, numbered step.
+            {t("Keep each action in its own clear, numbered step.")}
           </CardDescription>
         </div>
         <Button
@@ -46,13 +50,13 @@ export function RecipeStepsSection({
           onClick={() => fieldArray.append(emptyStep())}
         >
           <Plus className="size-4" aria-hidden="true" />
-          Add
+          {t("Add")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         {validationMessages.steps && (
           <p className="text-sm text-destructive" role="alert">
-            {validationMessages.steps}
+            {t(validationMessages.steps)}
           </p>
         )}
         {fieldArray.fields.map((field, index) => (
@@ -67,7 +71,7 @@ export function RecipeStepsSection({
               {index + 1}
             </span>
             <div className="space-y-2">
-              <Label htmlFor={`step-${index}`}>Instruction</Label>
+              <Label htmlFor={`step-${index}`}>{t("Instruction")}</Label>
               <Textarea
                 id={`step-${index}`}
                 rows={3}
@@ -78,12 +82,12 @@ export function RecipeStepsSection({
               />
               {validationMessages[`steps.${index}.instruction`] && (
                 <p className="text-xs text-destructive">
-                  {validationMessages[`steps.${index}.instruction`]}
+                  {t(validationMessages[`steps.${index}.instruction`])}
                 </p>
               )}
             </div>
             <div className="space-y-2">
-              <Label htmlFor={`timer-${index}`}>Timer min</Label>
+              <Label htmlFor={`timer-${index}`}>{t("Timer min")}</Label>
               <Input
                 id={`timer-${index}`}
                 type="number"
@@ -95,7 +99,7 @@ export function RecipeStepsSection({
               />
               {validationMessages[`steps.${index}.timerMinutes`] && (
                 <p className="text-xs text-destructive">
-                  {validationMessages[`steps.${index}.timerMinutes`]}
+                  {t(validationMessages[`steps.${index}.timerMinutes`])}
                 </p>
               )}
             </div>
@@ -106,7 +110,9 @@ export function RecipeStepsSection({
                 size="icon-sm"
                 disabled={index === 0}
                 onClick={() => fieldArray.move(index, index - 1)}
-                aria-label={`Move step ${index + 1} up`}
+                aria-label={t("Move step {number} up", {
+                  number: formatNumber(index + 1),
+                })}
               >
                 <ArrowUp className="size-4" />
               </Button>
@@ -116,7 +122,9 @@ export function RecipeStepsSection({
                 size="icon-sm"
                 disabled={index === fieldArray.fields.length - 1}
                 onClick={() => fieldArray.move(index, index + 1)}
-                aria-label={`Move step ${index + 1} down`}
+                aria-label={t("Move step {number} down", {
+                  number: formatNumber(index + 1),
+                })}
               >
                 <ArrowDown className="size-4" />
               </Button>
@@ -125,7 +133,9 @@ export function RecipeStepsSection({
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => fieldArray.remove(index)}
-                aria-label={`Remove step ${index + 1}`}
+                aria-label={t("Remove step {number}", {
+                  number: formatNumber(index + 1),
+                })}
               >
                 <Trash2 className="size-4" />
               </Button>

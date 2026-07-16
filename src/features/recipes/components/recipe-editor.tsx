@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useI18n } from "@/components/i18n-provider";
 import {
   createRecipeAction,
   updateRecipeAction,
@@ -157,6 +158,7 @@ export function RecipeEditor({
   defaultServings?: number;
 }) {
   const router = useRouter();
+  const { t } = useI18n();
   const [pending, startTransition] = useTransition();
   const [formMessage, setFormMessage] = useState<string | null>(null);
   const [validationMessages, setValidationMessages] = useState<
@@ -297,7 +299,9 @@ export function RecipeEditor({
       }
       if (
         !window.confirm(
-          "Leave this recipe editor? Unsaved changes will remain only in this browser draft.",
+          t(
+            "Leave this recipe editor? Unsaved changes will remain only in this browser draft.",
+          ),
         )
       ) {
         event.preventDefault();
@@ -307,7 +311,7 @@ export function RecipeEditor({
     document.addEventListener("click", preventClientNavigation, true);
     return () =>
       document.removeEventListener("click", preventClientNavigation, true);
-  }, [form.formState.isDirty, pending]);
+  }, [form.formState.isDirty, pending, t]);
 
   useEffect(
     () => () => {
@@ -373,7 +377,7 @@ export function RecipeEditor({
     setFormMessage(null);
     setValidationMessages({});
     if (duplicateIndexes.size > 0) {
-      setFormMessage("Combine duplicate ingredient rows before saving.");
+      setFormMessage(t("Combine duplicate ingredient rows before saving."));
       return;
     }
 
@@ -391,7 +395,7 @@ export function RecipeEditor({
           ),
         }),
       );
-      setFormMessage("Check the highlighted recipe fields.");
+      setFormMessage(t("Check the highlighted recipe fields."));
       return;
     }
 
@@ -425,8 +429,8 @@ export function RecipeEditor({
           }
           setFormMessage(
             cleanupPending
-              ? `${result.message} The new private image could not be removed automatically; retry its removal from Supabase Storage before uploading another cover.`
-              : result.message,
+              ? `${t(result.message)} ${t("The new private image could not be removed automatically; retry its removal from Supabase Storage before uploading another cover.")}`
+              : t(result.message),
           );
           return;
         }
@@ -439,11 +443,13 @@ export function RecipeEditor({
           result.data.storageCleanupPending
         ) {
           toast.warning(
-            "Recipe updated. The previous private cover may still need removal in Supabase Storage.",
+            t(
+              "Recipe updated. The previous private cover may still need removal in Supabase Storage.",
+            ),
             { duration: 10_000 },
           );
         } else {
-          toast.success(recipe ? "Recipe updated" : "Recipe saved");
+          toast.success(t(recipe ? "Recipe updated" : "Recipe saved"));
         }
         const destination =
           intent === "continue"
@@ -458,14 +464,16 @@ export function RecipeEditor({
           // image that a committed recipe now references.
           setImageFile(null);
           setFormMessage(
-            "The save response was interrupted. Your private image was kept safely; check the recipe library before trying the save again.",
+            t(
+              "The save response was interrupted. Your private image was kept safely; check the recipe library before trying the save again.",
+            ),
           );
           return;
         }
         setFormMessage(
           error instanceof Error
-            ? error.message
-            : "The recipe could not be saved.",
+            ? t(error.message)
+            : t("The recipe could not be saved."),
         );
       } finally {
         setUploadProgress(0);
@@ -476,7 +484,7 @@ export function RecipeEditor({
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
     if (file && file.size > 6 * 1024 * 1024) {
-      setFormMessage("Images must be smaller than 6 MB.");
+      setFormMessage(t("Images must be smaller than 6 MB."));
       return;
     }
     if (imageObjectUrl.current) URL.revokeObjectURL(imageObjectUrl.current);
@@ -503,15 +511,15 @@ export function RecipeEditor({
     <form onSubmit={submit} className="space-y-6" noValidate>
       {restored && (
         <Alert>
-          <AlertTitle>Local draft restored</AlertTitle>
+          <AlertTitle>{t("Local draft restored")}</AlertTitle>
           <AlertDescription>
-            Your unsaved recipe fields were recovered from this browser.
+            {t("Your unsaved recipe fields were recovered from this browser.")}
           </AlertDescription>
         </Alert>
       )}
       {formMessage && (
         <Alert variant="destructive" role="alert">
-          <AlertTitle>Recipe was not saved</AlertTitle>
+          <AlertTitle>{t("Recipe was not saved")}</AlertTitle>
           <AlertDescription>{formMessage}</AlertDescription>
         </Alert>
       )}

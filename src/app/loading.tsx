@@ -1,10 +1,12 @@
 import { Skeleton } from "@/components/ui/skeleton";
+import { getServerI18n } from "@/lib/i18n/server";
 
-export default function RootLoading() {
+export default async function RootLoading() {
+  const { t } = await getServerI18n();
   return (
     <main
       className="mx-auto w-full max-w-7xl space-y-8 px-4 py-10 sm:px-6 lg:px-8"
-      aria-label="Loading Nana's Recipes"
+      aria-label={t("Loading Nana's Recipes")}
     >
       <Skeleton className="h-10 w-64" />
       <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">

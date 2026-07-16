@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { RecipeCard } from "@/features/recipes/components/recipe-card";
 import { RecipeFilters } from "@/features/recipes/components/recipe-filters";
 import { getRecipeFilterOptions, listRecipes } from "@/lib/data/queries";
+import { getServerI18n } from "@/lib/i18n/server";
 
 const validCategories = new Set([
   "breakfast",
@@ -87,7 +88,7 @@ export async function RecipeLibraryPage({
     | undefined;
   const favorite = favoritesOnly || parameters.favorite === "1";
   const page = pageValue(parameters.page);
-  const [results, filterOptions] = await Promise.all([
+  const [results, filterOptions, { t, formatNumber }] = await Promise.all([
     listRecipes({
       query,
       favorite,
@@ -102,6 +103,7 @@ export async function RecipeLibraryPage({
       pageSize: 12,
     }),
     getRecipeFilterOptions(),
+    getServerI18n(),
   ]);
   const filtered = Boolean(
     query ||
@@ -118,17 +120,19 @@ export async function RecipeLibraryPage({
   return (
     <PageContainer>
       <PageHeader
-        title={favoritesOnly ? "Favorite recipes" : "Recipe library"}
+        title={t(favoritesOnly ? "Favorite recipes" : "Recipe library")}
         description={
           favoritesOnly
-            ? "The recipes you reach for most."
-            : "Search every recipe, ingredient, tag, and cuisine from one place."
+            ? t("The recipes you reach for most.")
+            : t(
+                "Search every recipe, ingredient, tag, and cuisine from one place.",
+              )
         }
         action={
           <Button asChild>
             <Link href="/recipes/new">
               <Plus className="size-4" aria-hidden="true" />
-              Add recipe
+              {t("Add recipe")}
             </Link>
           </Button>
         }
@@ -143,19 +147,21 @@ export async function RecipeLibraryPage({
           icon={filtered ? SearchX : BookOpenText}
           title={
             filtered
-              ? "No recipes match those filters"
+              ? t("No recipes match those filters")
               : favoritesOnly
-                ? "No favorites yet"
-                : "Your cookbook is ready for its first recipe"
+                ? t("No favorites yet")
+                : t("Your cookbook is ready for its first recipe")
           }
           description={
             filtered
-              ? "Clear one or more filters and try again."
+              ? t("Clear one or more filters and try again.")
               : favoritesOnly
-                ? "Tap the heart on a recipe to keep it close."
-                : "Add a dish you already love, including its ingredients and cooking steps."
+                ? t("Tap the heart on a recipe to keep it close.")
+                : t(
+                    "Add a dish you already love, including its ingredients and cooking steps.",
+                  )
           }
-          actionLabel={filtered ? "Clear filters" : "Add a recipe"}
+          actionLabel={t(filtered ? "Clear filters" : "Add a recipe")}
           actionHref={
             filtered
               ? favoritesOnly
@@ -184,7 +190,7 @@ export async function RecipeLibraryPage({
           {results.total > results.pageSize && (
             <nav
               className="flex items-center justify-between border-t border-border pt-5"
-              aria-label="Recipe pages"
+              aria-label={t("Recipe pages")}
             >
               <Button asChild variant="outline" disabled={results.page <= 1}>
                 <Link
@@ -195,12 +201,16 @@ export async function RecipeLibraryPage({
                     },
                   }}
                 >
-                  Previous
+                  {t("Previous")}
                 </Link>
               </Button>
               <span className="text-sm text-muted-foreground">
-                Page {results.page} of{" "}
-                {Math.ceil(results.total / results.pageSize)}
+                {t("Page {page} of {total}", {
+                  page: formatNumber(results.page),
+                  total: formatNumber(
+                    Math.ceil(results.total / results.pageSize),
+                  ),
+                })}
               </span>
               <Button
                 asChild
@@ -210,7 +220,7 @@ export async function RecipeLibraryPage({
                 <Link
                   href={{ query: { ...parameters, page: results.page + 1 } }}
                 >
-                  Next
+                  {t("Next")}
                 </Link>
               </Button>
             </nav>
@@ -224,7 +234,7 @@ export async function RecipeLibraryPage({
       >
         <Link href="/recipes/new">
           <Plus className="size-5" aria-hidden="true" />
-          Add recipe
+          {t("Add recipe")}
         </Link>
       </Button>
     </PageContainer>

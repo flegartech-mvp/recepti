@@ -4,6 +4,7 @@ import { Clock3, Pause, Play } from "lucide-react";
 import { useMemo } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/i18n-provider";
 import { cn } from "@/lib/utils";
 import type { RecipeStep } from "@/types/domain";
 
@@ -27,6 +28,7 @@ export function FullStepList({
   onStartTimer,
   onPauseTimer,
 }: FullStepListProps) {
+  const { t, formatNumber } = useI18n();
   const timerByStep = useMemo(
     () => new Map(timers.map((timer) => [timer.stepId, timer])),
     [timers],
@@ -52,7 +54,7 @@ export function FullStepList({
               aria-current={isCurrent ? "step" : undefined}
             >
               <span className="text-muted-foreground text-xs font-semibold tracking-[0.14em] uppercase">
-                Step {index + 1}
+                {t("Step {number}", { number: formatNumber(index + 1) })}
               </span>
               <span className="mt-1 block text-sm leading-6 sm:text-base">
                 {step.instruction}
@@ -63,7 +65,7 @@ export function FullStepList({
                 <span className="text-muted-foreground flex items-center gap-1.5 font-mono text-sm tabular-nums">
                   <Clock3 className="size-4" aria-hidden="true" />
                   {timer.status === "complete"
-                    ? "Done"
+                    ? t("Done")
                     : formatTimer(timer.remainingSeconds)}
                 </span>
                 <Button
@@ -82,10 +84,10 @@ export function FullStepList({
                     <Play aria-hidden="true" />
                   )}
                   {timer.status === "running"
-                    ? "Pause"
+                    ? t("Pause")
                     : timer.status === "paused"
-                      ? "Resume"
-                      : "Start timer"}
+                      ? t("Resume")
+                      : t("Start timer")}
                 </Button>
               </div>
             ) : null}

@@ -3,6 +3,7 @@
 import { Pause, Play, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/i18n-provider";
 import { Progress } from "@/components/ui/progress";
 import { cn } from "@/lib/utils";
 
@@ -24,6 +25,11 @@ export function TimerControls({
   onPause,
   onReset,
 }: TimerControlsProps) {
+  const { t, formatNumber } = useI18n();
+  const timerLabel = /^Step (\d+)$/.exec(timer.label);
+  const localizedLabel = timerLabel
+    ? t("Step {number}", { number: formatNumber(Number(timerLabel[1])) })
+    : timer.label;
   const progress =
     timer.durationSeconds > 0
       ? ((timer.durationSeconds - timer.remainingSeconds) /
@@ -43,7 +49,7 @@ export function TimerControls({
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-muted-foreground text-xs font-semibold tracking-[0.14em] uppercase">
-            {timer.label}
+            {localizedLabel}
           </p>
           <p
             className={cn(
@@ -52,10 +58,14 @@ export function TimerControls({
               timer.status === "complete" && "text-primary-text",
             )}
             role="timer"
-            aria-label={`${timer.label} timer, ${timerStatusText(timer)}, ${formatTimer(timer.remainingSeconds)} remaining`}
+            aria-label={t("{label} timer, {status}, {time} remaining", {
+              label: localizedLabel,
+              status: t(timerStatusText(timer)),
+              time: formatTimer(timer.remainingSeconds),
+            })}
           >
             {timer.status === "complete"
-              ? "Done"
+              ? t("Done")
               : formatTimer(timer.remainingSeconds)}
           </p>
         </div>
@@ -68,14 +78,16 @@ export function TimerControls({
             timer.status === "idle" && "bg-secondary text-secondary-foreground",
           )}
         >
-          {timerStatusText(timer)}
+          {t(timerStatusText(timer))}
         </span>
       </div>
 
       <Progress
         value={progress}
         className="mt-3 h-1.5"
-        aria-label={`${Math.round(progress)}% elapsed`}
+        aria-label={t("{percentage}% elapsed", {
+          percentage: formatNumber(Math.round(progress)),
+        })}
       />
 
       <div className="mt-3 flex gap-2">
@@ -93,12 +105,12 @@ export function TimerControls({
             <Play aria-hidden="true" />
           )}
           {isRunning
-            ? "Pause"
+            ? t("Pause")
             : timer.status === "paused"
-              ? "Resume"
+              ? t("Resume")
               : timer.status === "complete"
-                ? "Again"
-                : "Start"}
+                ? t("Again")
+                : t("Start")}
         </Button>
         {timer.status !== "idle" ? (
           <Button
@@ -107,7 +119,9 @@ export function TimerControls({
             size="icon"
             className={cn("size-11", !compact && "sm:size-12")}
             onClick={() => onReset(timer.stepId)}
-            aria-label={`Reset ${timer.label.toLowerCase()} timer`}
+            aria-label={t("Reset {label} timer", {
+              label: localizedLabel.toLocaleLowerCase(),
+            })}
           >
             <RotateCcw aria-hidden="true" />
           </Button>

@@ -5,6 +5,7 @@ import { useTheme } from "next-themes";
 import { useSyncExternalStore } from "react";
 
 import { Button } from "@/components/ui/button";
+import { useI18n } from "@/components/i18n-provider";
 import {
   Tooltip,
   TooltipContent,
@@ -17,6 +18,7 @@ const getClientSnapshot = () => true;
 const getServerSnapshot = () => false;
 
 export function ThemeToggle({ className }: { className?: string }) {
+  const { t } = useI18n();
   const { resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(
     subscribeToHydration,
@@ -26,9 +28,9 @@ export function ThemeToggle({ className }: { className?: string }) {
 
   const label = mounted
     ? resolvedTheme === "dark"
-      ? "Switch to light mode"
-      : "Switch to dark mode"
-    : "Switch color theme";
+      ? t("Switch to light mode")
+      : t("Switch to dark mode")
+    : t("Switch color theme");
 
   return (
     <Tooltip>

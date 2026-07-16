@@ -1,3 +1,5 @@
+"use client";
+
 import { ArrowDown, ArrowUp, Plus, Trash2 } from "lucide-react";
 import type { UseFieldArrayReturn, UseFormReturn } from "react-hook-form";
 
@@ -26,6 +28,7 @@ import {
 } from "@/features/recipes/components/recipe-editor-types";
 import { UNITS } from "@/lib/constants";
 import type { Ingredient } from "@/types/domain";
+import { useI18n } from "@/components/i18n-provider";
 
 interface RecipeIngredientsSectionProps {
   form: UseFormReturn<EditorValues>;
@@ -44,6 +47,7 @@ export function RecipeIngredientsSection({
   duplicateIndexes,
   validationMessages,
 }: RecipeIngredientsSectionProps) {
+  const { t, formatNumber } = useI18n();
   const chooseCatalogIngredient = (index: number, id: string) => {
     if (id === "custom") {
       form.setValue(`ingredients.${index}.ingredientId`, "", {
@@ -79,10 +83,10 @@ export function RecipeIngredientsSection({
       <CardHeader className="flex-row items-start justify-between gap-4">
         <div>
           <CardTitle>
-            <h2>Ingredients</h2>
+            <h2>{t("Ingredients")}</h2>
           </CardTitle>
           <CardDescription>
-            Fractions such as 1/2 and 1 1/2 are accepted.
+            {t("Fractions such as 1/2 and 1 1/2 are accepted.")}
           </CardDescription>
         </div>
         <Button
@@ -92,13 +96,13 @@ export function RecipeIngredientsSection({
           onClick={() => fieldArray.append(emptyIngredient())}
         >
           <Plus className="size-4" aria-hidden="true" />
-          Add
+          {t("Add")}
         </Button>
       </CardHeader>
       <CardContent className="space-y-4">
         {validationMessages.ingredients && (
           <p className="text-sm text-destructive" role="alert">
-            {validationMessages.ingredients}
+            {t(validationMessages.ingredients)}
           </p>
         )}
         {fieldArray.fields.map((field, index) => (
@@ -107,11 +111,11 @@ export function RecipeIngredientsSection({
             className="rounded-xl border border-border bg-surface-secondary/35 p-4"
           >
             <legend className="px-1 text-sm font-semibold">
-              Ingredient {index + 1}
+              {t("Ingredient {number}", { number: formatNumber(index + 1) })}
             </legend>
             <div className="grid gap-4 md:grid-cols-12">
               <div className="space-y-2 md:col-span-4">
-                <Label>Catalog ingredient</Label>
+                <Label>{t("Catalog ingredient")}</Label>
                 <Select
                   value={ingredients[index]?.ingredientId || "custom"}
                   onValueChange={(value) =>
@@ -120,13 +124,15 @@ export function RecipeIngredientsSection({
                 >
                   <SelectTrigger
                     className="w-full"
-                    aria-label={`Ingredient ${index + 1} catalog`}
+                    aria-label={t("Ingredient {number} catalog", {
+                      number: formatNumber(index + 1),
+                    })}
                   >
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="custom">
-                      New or custom ingredient
+                      {t("New or custom ingredient")}
                     </SelectItem>
                     {catalog.map((item) => (
                       <SelectItem key={item.id} value={item.id}>
@@ -138,7 +144,7 @@ export function RecipeIngredientsSection({
               </div>
               <div className="space-y-2 md:col-span-4">
                 <Label htmlFor={`ingredient-name-${index}`}>
-                  Ingredient name
+                  {t("Ingredient name")}
                 </Label>
                 <Input
                   id={`ingredient-name-${index}`}
@@ -152,32 +158,34 @@ export function RecipeIngredientsSection({
                 />
                 {duplicateIndexes.has(index) && (
                   <p className="text-xs text-destructive">
-                    This ingredient is already listed.
+                    {t("This ingredient is already listed.")}
                   </p>
                 )}
                 {validationMessages[`ingredients.${index}.canonicalName`] && (
                   <p className="text-xs text-destructive">
-                    {validationMessages[`ingredients.${index}.canonicalName`]}
+                    {t(
+                      validationMessages[`ingredients.${index}.canonicalName`],
+                    )}
                   </p>
                 )}
               </div>
               <div className="space-y-2 md:col-span-4">
                 <Label htmlFor={`ingredient-display-${index}`}>
-                  Recipe wording
+                  {t("Recipe wording")}
                 </Label>
                 <Input
                   id={`ingredient-display-${index}`}
                   {...form.register(`ingredients.${index}.displayName`)}
                   placeholder={
-                    ingredients[index]?.canonicalName || "e.g. ripe tomatoes"
+                    ingredients[index]?.canonicalName || t("e.g. ripe tomatoes")
                   }
                 />
                 <p className="text-xs text-muted-foreground">
-                  Optional wording shown only on this recipe.
+                  {t("Optional wording shown only on this recipe.")}
                 </p>
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor={`quantity-${index}`}>Quantity</Label>
+                <Label htmlFor={`quantity-${index}`}>{t("Quantity")}</Label>
                 <Input
                   id={`quantity-${index}`}
                   inputMode="decimal"
@@ -189,12 +197,12 @@ export function RecipeIngredientsSection({
                 />
                 {validationMessages[`ingredients.${index}.quantity`] && (
                   <p className="text-xs text-destructive">
-                    {validationMessages[`ingredients.${index}.quantity`]}
+                    {t(validationMessages[`ingredients.${index}.quantity`])}
                   </p>
                 )}
               </div>
               <div className="space-y-2 md:col-span-2">
-                <Label htmlFor={`unit-${index}`}>Unit</Label>
+                <Label htmlFor={`unit-${index}`}>{t("Unit")}</Label>
                 <Input
                   id={`unit-${index}`}
                   list="recipe-units"
@@ -206,24 +214,26 @@ export function RecipeIngredientsSection({
                 />
                 {validationMessages[`ingredients.${index}.unit`] && (
                   <p className="text-xs text-destructive">
-                    {validationMessages[`ingredients.${index}.unit`]}
+                    {t(validationMessages[`ingredients.${index}.unit`])}
                   </p>
                 )}
               </div>
               <div className="space-y-2 md:col-span-4">
-                <Label htmlFor={`preparation-${index}`}>Preparation note</Label>
+                <Label htmlFor={`preparation-${index}`}>
+                  {t("Preparation note")}
+                </Label>
                 <Input
                   id={`preparation-${index}`}
                   {...form.register(`ingredients.${index}.preparationNote`)}
-                  placeholder="Finely chopped"
+                  placeholder={t("Finely chopped")}
                 />
               </div>
               <div className="space-y-2 md:col-span-4">
-                <Label htmlFor={`section-${index}`}>Section</Label>
+                <Label htmlFor={`section-${index}`}>{t("Section")}</Label>
                 <Input
                   id={`section-${index}`}
                   {...form.register(`ingredients.${index}.sectionName`)}
-                  placeholder="For the sauce"
+                  placeholder={t("For the sauce")}
                 />
               </div>
               <div className="flex flex-wrap items-center gap-4 md:col-span-4 md:justify-end">
@@ -238,7 +248,7 @@ export function RecipeIngredientsSection({
                       )
                     }
                   />
-                  Optional
+                  {t("Optional")}
                 </label>
                 <label className="flex min-h-11 items-center gap-2 text-sm">
                   <Checkbox
@@ -251,7 +261,7 @@ export function RecipeIngredientsSection({
                       )
                     }
                   />
-                  Garnish
+                  {t("Garnish")}
                 </label>
               </div>
             </div>
@@ -262,7 +272,9 @@ export function RecipeIngredientsSection({
                 size="icon-sm"
                 disabled={index === 0}
                 onClick={() => fieldArray.move(index, index - 1)}
-                aria-label={`Move ingredient ${index + 1} up`}
+                aria-label={t("Move ingredient {number} up", {
+                  number: formatNumber(index + 1),
+                })}
               >
                 <ArrowUp className="size-4" />
               </Button>
@@ -272,7 +284,9 @@ export function RecipeIngredientsSection({
                 size="icon-sm"
                 disabled={index === fieldArray.fields.length - 1}
                 onClick={() => fieldArray.move(index, index + 1)}
-                aria-label={`Move ingredient ${index + 1} down`}
+                aria-label={t("Move ingredient {number} down", {
+                  number: formatNumber(index + 1),
+                })}
               >
                 <ArrowDown className="size-4" />
               </Button>
@@ -281,7 +295,9 @@ export function RecipeIngredientsSection({
                 variant="ghost"
                 size="icon-sm"
                 onClick={() => fieldArray.remove(index)}
-                aria-label={`Remove ingredient ${index + 1}`}
+                aria-label={t("Remove ingredient {number}", {
+                  number: formatNumber(index + 1),
+                })}
               >
                 <Trash2 className="size-4" />
               </Button>

@@ -6,20 +6,27 @@ import {
   listPantry,
   listRecipesForMatching,
 } from "@/lib/data/queries";
+import { getServerI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "What can I cook?" };
+export async function generateMetadata() {
+  const { t } = await getServerI18n();
+  return { title: t("What can I cook?") };
+}
 
 export default async function RecipeMatcherPage() {
-  const [recipes, pantry, ingredients] = await Promise.all([
+  const [recipes, pantry, ingredients, { t }] = await Promise.all([
     listRecipesForMatching(),
     listPantry(),
     listIngredients(),
+    getServerI18n(),
   ]);
   return (
     <PageContainer>
       <PageHeader
-        title="What can I cook?"
-        description="Choose what is available and get a deterministic, quantity-aware ranking with honest missing-ingredient details."
+        title={t("What can I cook?")}
+        description={t(
+          "Choose what is available and get a deterministic, quantity-aware ranking with honest missing-ingredient details.",
+        )}
       />
       <RecipeMatcher recipes={recipes} pantry={pantry} catalog={ingredients} />
     </PageContainer>

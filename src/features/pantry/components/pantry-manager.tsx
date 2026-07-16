@@ -27,6 +27,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useI18n } from "@/components/i18n-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -117,6 +118,7 @@ export function PantryManager({
   initialOpen?: boolean;
 }) {
   const router = useRouter();
+  const { locale, t, formatNumber, plural } = useI18n();
   const [pending, startTransition] = useTransition();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState("name");
@@ -128,14 +130,15 @@ export function PantryManager({
   );
 
   const filtered = useMemo(() => {
-    const normalized = query.trim().toLocaleLowerCase("en-US");
+    const localeName = locale === "sl" ? "sl-SI" : "en-GB";
+    const normalized = query.trim().toLocaleLowerCase(localeName);
     const result = items.filter(
       (item) =>
         !normalized ||
         item.ingredient.displayName
-          .toLocaleLowerCase("en-US")
+          .toLocaleLowerCase(localeName)
           .includes(normalized) ||
-        item.notes?.toLocaleLowerCase("en-US").includes(normalized),
+        item.notes?.toLocaleLowerCase(localeName).includes(normalized),
     );
     result.sort((a, b) => {
       if (sort === "recent") return b.createdAt.localeCompare(a.createdAt);
@@ -151,7 +154,7 @@ export function PantryManager({
       return a.ingredient.displayName.localeCompare(b.ingredient.displayName);
     });
     return result;
-  }, [items, query, sort]);
+  }, [items, locale, query, sort]);
 
   const groups = STORAGE_LOCATIONS.map((location) => ({
     ...location,
@@ -166,10 +169,10 @@ export function PantryManager({
     startTransition(async () => {
       const result = await action();
       if (!result.ok) {
-        toast.error(result.message ?? "The pantry could not be updated.");
+        toast.error(t(result.message ?? "The pantry could not be updated."));
         return;
       }
-      toast.success(success);
+      toast.success(t(success));
       if (close) {
         setDialogOpen(false);
         setForm(emptyForm());
@@ -218,22 +221,22 @@ export function PantryManager({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="h-11 pl-10"
-            placeholder="Search the pantry"
-            aria-label="Search pantry"
+            placeholder={t("Search the pantry")}
+            aria-label={t("Search pantry")}
           />
         </div>
         <Select value={sort} onValueChange={setSort}>
           <SelectTrigger
             className="h-11 w-full sm:w-48"
-            aria-label="Sort pantry"
+            aria-label={t("Sort pantry")}
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="name">Name</SelectItem>
-            <SelectItem value="recent">Recently added</SelectItem>
-            <SelectItem value="expiration">Expiration date</SelectItem>
-            <SelectItem value="location">Storage location</SelectItem>
+            <SelectItem value="name">{t("Name")}</SelectItem>
+            <SelectItem value="recent">{t("Recently added")}</SelectItem>
+            <SelectItem value="expiration">{t("Expiration date")}</SelectItem>
+            <SelectItem value="location">{t("Storage location")}</SelectItem>
           </SelectContent>
         </Select>
         <Button
@@ -242,7 +245,7 @@ export function PantryManager({
           onClick={() => setFastOpen(true)}
         >
           <Zap className="size-4" />
-          Fast entry
+          {t("Fast entry")}
         </Button>
         <Button
           className="h-11"
@@ -252,7 +255,7 @@ export function PantryManager({
           }}
         >
           <Plus className="size-4" />
-          Add item
+          {t("Add item")}
         </Button>
       </div>
 
@@ -265,13 +268,18 @@ export function PantryManager({
             <div className="space-y-2">
               <h2 className="text-xl font-semibold">
                 {items.length === 0
-                  ? "Add what is already at home"
-                  : "No pantry items match"}
+                  ? t("Add what is already at home")
+                  : t("No pantry items match")}
               </h2>
               <p className="text-sm leading-relaxed text-muted-foreground">
                 {items.length === 0
-                  ? "Start with one ingredient or use fast entry after your next grocery trip."
-                  : `Nothing matches “${query.trim()}”. Clear the search to see the full pantry.`}
+                  ? t(
+                      "Start with one ingredient or use fast entry after your next grocery trip.",
+                    )
+                  : t(
+                      "Nothing matches “{query}”. Clear the search to see the full pantry.",
+                      { query: query.trim() },
+                    )}
               </p>
             </div>
             <Button
@@ -284,7 +292,7 @@ export function PantryManager({
                 setDialogOpen(true);
               }}
             >
-              {items.length === 0 ? "Add first item" : "Clear search"}
+              {t(items.length === 0 ? "Add first item" : "Clear search")}
             </Button>
           </div>
         </div>
@@ -298,9 +306,11 @@ export function PantryManager({
         >
           <div className="flex items-center gap-3">
             <h2 id={`pantry-${group.value}`} className="text-lg font-semibold">
-              {group.label}
+              {t(group.label)}
             </h2>
-            <Badge variant="secondary">{group.items.length}</Badge>
+            <Badge variant="secondary">
+              {formatNumber(group.items.length)}
+            </Badge>
           </div>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {group.items.map((item) => (
@@ -340,27 +350,27 @@ export function PantryManager({
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {form.id ? "Edit pantry item" : "Add pantry item"}
+              {t(form.id ? "Edit pantry item" : "Add pantry item")}
             </DialogTitle>
             <DialogDescription>
-              Quantity comparisons are only made across compatible units.
+              {t("Quantity comparisons are only made across compatible units.")}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label>Ingredient catalog</Label>
+              <Label>{t("Ingredient catalog")}</Label>
               <Select
                 value={form.ingredientId || "custom"}
                 onValueChange={chooseIngredient}
               >
                 <SelectTrigger
                   className="w-full"
-                  aria-label="Ingredient catalog"
+                  aria-label={t("Ingredient catalog")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="custom">New ingredient</SelectItem>
+                  <SelectItem value="custom">{t("New ingredient")}</SelectItem>
                   {catalog.map((ingredient) => (
                     <SelectItem key={ingredient.id} value={ingredient.id}>
                       {ingredient.displayName}
@@ -370,7 +380,7 @@ export function PantryManager({
               </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="pantry-name">Ingredient name</Label>
+              <Label htmlFor="pantry-name">{t("Ingredient name")}</Label>
               <Input
                 id="pantry-name"
                 value={form.ingredientName}
@@ -380,7 +390,7 @@ export function PantryManager({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pantry-quantity">Quantity</Label>
+              <Label htmlFor="pantry-quantity">{t("Quantity")}</Label>
               <Input
                 id="pantry-quantity"
                 inputMode="decimal"
@@ -392,7 +402,7 @@ export function PantryManager({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pantry-unit">Unit</Label>
+              <Label htmlFor="pantry-unit">{t("Unit")}</Label>
               <Input
                 id="pantry-unit"
                 list="pantry-units"
@@ -403,27 +413,30 @@ export function PantryManager({
               />
             </div>
             <div className="space-y-2">
-              <Label>Storage location</Label>
+              <Label>{t("Storage location")}</Label>
               <Select
                 value={form.storageLocation}
                 onValueChange={(value: StorageLocation) =>
                   setForm({ ...form, storageLocation: value })
                 }
               >
-                <SelectTrigger className="w-full" aria-label="Storage location">
+                <SelectTrigger
+                  className="w-full"
+                  aria-label={t("Storage location")}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {STORAGE_LOCATIONS.map((location) => (
                     <SelectItem key={location.value} value={location.value}>
-                      {location.label}
+                      {t(location.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="pantry-expiry">Expiration date</Label>
+              <Label htmlFor="pantry-expiry">{t("Expiration date")}</Label>
               <Input
                 id="pantry-expiry"
                 type="date"
@@ -434,7 +447,7 @@ export function PantryManager({
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="pantry-notes">Note</Label>
+              <Label htmlFor="pantry-notes">{t("Note")}</Label>
               <Textarea
                 id="pantry-notes"
                 value={form.notes}
@@ -450,7 +463,7 @@ export function PantryManager({
                   setForm({ ...form, lowStock: checked === true })
                 }
               />
-              Mark as low stock
+              {t("Mark as low stock")}
             </label>
           </div>
           <datalist id="pantry-units">
@@ -460,7 +473,7 @@ export function PantryManager({
           </datalist>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               onClick={() =>
@@ -472,8 +485,8 @@ export function PantryManager({
               }
               disabled={pending || !form.ingredientName.trim()}
             >
-              {pending && <LoaderCircle className="size-4 animate-spin" />}Save
-              item
+              {pending && <LoaderCircle className="size-4 animate-spin" />}
+              {t("Save item")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -485,10 +498,11 @@ export function PantryManager({
           className="w-full overflow-y-auto sm:max-w-xl"
         >
           <SheetHeader>
-            <SheetTitle>Fast grocery entry</SheetTitle>
+            <SheetTitle>{t("Fast grocery entry")}</SheetTitle>
             <SheetDescription>
-              Add several items after shopping, then save them together in one
-              transaction.
+              {t(
+                "Add several items after shopping, then save them together in one transaction.",
+              )}
             </SheetDescription>
           </SheetHeader>
           <div className="grid gap-4 px-4 py-6">
@@ -509,8 +523,12 @@ export function PantryManager({
                       ),
                     )
                   }
-                  placeholder={`Ingredient ${index + 1}`}
-                  aria-label={`Fast ingredient ${index + 1}`}
+                  placeholder={t("Ingredient {number}", {
+                    number: formatNumber(index + 1),
+                  })}
+                  aria-label={t("Fast ingredient {number}", {
+                    number: formatNumber(index + 1),
+                  })}
                 />
                 <Input
                   inputMode="decimal"
@@ -524,8 +542,10 @@ export function PantryManager({
                       ),
                     )
                   }
-                  placeholder="Qty"
-                  aria-label={`Quantity ${index + 1}`}
+                  placeholder={t("Qty")}
+                  aria-label={t("Quantity {number}", {
+                    number: formatNumber(index + 1),
+                  })}
                 />
                 <Input
                   value={row.unit}
@@ -538,8 +558,10 @@ export function PantryManager({
                       ),
                     )
                   }
-                  placeholder="Unit"
-                  aria-label={`Unit ${index + 1}`}
+                  placeholder={t("Unit")}
+                  aria-label={t("Unit {number}", {
+                    number: formatNumber(index + 1),
+                  })}
                 />
               </div>
             ))}
@@ -553,10 +575,17 @@ export function PantryManager({
                 startTransition(async () => {
                   const result = await savePantryBatchAction(rows);
                   if (!result.ok) {
-                    toast.error(result.message);
+                    toast.error(t(result.message));
                     return;
                   }
-                  toast.success(`${result.data.count} pantry items saved`);
+                  toast.success(
+                    plural(result.data.count, {
+                      one: "{count} pantry item saved",
+                      two: "{count} pantry items saved-two",
+                      few: "{count} pantry items saved-few",
+                      other: "{count} pantry items saved",
+                    }),
+                  );
                   setFastOpen(false);
                   setFastRows(Array.from({ length: 5 }, emptyForm));
                   router.refresh();
@@ -567,7 +596,7 @@ export function PantryManager({
               }
             >
               <PackagePlus className="size-4" />
-              Save groceries
+              {t("Save groceries")}
             </Button>
           </SheetFooter>
         </SheetContent>
@@ -591,6 +620,7 @@ function PantryItemCard({
   onDeplete: () => void;
   onDelete: () => void;
 }) {
+  const { t, formatDate, formatNumber, plural } = useI18n();
   const days = item.expirationDate
     ? differenceInCalendarDays(parseISO(item.expirationDate), new Date())
     : null;
@@ -598,12 +628,20 @@ function PantryItemCard({
     days === null
       ? null
       : days < 0
-        ? { label: "Expired", danger: true }
+        ? { label: t("Expired"), danger: true }
         : days === 0
-          ? { label: "Expires today", danger: true }
+          ? { label: t("Expires today"), danger: true }
           : days <= 3
-            ? { label: `Expires in ${days} days`, danger: false }
-            : { label: item.expirationDate!, danger: false };
+            ? {
+                label: plural(days, {
+                  one: "Expires in {count} day",
+                  two: "Expires in {count} days-two",
+                  few: "Expires in {count} days-few",
+                  other: "Expires in {count} days",
+                }),
+                danger: false,
+              }
+            : { label: formatDate(item.expirationDate!), danger: false };
   return (
     <article className="rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
@@ -612,14 +650,17 @@ function PantryItemCard({
             {item.ingredient.displayName}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground">
-            {item.quantity ?? "Unknown"} {item.unit ?? ""}
+            {item.quantity === null
+              ? t("Unknown")
+              : formatNumber(item.quantity)}{" "}
+            {item.unit ?? ""}
           </p>
         </div>
         <Button
           variant="ghost"
           size="icon-sm"
           onClick={onEdit}
-          aria-label={`Edit ${item.ingredient.displayName}`}
+          aria-label={t("Edit {name}", { name: item.ingredient.displayName })}
         >
           <Edit3 className="size-4" />
         </Button>
@@ -627,7 +668,7 @@ function PantryItemCard({
       <div className="mt-4 flex flex-wrap gap-2">
         {item.lowStock && (
           <Badge variant="outline" className="border-notice">
-            Low stock
+            {t("Low stock")}
           </Badge>
         )}
         {expiry && (
@@ -648,7 +689,9 @@ function PantryItemCard({
             variant="ghost"
             disabled={pending || item.quantity === null}
             onClick={() => onAdjust(-1)}
-            aria-label={`Decrease ${item.ingredient.displayName}`}
+            aria-label={t("Decrease {name}", {
+              name: item.ingredient.displayName,
+            })}
           >
             <Minus className="size-4" />
           </Button>
@@ -657,7 +700,9 @@ function PantryItemCard({
             variant="ghost"
             disabled={pending || item.quantity === null}
             onClick={() => onAdjust(1)}
-            aria-label={`Increase ${item.ingredient.displayName}`}
+            aria-label={t("Increase {name}", {
+              name: item.ingredient.displayName,
+            })}
           >
             <Plus className="size-4" />
           </Button>
@@ -665,30 +710,36 @@ function PantryItemCard({
         <div className="flex gap-1">
           <Button size="sm" variant="ghost" onClick={onDeplete}>
             <Check className="size-4" />
-            Depleted
+            {t("Depleted")}
           </Button>
           <AlertDialog>
             <AlertDialogTrigger asChild>
               <Button
                 size="icon-sm"
                 variant="ghost"
-                aria-label={`Delete ${item.ingredient.displayName}`}
+                aria-label={t("Delete {name}", {
+                  name: item.ingredient.displayName,
+                })}
               >
                 <Trash2 className="size-4" />
               </Button>
             </AlertDialogTrigger>
             <AlertDialogContent>
               <AlertDialogHeader>
-                <AlertDialogTitle>Delete pantry item?</AlertDialogTitle>
+                <AlertDialogTitle>{t("Delete pantry item?")}</AlertDialogTitle>
                 <AlertDialogDescription>
-                  This removes {item.ingredient.displayName} from the pantry,
-                  not the ingredient catalog.
+                  {t(
+                    "This removes {name} from the pantry, not the ingredient catalog.",
+                    {
+                      name: item.ingredient.displayName,
+                    },
+                  )}
                 </AlertDialogDescription>
               </AlertDialogHeader>
               <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
                 <AlertDialogAction variant="destructive" onClick={onDelete}>
-                  Delete
+                  {t("Delete")}
                 </AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>

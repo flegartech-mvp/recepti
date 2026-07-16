@@ -3,6 +3,7 @@
 import { useMemo } from "react";
 
 import { Checkbox } from "@/components/ui/checkbox";
+import { useI18n } from "@/components/i18n-provider";
 import { formatQuantity } from "@/lib/domain/quantities";
 import { cn } from "@/lib/utils";
 import type { RecipeIngredient } from "@/types/domain";
@@ -24,6 +25,7 @@ export function IngredientChecklist({
   checkedIds,
   onCheckedChange,
 }: IngredientChecklistProps) {
+  const { t } = useI18n();
   const groups = useMemo(() => {
     const result = new Map<string, RecipeIngredient[]>();
     for (const ingredient of ingredients) {
@@ -38,7 +40,7 @@ export function IngredientChecklist({
   if (ingredients.length === 0) {
     return (
       <p className="text-muted-foreground text-sm">
-        No ingredients were added to this recipe.
+        {t("No ingredients were added to this recipe.")}
       </p>
     );
   }
@@ -57,7 +59,7 @@ export function IngredientChecklist({
                 id={headingId}
                 className="text-muted-foreground mb-2 text-xs font-semibold tracking-[0.14em] uppercase"
               >
-                {section}
+                {section === "Ingredients" ? t("Ingredients") : section}
               </h3>
             ) : null}
             <ul className="space-y-1">
@@ -78,7 +80,10 @@ export function IngredientChecklist({
                           onCheckedChange(ingredient.id, value === true)
                         }
                         className="mt-0.5 size-5"
-                        aria-label={`Mark ${ingredient.displayName} as ${checked ? "not prepared" : "prepared"}`}
+                        aria-label={t("Mark {name} as {state}", {
+                          name: ingredient.displayName,
+                          state: t(checked ? "not prepared" : "prepared"),
+                        })}
                       />
                       <span className="min-w-0 flex-1">
                         <span
@@ -96,8 +101,8 @@ export function IngredientChecklist({
                           <span className="text-muted-foreground mt-0.5 block text-xs leading-4">
                             {[
                               ingredient.preparationNote,
-                              ingredient.isOptional ? "optional" : null,
-                              ingredient.isGarnish ? "garnish" : null,
+                              ingredient.isOptional ? t("optional") : null,
+                              ingredient.isGarnish ? t("garnish") : null,
                             ]
                               .filter(Boolean)
                               .join(" · ")}

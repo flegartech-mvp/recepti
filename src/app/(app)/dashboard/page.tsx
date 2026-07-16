@@ -15,12 +15,16 @@ import { Button } from "@/components/ui/button";
 import { MetricCard } from "@/features/dashboard/components/metric-card";
 import { RecipeCard } from "@/features/recipes/components/recipe-card";
 import { getDashboardData } from "@/lib/data/queries";
+import { getServerI18n } from "@/lib/i18n/server";
 
-export const metadata = { title: "Dashboard" };
+export async function generateMetadata() {
+  const { t } = await getServerI18n();
+  return { title: t("Dashboard") };
+}
 
-function greeting() {
+function greeting(locale: string) {
   const hour = Number(
-    new Intl.DateTimeFormat("en", {
+    new Intl.DateTimeFormat(locale, {
       hour: "2-digit",
       hour12: false,
       timeZone: "Europe/Ljubljana",
@@ -41,6 +45,7 @@ const cookingMessages = [
 ];
 
 export default async function DashboardPage() {
+  const { locale, t, formatNumber } = await getServerI18n();
   const data = await getDashboardData();
   const message = cookingMessages[data.recipeCount % cookingMessages.length];
   const surprise =
@@ -51,13 +56,13 @@ export default async function DashboardPage() {
   return (
     <PageContainer>
       <PageHeader
-        title={`${greeting()}, cook.`}
-        description={message}
+        title={t("{greeting}, cook.", { greeting: t(greeting(locale)) })}
+        description={t(message)}
         action={
           <Button asChild>
             <Link href="/recipes/new">
               <Plus className="size-4" aria-hidden="true" />
-              Add recipe
+              {t("Add recipe")}
             </Link>
           </Button>
         }
@@ -65,31 +70,31 @@ export default async function DashboardPage() {
 
       <section
         className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-[0_10px_28px_var(--shadow)] xl:grid-cols-4"
-        aria-label="Cookbook overview"
+        aria-label={t("Cookbook overview")}
       >
         <MetricCard
-          label="Recipes"
-          value={data.recipeCount}
+          label={t("Recipes")}
+          value={formatNumber(data.recipeCount)}
           icon={BookOpenText}
-          note="Saved in your cookbook"
+          note={t("Saved in your cookbook")}
         />
         <MetricCard
-          label="Favorites"
-          value={data.favoriteCount}
+          label={t("Favorites")}
+          value={formatNumber(data.favoriteCount)}
           icon={Heart}
-          note="The ones worth repeating"
+          note={t("The ones worth repeating")}
         />
         <MetricCard
-          label="Pantry items"
-          value={data.pantryCount}
+          label={t("Pantry items")}
+          value={formatNumber(data.pantryCount)}
           icon={Refrigerator}
-          note="Currently available at home"
+          note={t("Currently available at home")}
         />
         <MetricCard
-          label="Ready now"
-          value={data.makeableCount}
+          label={t("Ready now")}
+          value={formatNumber(data.makeableCount)}
           icon={ChefHat}
-          note="Complete pantry matches"
+          note={t("Complete pantry matches")}
         />
       </section>
 
@@ -99,32 +104,33 @@ export default async function DashboardPage() {
             <Sparkles className="size-6" aria-hidden="true" />
           </span>
           <h2 className="mt-8 max-w-lg text-3xl font-semibold tracking-tight sm:text-4xl">
-            What can I cook today?
+            {t("What can I cook today?")}
           </h2>
           <p className="mt-3 max-w-xl text-muted-foreground">
-            Compare every saved recipe with what is in the pantry, then see
-            exactly what is missing.
+            {t(
+              "Compare every saved recipe with what is in the pantry, then see exactly what is missing.",
+            )}
           </p>
           <Button asChild variant="secondary" className="mt-7">
             <Link href="/cook-with-what-i-have">
-              Find a recipe
+              {t("Find a recipe")}
               <ChefHat className="size-4" aria-hidden="true" />
             </Link>
           </Button>
         </div>
         <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_10px_28px_var(--shadow)]">
-          <h2 className="font-semibold">Quick actions</h2>
+          <h2 className="font-semibold">{t("Quick actions")}</h2>
           <div className="mt-5 grid gap-2">
             <Button asChild variant="ghost" className="justify-start">
               <Link href="/pantry?add=1">
                 <Refrigerator className="size-4" aria-hidden="true" />
-                Add pantry ingredient
+                {t("Add pantry ingredient")}
               </Link>
             </Button>
             <Button asChild variant="ghost" className="justify-start">
               <Link href="/shopping-list">
                 <Plus className="size-4" aria-hidden="true" />
-                Open shopping list
+                {t("Open shopping list")}
               </Link>
             </Button>
             <Button
@@ -137,7 +143,7 @@ export default async function DashboardPage() {
                 href={surprise ? `/recipes/${surprise.id}` : "/recipes/new"}
               >
                 <Shuffle className="size-4" aria-hidden="true" />
-                Surprise me
+                {t("Surprise me")}
               </Link>
             </Button>
           </div>
@@ -148,10 +154,10 @@ export default async function DashboardPage() {
         <section className="space-y-5">
           <div className="flex items-center justify-between gap-4">
             <h2 className="text-2xl font-semibold tracking-tight">
-              Recently added
+              {t("Recently added")}
             </h2>
             <Button asChild variant="ghost" size="sm">
-              <Link href="/recipes">View all</Link>
+              <Link href="/recipes">{t("View all")}</Link>
             </Button>
           </div>
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
@@ -165,7 +171,7 @@ export default async function DashboardPage() {
       {data.recentlyCooked.length > 0 && (
         <section className="space-y-4">
           <h2 className="text-xl font-semibold tracking-tight">
-            Cooked lately
+            {t("Cooked lately")}
           </h2>
           <div className="grid gap-3 md:grid-cols-2">
             {data.recentlyCooked.slice(0, 4).map((recipe) => (

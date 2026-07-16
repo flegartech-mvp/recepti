@@ -23,6 +23,8 @@ import {
 } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useI18n } from "@/components/i18n-provider";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -68,6 +70,7 @@ function wakeLockCopy(status: WakeLockStatus): {
 }
 
 export function CookingMode({ recipe }: CookingModeProps) {
+  const { t, formatNumber, plural } = useI18n();
   const {
     currentStepIndex,
     checkedIngredientIds,
@@ -111,17 +114,30 @@ export function CookingMode({ recipe }: CookingModeProps) {
         timer.status === "complete" &&
         previous.get(timer.stepId) !== "complete"
       ) {
-        const message = `${timer.label} timer is finished.`;
+        const timerStep = /^Step (\d+)$/.exec(timer.label);
+        const localizedTimerLabel = timerStep
+          ? t("Step {number}", {
+              number: formatNumber(Number(timerStep[1])),
+            })
+          : timer.label;
+        const message = t("{label} timer is finished.", {
+          label: localizedTimerLabel,
+        });
         setTimerAnnouncement(message);
         if (
           "Notification" in window &&
           window.Notification.permission === "granted"
         ) {
           try {
-            new window.Notification(`${timer.label} is done`, {
-              body: `${recipe.title} is ready for the next move.`,
-              tag: `menta-timer-${recipe.id}-${timer.stepId}`,
-            });
+            new window.Notification(
+              t("{label} is done", { label: localizedTimerLabel }),
+              {
+                body: t("{title} is ready for the next move.", {
+                  title: recipe.title,
+                }),
+                tag: `menta-timer-${recipe.id}-${timer.stepId}`,
+              },
+            );
           } catch {
             // The visible timer and live-region announcement remain the fallback.
           }
@@ -129,7 +145,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
       }
       previous.set(timer.stepId, timer.status);
     }
-  }, [recipe.id, recipe.title, timers]);
+  }, [formatNumber, recipe.id, recipe.title, t, timers]);
 
   const currentStep = recipe.steps[currentStepIndex];
   const currentTimer = currentStep
@@ -178,39 +194,46 @@ export function CookingMode({ recipe }: CookingModeProps) {
     startTransition(async () => {
       const result = await markRecipeCookedAction(recipe.id, recipe.servings);
       if (!result.ok) {
-        setCompletionError(result.message);
+        setCompletionError(t(result.message));
         return;
       }
       finishSession();
       setIsComplete(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     });
-  }, [finishSession, recipe.id, recipe.servings]);
+  }, [finishSession, recipe.id, recipe.servings, t]);
 
   if (isComplete) {
     return (
       <main className="grid min-h-dvh place-items-center px-5 py-12">
-        <ThemeToggle className="safe-top-control fixed z-20" />
+        <div className="safe-top-control fixed z-20 flex items-center gap-2">
+          <LanguageSwitcher />
+          <ThemeToggle />
+        </div>
         <section className="organic-shadow bg-card border-border/80 w-full max-w-xl rounded-2xl border p-7 text-center sm:p-12">
           <div className="bg-accent text-primary-text mx-auto grid size-16 place-items-center rounded-full">
             <CircleCheckBig className="size-8" aria-hidden="true" />
           </div>
           <p className="text-primary-text mt-6 text-sm font-semibold tracking-[0.16em] uppercase">
-            Cooked with Nana&apos;s Recipes
+            {t("Cooked with Nana's Recipes")}
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            Dinner is served.
+            {t("Dinner is served.")}
           </h1>
           <p className="text-muted-foreground mx-auto mt-3 max-w-md leading-7">
-            {recipe.title} has been added to your cooking history. The kitchen
-            session was cleared for next time.
+            {t(
+              "{title} has been added to your cooking history. The kitchen session was cleared for next time.",
+              {
+                title: recipe.title,
+              },
+            )}
           </p>
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
             <Button asChild className="min-h-12 px-5">
-              <Link href={`/recipes/${recipe.id}`}>Back to recipe</Link>
+              <Link href={`/recipes/${recipe.id}`}>{t("Back to recipe")}</Link>
             </Button>
             <Button asChild variant="outline" className="min-h-12 px-5">
-              <Link href="/dashboard">Go to dashboard</Link>
+              <Link href="/dashboard">{t("Go to dashboard")}</Link>
             </Button>
           </div>
         </section>
@@ -231,7 +254,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
             variant="ghost"
             size="icon"
             className="size-11"
-            aria-label="Exit cooking mode"
+            aria-label={t("Exit cooking mode")}
           >
             <Link href={`/recipes/${recipe.id}`}>
               <ArrowLeft aria-hidden="true" />
@@ -244,13 +267,14 @@ export function CookingMode({ recipe }: CookingModeProps) {
                 aria-hidden="true"
               />
               <span className="text-muted-foreground text-xs font-semibold tracking-[0.15em] uppercase">
-                Cooking mode
+                {t("Cooking mode")}
               </span>
             </div>
             <p className="line-clamp-2 text-sm leading-tight font-semibold [overflow-wrap:anywhere] sm:text-base">
               {recipe.title}
             </p>
           </div>
+          <LanguageSwitcher />
           <ThemeToggle />
           <Button
             type="button"
@@ -261,11 +285,11 @@ export function CookingMode({ recipe }: CookingModeProps) {
               wakeLockStatus === "requesting" ||
               wakeLockStatus === "unsupported"
             }
-            aria-label={wakeCopy.description}
-            title={wakeCopy.description}
+            aria-label={t(wakeCopy.description)}
+            title={t(wakeCopy.description)}
           >
             <MonitorUp aria-hidden="true" />
-            <span className="hidden sm:inline">{wakeCopy.label}</span>
+            <span className="hidden sm:inline">{t(wakeCopy.label)}</span>
           </Button>
         </div>
       </header>
@@ -280,22 +304,27 @@ export function CookingMode({ recipe }: CookingModeProps) {
                     id="cooking-progress-title"
                     className="text-muted-foreground text-xs font-semibold tracking-[0.15em] uppercase"
                   >
-                    Recipe progress
+                    {t("Recipe progress")}
                   </p>
                   <p className="mt-1 text-sm font-medium">
                     {recipe.steps.length > 0
-                      ? `Step ${currentStepIndex + 1} of ${recipe.steps.length}`
-                      : "No steps yet"}
+                      ? t("Step {current} of {total}", {
+                          current: formatNumber(currentStepIndex + 1),
+                          total: formatNumber(recipe.steps.length),
+                        })
+                      : t("No steps yet")}
                   </p>
                 </div>
                 <span className="text-muted-foreground font-mono text-sm tabular-nums">
-                  {Math.round(progress)}%
+                  {formatNumber(Math.round(progress))}%
                 </span>
               </div>
               <Progress
                 value={progress}
                 className="h-2"
-                aria-label={`Recipe is ${Math.round(progress)}% through its steps`}
+                aria-label={t("Recipe is {percentage}% through its steps", {
+                  percentage: formatNumber(Math.round(progress)),
+                })}
               />
             </section>
 
@@ -306,7 +335,9 @@ export function CookingMode({ recipe }: CookingModeProps) {
               >
                 <div className="border-border/70 flex items-center justify-between gap-3 border-b px-5 py-4 sm:px-8">
                   <span className="rounded-full bg-notice px-3 py-1 text-xs font-semibold tracking-[0.14em] text-notice-foreground uppercase">
-                    Step {currentStepIndex + 1}
+                    {t("Step {number}", {
+                      number: formatNumber(currentStepIndex + 1),
+                    })}
                   </span>
                   {currentStep.timerSeconds ? (
                     <span className="text-muted-foreground flex items-center gap-1.5 font-mono text-sm tabular-nums">
@@ -340,9 +371,11 @@ export function CookingMode({ recipe }: CookingModeProps) {
             ) : (
               <Alert className="min-h-40 items-center p-6">
                 <ListChecks aria-hidden="true" />
-                <AlertTitle>No instruction steps yet</AlertTitle>
+                <AlertTitle>{t("No instruction steps yet")}</AlertTitle>
                 <AlertDescription>
-                  Exit cooking mode and add steps before starting this recipe.
+                  {t(
+                    "Exit cooking mode and add steps before starting this recipe.",
+                  )}
                 </AlertDescription>
               </Alert>
             )}
@@ -356,7 +389,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                   onClick={() => goToStep(currentStepIndex - 1)}
                   disabled={currentStepIndex === 0}
                 >
-                  <ChevronLeft aria-hidden="true" /> Previous
+                  <ChevronLeft aria-hidden="true" /> {t("Previous")}
                 </Button>
                 {currentStepIndex === recipe.steps.length - 1 ? (
                   <Button
@@ -366,7 +399,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                     disabled={isPending}
                   >
                     <CircleCheckBig aria-hidden="true" />{" "}
-                    {isPending ? "Finishing…" : "Finish cooking"}
+                    {t(isPending ? "Finishing…" : "Finish cooking")}
                   </Button>
                 ) : (
                   <Button
@@ -374,7 +407,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                     className="min-h-12 min-w-32"
                     onClick={() => goToStep(currentStepIndex + 1)}
                   >
-                    Next <ChevronRight aria-hidden="true" />
+                    {t("Next")} <ChevronRight aria-hidden="true" />
                   </Button>
                 )}
               </div>
@@ -382,9 +415,9 @@ export function CookingMode({ recipe }: CookingModeProps) {
 
             {completionError ? (
               <Alert variant="destructive">
-                <AlertTitle>Cooking history was not updated</AlertTitle>
+                <AlertTitle>{t("Cooking history was not updated")}</AlertTitle>
                 <AlertDescription>
-                  {completionError} Your cooking session is still here.
+                  {completionError} {t("Your cooking session is still here.")}
                 </AlertDescription>
               </Alert>
             ) : null}
@@ -396,10 +429,10 @@ export function CookingMode({ recipe }: CookingModeProps) {
               <div className="flex items-center justify-between gap-4">
                 <div>
                   <h2 id="all-steps-title" className="font-semibold">
-                    All steps
+                    {t("All steps")}
                   </h2>
                   <p className="text-muted-foreground mt-0.5 text-sm">
-                    Scan ahead or start another timer.
+                    {t("Scan ahead or start another timer.")}
                   </p>
                 </div>
                 <Button
@@ -411,7 +444,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                   onClick={() => setShowFullList((visible) => !visible)}
                 >
                   <ListChecks aria-hidden="true" />{" "}
-                  {showFullList ? "Hide" : "Show"}
+                  {t(showFullList ? "Hide" : "Show")}
                 </Button>
               </div>
               {showFullList ? (
@@ -431,7 +464,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
 
           <aside
             className="space-y-5 lg:sticky lg:top-24"
-            aria-label="Cooking tools"
+            aria-label={t("Cooking tools")}
           >
             <section
               className="bg-card border-border/80 rounded-2xl border p-4 sm:p-5"
@@ -440,14 +473,22 @@ export function CookingMode({ recipe }: CookingModeProps) {
               <div className="mb-4 flex items-start justify-between gap-3">
                 <div>
                   <h2 id="ingredient-checklist-title" className="font-semibold">
-                    Ingredients
+                    {t("Ingredients")}
                   </h2>
                   <p className="text-muted-foreground mt-0.5 text-sm">
-                    {checkedIds.size} of {recipe.ingredients.length} prepared
+                    {t("{checked} of {total} prepared", {
+                      checked: formatNumber(checkedIds.size),
+                      total: formatNumber(recipe.ingredients.length),
+                    })}
                   </p>
                 </div>
                 <span className="bg-secondary text-secondary-foreground rounded-full px-2.5 py-1 font-mono text-xs tabular-nums">
-                  {recipe.servings} servings
+                  {plural(recipe.servings, {
+                    one: "{count} serving",
+                    two: "{count} servings-two",
+                    few: "{count} servings-few",
+                    other: "{count} servings",
+                  })}
                 </span>
               </div>
               <IngredientChecklist
@@ -464,10 +505,10 @@ export function CookingMode({ recipe }: CookingModeProps) {
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <h2 id="active-timers-title" className="font-semibold">
-                    Timers
+                    {t("Timers")}
                   </h2>
                   <p className="text-muted-foreground mt-0.5 text-sm">
-                    Independent timers stay active between steps.
+                    {t("Independent timers stay active between steps.")}
                   </p>
                 </div>
                 <TimerIcon
@@ -491,8 +532,9 @@ export function CookingMode({ recipe }: CookingModeProps) {
                 </div>
               ) : (
                 <p className="text-muted-foreground bg-muted/55 mt-4 rounded-xl px-3 py-4 text-sm leading-6">
-                  Start a step timer and it will appear here while you move
-                  through the recipe.
+                  {t(
+                    "Start a step timer and it will appear here while you move through the recipe.",
+                  )}
                 </p>
               )}
 
@@ -507,8 +549,8 @@ export function CookingMode({ recipe }: CookingModeProps) {
                 >
                   <Bell aria-hidden="true" />
                   {notificationState === "denied"
-                    ? "Notifications blocked in browser"
-                    : "Enable timer notifications"}
+                    ? t("Notifications blocked in browser")
+                    : t("Enable timer notifications")}
                 </Button>
               ) : null}
             </section>
@@ -519,7 +561,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
       {recipe.steps.length > 0 ? (
         <nav
           className="safe-bottom safe-inline border-border/80 bg-surface/94 fixed inset-x-0 bottom-0 z-40 border-t pt-3 shadow-[0_-16px_45px_var(--shadow)] backdrop-blur-xl sm:hidden"
-          aria-label="Cooking step controls"
+          aria-label={t("Cooking step controls")}
         >
           <div className="mx-auto grid max-w-lg grid-cols-[1fr_auto_1fr] items-center gap-3">
             <Button
@@ -529,10 +571,11 @@ export function CookingMode({ recipe }: CookingModeProps) {
               onClick={() => goToStep(currentStepIndex - 1)}
               disabled={currentStepIndex === 0}
             >
-              <ChevronLeft aria-hidden="true" /> Back
+              <ChevronLeft aria-hidden="true" /> {t("Back")}
             </Button>
             <span className="text-muted-foreground min-w-14 text-center font-mono text-xs tabular-nums">
-              {currentStepIndex + 1} / {recipe.steps.length}
+              {formatNumber(currentStepIndex + 1)} /{" "}
+              {formatNumber(recipe.steps.length)}
             </span>
             {currentStepIndex === recipe.steps.length - 1 ? (
               <Button
@@ -542,7 +585,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                 disabled={isPending}
               >
                 <CircleCheckBig aria-hidden="true" />{" "}
-                {isPending ? "Saving" : "Finish"}
+                {t(isPending ? "Saving" : "Finish")}
               </Button>
             ) : (
               <Button
@@ -550,7 +593,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                 className="min-h-12"
                 onClick={() => goToStep(currentStepIndex + 1)}
               >
-                Next <ChevronRight aria-hidden="true" />
+                {t("Next")} <ChevronRight aria-hidden="true" />
               </Button>
             )}
           </div>

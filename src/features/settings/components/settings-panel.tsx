@@ -7,6 +7,7 @@ import { Download, LoaderCircle, Save, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useI18n } from "@/components/i18n-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
@@ -49,6 +50,7 @@ export function SettingsPanel({
   ingredients: Ingredient[];
 }) {
   const { setTheme } = useTheme();
+  const { t } = useI18n();
   const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [settings, setSettings] = useState(initialSettings);
@@ -77,8 +79,8 @@ export function SettingsPanel({
         document.documentElement.dataset.reduceMotion = String(
           settings.reduceMotion,
         );
-        toast.success("Settings saved");
-      } else toast.error(result.message);
+        toast.success(t("Settings saved"));
+      } else toast.error(t(result.message));
     });
 
   const toggleStaple = (ingredient: Ingredient, checked: boolean) => {
@@ -104,21 +106,22 @@ export function SettingsPanel({
   return (
     <Tabs defaultValue="profile" className="space-y-6">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1 sm:w-auto">
-        <TabsTrigger value="profile">Profile</TabsTrigger>
-        <TabsTrigger value="preferences">Preferences</TabsTrigger>
-        <TabsTrigger value="staples">Staples</TabsTrigger>
-        <TabsTrigger value="data">Data</TabsTrigger>
+        <TabsTrigger value="profile">{t("Profile")}</TabsTrigger>
+        <TabsTrigger value="preferences">{t("Preferences")}</TabsTrigger>
+        <TabsTrigger value="staples">{t("Staples")}</TabsTrigger>
+        <TabsTrigger value="data">{t("Data")}</TabsTrigger>
       </TabsList>
 
       <TabsContent value="profile">
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Google profile</h2>
+              <h2>{t("Google profile")}</h2>
             </CardTitle>
             <CardDescription>
-              This identity is verified by Supabase Auth and compared with
-              OWNER_EMAIL on every protected request.
+              {t(
+                "This identity is verified by Supabase Auth and compared with OWNER_EMAIL on every protected request.",
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
@@ -144,7 +147,7 @@ export function SettingsPanel({
             </div>
             <form action={signOut}>
               <Button type="submit" variant="outline">
-                Sign out
+                {t("Sign out")}
               </Button>
             </form>
           </CardContent>
@@ -155,33 +158,33 @@ export function SettingsPanel({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Display and cooking defaults</h2>
+              <h2>{t("Display and cooking defaults")}</h2>
             </CardTitle>
             <CardDescription>
-              These preferences stay with your private profile.
+              {t("These preferences stay with your private profile.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label>Theme</Label>
+              <Label>{t("Theme")}</Label>
               <Select
                 value={settings.theme}
                 onValueChange={(theme: SettingsValues["theme"]) =>
                   setSettings({ ...settings, theme })
                 }
               >
-                <SelectTrigger className="w-full" aria-label="Theme">
+                <SelectTrigger className="w-full" aria-label={t("Theme")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="light">Light</SelectItem>
-                  <SelectItem value="dark">Dark</SelectItem>
-                  <SelectItem value="system">System</SelectItem>
+                  <SelectItem value="light">{t("Light")}</SelectItem>
+                  <SelectItem value="dark">{t("Dark")}</SelectItem>
+                  <SelectItem value="system">{t("System")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="default-servings">Default servings</Label>
+              <Label htmlFor="default-servings">{t("Default servings")}</Label>
               <Input
                 id="default-servings"
                 type="number"
@@ -197,7 +200,7 @@ export function SettingsPanel({
               />
             </div>
             <div className="space-y-2">
-              <Label>Measurement preference</Label>
+              <Label>{t("Measurement preference")}</Label>
               <Select
                 value={settings.measurementPreference}
                 onValueChange={(
@@ -206,19 +209,20 @@ export function SettingsPanel({
               >
                 <SelectTrigger
                   className="w-full"
-                  aria-label="Measurement preference"
+                  aria-label={t("Measurement preference")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="original">Keep original</SelectItem>
-                  <SelectItem value="metric">Metric</SelectItem>
-                  <SelectItem value="imperial">Imperial</SelectItem>
+                  <SelectItem value="original">{t("Keep original")}</SelectItem>
+                  <SelectItem value="metric">{t("Metric")}</SelectItem>
+                  <SelectItem value="imperial">{t("Imperial")}</SelectItem>
                 </SelectContent>
               </Select>
               <p className="text-xs text-muted-foreground">
-                Nana&apos;s Recipes never converts incompatible culinary units
-                automatically.
+                {t(
+                  "Nana's Recipes never converts incompatible culinary units automatically.",
+                )}
               </p>
             </div>
             <label className="flex min-h-11 items-center gap-3 self-end text-sm font-medium">
@@ -228,7 +232,7 @@ export function SettingsPanel({
                   setSettings({ ...settings, reduceMotion: checked === true })
                 }
               />
-              Prefer reduced motion inside Nana&apos;s Recipes
+              {t("Prefer reduced motion inside Nana's Recipes")}
             </label>
             <div className="sm:col-span-2">
               <Button onClick={save} disabled={pending}>
@@ -237,7 +241,7 @@ export function SettingsPanel({
                 ) : (
                   <Save className="size-4" />
                 )}
-                Save preferences
+                {t("Save preferences")}
               </Button>
             </div>
           </CardContent>
@@ -248,11 +252,12 @@ export function SettingsPanel({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Basic staples</h2>
+              <h2>{t("Basic staples")}</h2>
             </CardTitle>
             <CardDescription>
-              When the matcher option is enabled, these ingredients do not lower
-              a recipe score.
+              {t(
+                "When the matcher option is enabled, these ingredients do not lower a recipe score.",
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-5">
@@ -281,7 +286,7 @@ export function SettingsPanel({
             </div>
             <Button onClick={save} disabled={pending}>
               <Save className="size-4" />
-              Save staples
+              {t("Save staples")}
             </Button>
           </CardContent>
         </Card>
@@ -291,27 +296,29 @@ export function SettingsPanel({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Export cookbook</h2>
+              <h2>{t("Export cookbook")}</h2>
             </CardTitle>
             <CardDescription>
-              Download all owned recipes, ingredients, relationships, pantry,
-              shopping, history, and settings as versioned JSON. Secrets and
-              signed image URLs are excluded.
+              {t(
+                "Download all owned recipes, ingredients, relationships, pantry, shopping, history, and settings as versioned JSON. Secrets and signed image URLs are excluded.",
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <Button asChild>
               <a href="/api/export" download>
                 <Download className="size-4" />
-                Download JSON export
+                {t("Download JSON export")}
               </a>
             </Button>
             <Alert>
-              <AlertTitle>Import is intentionally not enabled</AlertTitle>
+              <AlertTitle>
+                {t("Import is intentionally not enabled")}
+              </AlertTitle>
               <AlertDescription>
-                Export validation is complete, but production import remains
-                disabled until the migration transaction can be tested against a
-                live Supabase project. No partial import control is shown.
+                {t(
+                  "Export validation is complete, but production import remains disabled until the migration transaction can be tested against a live Supabase project. No partial import control is shown.",
+                )}
               </AlertDescription>
             </Alert>
           </CardContent>
@@ -320,27 +327,30 @@ export function SettingsPanel({
         <Card className="border-destructive/35">
           <CardHeader>
             <CardTitle className="text-destructive">
-              <h2>Delete all cookbook data</h2>
+              <h2>{t("Delete all cookbook data")}</h2>
             </CardTitle>
             <CardDescription>
-              This keeps the Google profile but permanently removes all cookbook
-              records and private recipe images.
+              {t(
+                "This keeps the Google profile but permanently removes all cookbook records and private recipe images.",
+              )}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {storageCleanupPending && (
               <Alert variant="destructive" role="alert">
-                <AlertTitle>Cookbook deleted; image cleanup pending</AlertTitle>
+                <AlertTitle>
+                  {t("Cookbook deleted; image cleanup pending")}
+                </AlertTitle>
                 <AlertDescription>
-                  All database records were removed, but some private files
-                  still need manual removal from the recipe-images bucket in
-                  Supabase Storage.
+                  {t(
+                    "All database records were removed, but some private files still need manual removal from the recipe-images bucket in Supabase Storage.",
+                  )}
                 </AlertDescription>
               </Alert>
             )}
             <div className="space-y-2">
               <Label htmlFor="delete-confirmation">
-                Type DELETE NANA&apos;S RECIPES
+                {t("Type DELETE NANA'S RECIPES")}
               </Label>
               <Input
                 id="delete-confirmation"
@@ -373,28 +383,28 @@ export function SettingsPanel({
                     setStorageCleanupPending(result.data.storageCleanupPending);
                     if (result.data.storageCleanupPending) {
                       toast.warning(
-                        "Cookbook records deleted; cleanup pending",
+                        t("Cookbook records deleted; cleanup pending"),
                       );
                     } else {
-                      toast.success("Cookbook data deleted");
+                      toast.success(t("Cookbook data deleted"));
                     }
                     setConfirmation("");
                     router.refresh();
-                  } else toast.error(result.message);
+                  } else toast.error(t(result.message));
                 })
               }
             >
               <Trash2 className="size-4" />
-              Delete all data
+              {t("Delete all data")}
             </Button>
           </CardContent>
         </Card>
 
         <Separator />
         <p className="text-sm leading-relaxed text-muted-foreground">
-          Dietary tags are organizational labels, not medical guarantees. Always
-          check ingredient details independently for allergies and dietary
-          safety.
+          {t(
+            "Dietary tags are organizational labels, not medical guarantees. Always check ingredient details independently for allergies and dietary safety.",
+          )}
         </p>
       </TabsContent>
     </Tabs>

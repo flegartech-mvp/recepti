@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useI18n } from "@/components/i18n-provider";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -84,6 +85,7 @@ export function IngredientManager({
   ingredients: Ingredient[];
 }) {
   const router = useRouter();
+  const { locale, t, formatList } = useI18n();
   const [pending, startTransition] = useTransition();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("all");
@@ -94,16 +96,17 @@ export function IngredientManager({
   const [mergeTarget, setMergeTarget] = useState("");
 
   const filtered = useMemo(() => {
-    const search = query.trim().toLocaleLowerCase("en-US");
+    const localeName = locale === "sl" ? "sl-SI" : "en-GB";
+    const search = query.trim().toLocaleLowerCase(localeName);
     return ingredients.filter(
       (item) =>
         (category === "all" || item.category === category) &&
         (!search ||
           [item.displayName, item.canonicalName, ...item.aliases].some(
-            (value) => value.toLocaleLowerCase("en-US").includes(search),
+            (value) => value.toLocaleLowerCase(localeName).includes(search),
           )),
     );
-  }, [category, ingredients, query]);
+  }, [category, ingredients, locale, query]);
 
   const execute = (
     action: () => Promise<{ ok: boolean; message?: string }>,
@@ -113,10 +116,12 @@ export function IngredientManager({
     startTransition(async () => {
       const result = await action();
       if (!result.ok) {
-        toast.error(result.message ?? "The ingredient could not be updated.");
+        toast.error(
+          t(result.message ?? "The ingredient could not be updated."),
+        );
         return;
       }
-      toast.success(success);
+      toast.success(t(success));
       if (close === "edit") setDialogOpen(false);
       if (close === "merge") setMergeOpen(false);
       router.refresh();
@@ -148,21 +153,21 @@ export function IngredientManager({
             value={query}
             onChange={(event) => setQuery(event.target.value)}
             className="h-11 pl-10"
-            placeholder="Search ingredients and aliases"
+            placeholder={t("Search ingredients and aliases")}
           />
         </div>
         <Select value={category} onValueChange={setCategory}>
           <SelectTrigger
             className="h-11 w-full sm:w-52"
-            aria-label="Filter ingredient category"
+            aria-label={t("Filter ingredient category")}
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All categories</SelectItem>
+            <SelectItem value="all">{t("All categories")}</SelectItem>
             {INGREDIENT_CATEGORIES.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {t(item.label)}
               </SelectItem>
             ))}
           </SelectContent>
@@ -175,7 +180,7 @@ export function IngredientManager({
           }}
         >
           <Plus className="size-4" />
-          Add ingredient
+          {t("Add ingredient")}
         </Button>
       </div>
 
@@ -192,13 +197,17 @@ export function IngredientManager({
                     {ingredient.displayName}
                   </h2>
                   {ingredient.isStaple && (
-                    <Badge variant="secondary">Staple</Badge>
+                    <Badge variant="secondary">{t("Staple")}</Badge>
                   )}
                 </div>
                 <p className="mt-1 text-sm capitalize text-muted-foreground">
-                  {ingredient.category.replace("_", " ")}
+                  {t(
+                    INGREDIENT_CATEGORIES.find(
+                      (item) => item.value === ingredient.category,
+                    )?.label ?? ingredient.category,
+                  )}
                   {ingredient.defaultUnit
-                    ? `, usually ${ingredient.defaultUnit}`
+                    ? `, ${t("usually")} ${ingredient.defaultUnit}`
                     : ""}
                 </p>
               </div>
@@ -218,14 +227,14 @@ export function IngredientManager({
                   });
                   setDialogOpen(true);
                 }}
-                aria-label={`Edit ${ingredient.displayName}`}
+                aria-label={t("Edit {name}", { name: ingredient.displayName })}
               >
                 <Edit3 className="size-4" />
               </Button>
             </div>
             {ingredient.aliases.length > 0 && (
               <p className="mt-3 line-clamp-2 text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                Also: {ingredient.aliases.join(", ")}
+                {t("Also")}: {formatList(ingredient.aliases)}
               </p>
             )}
             <div className="mt-5 flex items-center justify-between border-t border-border pt-3">
@@ -234,7 +243,7 @@ export function IngredientManager({
                   href={`/recipes?q=${encodeURIComponent(ingredient.displayName)}`}
                 >
                   <PackageSearch className="size-4" />
-                  Used in recipes
+                  {t("Used in recipes")}
                 </Link>
               </Button>
               <div className="flex gap-1">
@@ -246,7 +255,9 @@ export function IngredientManager({
                     setMergeTarget("");
                     setMergeOpen(true);
                   }}
-                  aria-label={`Merge ${ingredient.displayName}`}
+                  aria-label={t("Merge {name}", {
+                    name: ingredient.displayName,
+                  })}
                 >
                   <Merge className="size-4" />
                 </Button>
@@ -255,7 +266,9 @@ export function IngredientManager({
                     <Button
                       variant="ghost"
                       size="icon-sm"
-                      aria-label={`Delete ${ingredient.displayName}`}
+                      aria-label={t("Delete {name}", {
+                        name: ingredient.displayName,
+                      })}
                     >
                       <Trash2 className="size-4" />
                     </Button>
@@ -263,15 +276,16 @@ export function IngredientManager({
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>
-                        Delete {ingredient.displayName}?
+                        {t("Delete {name}?", { name: ingredient.displayName })}
                       </AlertDialogTitle>
                       <AlertDialogDescription>
-                        Deletion is blocked if this ingredient is used anywhere.
-                        Merge duplicates to preserve recipe links.
+                        {t(
+                          "Deletion is blocked if this ingredient is used anywhere. Merge duplicates to preserve recipe links.",
+                        )}
                       </AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
                       <AlertDialogAction
                         variant="destructive"
                         onClick={() =>
@@ -281,7 +295,7 @@ export function IngredientManager({
                           )
                         }
                       >
-                        Delete
+                        {t("Delete")}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -296,9 +310,9 @@ export function IngredientManager({
         <div className="grid min-h-64 place-items-center rounded-2xl border border-dashed border-border text-center">
           <div>
             <PackageSearch className="mx-auto size-10 text-primary-text" />
-            <h2 className="mt-4 font-semibold">No ingredients found</h2>
+            <h2 className="mt-4 font-semibold">{t("No ingredients found")}</h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Try another name, alias, or category.
+              {t("Try another name, alias, or category.")}
             </p>
           </div>
         </div>
@@ -308,16 +322,17 @@ export function IngredientManager({
         <DialogContent className="max-h-[90dvh] overflow-y-auto sm:max-w-xl">
           <DialogHeader>
             <DialogTitle>
-              {form.id ? "Edit ingredient" : "Add ingredient"}
+              {t(form.id ? "Edit ingredient" : "Add ingredient")}
             </DialogTitle>
             <DialogDescription>
-              Canonical names match recipes and pantry items case-insensitively
-              while preserving accents.
+              {t(
+                "Canonical names match recipes and pantry items case-insensitively while preserving accents.",
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2">
-              <Label htmlFor="canonical-name">Canonical name</Label>
+              <Label htmlFor="canonical-name">{t("Canonical name")}</Label>
               <Input
                 id="canonical-name"
                 value={form.canonicalName}
@@ -327,18 +342,18 @@ export function IngredientManager({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="display-name">Display name</Label>
+              <Label htmlFor="display-name">{t("Display name")}</Label>
               <Input
                 id="display-name"
                 value={form.displayName}
                 onChange={(event) =>
                   setForm({ ...form, displayName: event.target.value })
                 }
-                placeholder="Defaults to canonical name"
+                placeholder={t("Defaults to canonical name")}
               />
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
+              <Label>{t("Category")}</Label>
               <Select
                 value={form.category}
                 onValueChange={(value: IngredientCategory) =>
@@ -347,21 +362,21 @@ export function IngredientManager({
               >
                 <SelectTrigger
                   className="w-full"
-                  aria-label="Ingredient category"
+                  aria-label={t("Ingredient category")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   {INGREDIENT_CATEGORIES.map((item) => (
                     <SelectItem key={item.value} value={item.value}>
-                      {item.label}
+                      {t(item.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="default-unit">Default unit</Label>
+              <Label htmlFor="default-unit">{t("Default unit")}</Label>
               <Input
                 id="default-unit"
                 list="ingredient-units"
@@ -372,21 +387,21 @@ export function IngredientManager({
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="aliases">Aliases</Label>
+              <Label htmlFor="aliases">{t("Aliases")}</Label>
               <Input
                 id="aliases"
                 value={form.aliases}
                 onChange={(event) =>
                   setForm({ ...form, aliases: event.target.value })
                 }
-                placeholder="Spring onion, scallion"
+                placeholder={t("Spring onion, scallion")}
               />
               <p className="text-xs text-muted-foreground">
-                Separate aliases with commas.
+                {t("Separate aliases with commas.")}
               </p>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="ingredient-notes">Notes</Label>
+              <Label htmlFor="ingredient-notes">{t("Notes")}</Label>
               <Textarea
                 id="ingredient-notes"
                 value={form.notes}
@@ -402,7 +417,7 @@ export function IngredientManager({
                   setForm({ ...form, isStaple: checked === true })
                 }
               />
-              Treat as a basic staple
+              {t("Treat as a basic staple")}
             </label>
           </div>
           <datalist id="ingredient-units">
@@ -412,14 +427,14 @@ export function IngredientManager({
           </datalist>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               onClick={save}
               disabled={pending || !form.canonicalName.trim()}
             >
-              {pending && <LoaderCircle className="size-4 animate-spin" />}Save
-              ingredient
+              {pending && <LoaderCircle className="size-4 animate-spin" />}
+              {t("Save ingredient")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -428,18 +443,21 @@ export function IngredientManager({
       <Dialog open={mergeOpen} onOpenChange={setMergeOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Merge duplicate ingredient</DialogTitle>
+            <DialogTitle>{t("Merge duplicate ingredient")}</DialogTitle>
             <DialogDescription>
-              Every recipe, pantry item, shopping item, alias, and substitution
-              using {mergeSource?.displayName} will move to the chosen canonical
-              ingredient in one transaction.
+              {t(
+                "Every recipe, pantry item, shopping item, alias, and substitution using {name} will move to the chosen canonical ingredient in one transaction.",
+                {
+                  name: mergeSource?.displayName ?? "",
+                },
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-2">
-            <Label>Merge into</Label>
+            <Label>{t("Merge into")}</Label>
             <Select value={mergeTarget} onValueChange={setMergeTarget}>
-              <SelectTrigger className="w-full" aria-label="Merge into">
-                <SelectValue placeholder="Choose the ingredient to keep" />
+              <SelectTrigger className="w-full" aria-label={t("Merge into")}>
+                <SelectValue placeholder={t("Choose the ingredient to keep")} />
               </SelectTrigger>
               <SelectContent>
                 {ingredients
@@ -454,7 +472,7 @@ export function IngredientManager({
           </div>
           <DialogFooter>
             <Button variant="outline" onClick={() => setMergeOpen(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button
               onClick={() =>
@@ -468,7 +486,7 @@ export function IngredientManager({
               disabled={!mergeTarget || pending}
             >
               <Merge className="size-4" />
-              Merge safely
+              {t("Merge safely")}
             </Button>
           </DialogFooter>
         </DialogContent>

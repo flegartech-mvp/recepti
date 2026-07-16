@@ -23,6 +23,7 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { DIFFICULTIES, MEAL_CATEGORIES } from "@/lib/constants";
+import { useI18n } from "@/components/i18n-provider";
 
 export function RecipeFilters({
   cuisines,
@@ -33,6 +34,7 @@ export function RecipeFilters({
   dietaryTags: string[];
   lockedFavorite?: boolean;
 }) {
+  const { t, formatNumber } = useI18n();
   const router = useRouter();
   const pathname = usePathname();
   const current = useSearchParams();
@@ -100,7 +102,7 @@ export function RecipeFilters({
     <div className="grid gap-5 lg:grid-cols-4">
       {!lockedFavorite && (
         <div className="space-y-2">
-          <Label>Favorites</Label>
+          <Label>{t("Favorites")}</Label>
           <Button
             type="button"
             variant={current.get("favorite") === "1" ? "default" : "outline"}
@@ -112,40 +114,40 @@ export function RecipeFilters({
               )
             }
           >
-            Favorites only
+            {t("Favorites only")}
           </Button>
         </div>
       )}
       <div className="space-y-2">
-        <Label>Meal</Label>
+        <Label>{t("Meal")}</Label>
         <Select
           value={current.get("category") ?? "all"}
           onValueChange={(value) => update("category", value)}
         >
-          <SelectTrigger className="w-full" aria-label="Meal">
-            <SelectValue placeholder="All meals" />
+          <SelectTrigger className="w-full" aria-label={t("Meal")}>
+            <SelectValue placeholder={t("All meals")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All meals</SelectItem>
+            <SelectItem value="all">{t("All meals")}</SelectItem>
             {MEAL_CATEGORIES.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {t(item.label)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Cuisine</Label>
+        <Label>{t("Cuisine")}</Label>
         <Select
           value={current.get("cuisine") ?? "all"}
           onValueChange={(value) => update("cuisine", value)}
         >
-          <SelectTrigger className="w-full" aria-label="Cuisine">
-            <SelectValue placeholder="All cuisines" />
+          <SelectTrigger className="w-full" aria-label={t("Cuisine")}>
+            <SelectValue placeholder={t("All cuisines")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All cuisines</SelectItem>
+            <SelectItem value="all">{t("All cuisines")}</SelectItem>
             {cuisines.map((cuisine) => (
               <SelectItem key={cuisine} value={cuisine}>
                 {cuisine}
@@ -155,35 +157,35 @@ export function RecipeFilters({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Difficulty</Label>
+        <Label>{t("Difficulty")}</Label>
         <Select
           value={current.get("difficulty") ?? "all"}
           onValueChange={(value) => update("difficulty", value)}
         >
-          <SelectTrigger className="w-full" aria-label="Difficulty">
-            <SelectValue placeholder="Any difficulty" />
+          <SelectTrigger className="w-full" aria-label={t("Difficulty")}>
+            <SelectValue placeholder={t("Any difficulty")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Any difficulty</SelectItem>
+            <SelectItem value="all">{t("Any difficulty")}</SelectItem>
             {DIFFICULTIES.map((item) => (
               <SelectItem key={item.value} value={item.value}>
-                {item.label}
+                {t(item.label)}
               </SelectItem>
             ))}
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Dietary tag</Label>
+        <Label>{t("Dietary tag")}</Label>
         <Select
           value={current.get("dietaryTag") ?? "all"}
           onValueChange={(value) => update("dietaryTag", value)}
         >
-          <SelectTrigger className="w-full" aria-label="Dietary tag">
-            <SelectValue placeholder="Any dietary tag" />
+          <SelectTrigger className="w-full" aria-label={t("Dietary tag")}>
+            <SelectValue placeholder={t("Any dietary tag")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Any dietary tag</SelectItem>
+            <SelectItem value="all">{t("Any dietary tag")}</SelectItem>
             {dietaryTags.map((tag) => (
               <SelectItem key={tag} value={tag}>
                 {tag}
@@ -193,47 +195,51 @@ export function RecipeFilters({
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Maximum prep time</Label>
+        <Label>{t("Maximum prep time")}</Label>
         <Select
           value={current.get("maxPrep") ?? "all"}
           onValueChange={(value) => update("maxPrep", value)}
         >
-          <SelectTrigger className="w-full" aria-label="Maximum prep time">
-            <SelectValue placeholder="Any prep time" />
+          <SelectTrigger className="w-full" aria-label={t("Maximum prep time")}>
+            <SelectValue placeholder={t("Any prep time")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Any prep time</SelectItem>
-            <SelectItem value="5">5 minutes</SelectItem>
-            <SelectItem value="10">10 minutes</SelectItem>
-            <SelectItem value="15">15 minutes</SelectItem>
-            <SelectItem value="20">20 minutes</SelectItem>
-            <SelectItem value="30">30 minutes</SelectItem>
-            <SelectItem value="45">45 minutes</SelectItem>
-            <SelectItem value="60">1 hour</SelectItem>
+            <SelectItem value="all">{t("Any prep time")}</SelectItem>
+            {[5, 10, 15, 20, 30, 45].map((minutes) => (
+              <SelectItem key={minutes} value={String(minutes)}>
+                {t("{count} minutes", { count: formatNumber(minutes) })}
+              </SelectItem>
+            ))}
+            <SelectItem value="60">{t("1 hour")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <div className="space-y-2">
-        <Label>Maximum total time</Label>
+        <Label>{t("Maximum total time")}</Label>
         <Select
           value={current.get("maxTotal") ?? "all"}
           onValueChange={(value) => update("maxTotal", value)}
         >
-          <SelectTrigger className="w-full" aria-label="Maximum total time">
-            <SelectValue placeholder="Any time" />
+          <SelectTrigger
+            className="w-full"
+            aria-label={t("Maximum total time")}
+          >
+            <SelectValue placeholder={t("Any time")} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Any time</SelectItem>
-            <SelectItem value="20">20 minutes</SelectItem>
-            <SelectItem value="30">30 minutes</SelectItem>
-            <SelectItem value="45">45 minutes</SelectItem>
-            <SelectItem value="60">1 hour</SelectItem>
+            <SelectItem value="all">{t("Any time")}</SelectItem>
+            {[20, 30, 45].map((minutes) => (
+              <SelectItem key={minutes} value={String(minutes)}>
+                {t("{count} minutes", { count: formatNumber(minutes) })}
+              </SelectItem>
+            ))}
+            <SelectItem value="60">{t("1 hour")}</SelectItem>
           </SelectContent>
         </Select>
       </div>
       <Button type="button" variant="ghost" onClick={clear}>
         <X className="size-4" aria-hidden="true" />
-        Clear filters
+        {t("Clear filters")}
       </Button>
     </div>
   );
@@ -250,9 +256,9 @@ export function RecipeFilters({
             key={currentQuery}
             defaultValue={currentQuery}
             onChange={(event) => scheduleQuery(event.target.value)}
-            placeholder="Search title, ingredient, tag, or cuisine"
+            placeholder={t("Search title, ingredient, tag, or cuisine")}
             className="h-11 pl-10"
-            aria-label="Search recipes"
+            aria-label={t("Search recipes")}
           />
         </div>
         <Select
@@ -261,24 +267,29 @@ export function RecipeFilters({
         >
           <SelectTrigger
             className="h-11 w-full sm:w-48"
-            aria-label="Sort recipes"
+            aria-label={t("Sort recipes")}
           >
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="newest">Newest</SelectItem>
-            <SelectItem value="oldest">Oldest</SelectItem>
-            <SelectItem value="alphabetical">Alphabetical</SelectItem>
-            <SelectItem value="recently_cooked">Recently cooked</SelectItem>
-            <SelectItem value="most_cooked">Most cooked</SelectItem>
-            <SelectItem value="shortest">Shortest time</SelectItem>
+            <SelectItem value="newest">{t("Newest")}</SelectItem>
+            <SelectItem value="oldest">{t("Oldest")}</SelectItem>
+            <SelectItem value="alphabetical">{t("Alphabetical")}</SelectItem>
+            <SelectItem value="recently_cooked">
+              {t("Recently cooked")}
+            </SelectItem>
+            <SelectItem value="most_cooked">{t("Most cooked")}</SelectItem>
+            <SelectItem value="shortest">{t("Shortest time")}</SelectItem>
           </SelectContent>
         </Select>
         <Sheet>
           <SheetTrigger asChild>
             <Button variant="outline" className="h-11 lg:hidden">
               <SlidersHorizontal className="size-4" aria-hidden="true" />
-              Filters{activeFilterCount > 0 ? ` (${activeFilterCount})` : ""}
+              {t("Filters")}
+              {activeFilterCount > 0
+                ? ` (${formatNumber(activeFilterCount)})`
+                : ""}
             </Button>
           </SheetTrigger>
           <SheetContent
@@ -286,9 +297,9 @@ export function RecipeFilters({
             className="max-h-[86dvh] overflow-y-auto rounded-t-2xl [--safe-panel-bottom:2rem] [--safe-panel-left:1.25rem] [--safe-panel-right:1.25rem]"
           >
             <SheetHeader className="text-left">
-              <SheetTitle>Filter recipes</SheetTitle>
+              <SheetTitle>{t("Filter recipes")}</SheetTitle>
               <SheetDescription>
-                Focus the cookbook without losing your place.
+                {t("Focus the cookbook without losing your place.")}
               </SheetDescription>
             </SheetHeader>
             <div className="mt-6">{controls}</div>
@@ -296,7 +307,7 @@ export function RecipeFilters({
         </Sheet>
         <div
           className="flex rounded-xl border border-border bg-card p-1"
-          aria-label="Recipe view"
+          aria-label={t("Recipe view")}
         >
           <Button
             type="button"
@@ -305,7 +316,7 @@ export function RecipeFilters({
               (current.get("view") ?? "grid") === "grid" ? "secondary" : "ghost"
             }
             onClick={() => update("view", "grid")}
-            aria-label="Grid view"
+            aria-label={t("Grid view")}
           >
             <Grid2X2 className="size-4" />
           </Button>
@@ -314,7 +325,7 @@ export function RecipeFilters({
             size="icon-sm"
             variant={current.get("view") === "list" ? "secondary" : "ghost"}
             onClick={() => update("view", "list")}
-            aria-label="List view"
+            aria-label={t("List view")}
           >
             <List className="size-4" />
           </Button>

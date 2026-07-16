@@ -15,6 +15,7 @@ import {
 import { toast } from "sonner";
 
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/components/i18n-provider";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -42,6 +43,7 @@ import {
   type RecipeMatchResult,
 } from "@/lib/domain";
 import type { Ingredient, PantryItem, Recipe } from "@/types/domain";
+import { getMatchReason } from "@/features/matcher/match-copy";
 
 const categoryContent: Record<
   MatchCategory,
@@ -76,6 +78,8 @@ export function RecipeMatcher({
   pantry: PantryItem[];
   catalog: Ingredient[];
 }) {
+  const { locale, t, formatNumber, plural } = useI18n();
+  const localeName = locale === "sl" ? "sl-SI" : "en-GB";
   const [selectedPantry, setSelectedPantry] = useState<Set<string>>(
     new Set(pantry.map((item) => item.id)),
   );
@@ -91,14 +95,14 @@ export function RecipeMatcher({
 
   const visiblePantry = pantry.filter((item) =>
     item.ingredient.displayName
-      .toLocaleLowerCase("en-US")
-      .includes(pantrySearch.trim().toLocaleLowerCase("en-US")),
+      .toLocaleLowerCase(localeName)
+      .includes(pantrySearch.trim().toLocaleLowerCase(localeName)),
   );
 
   const manualOptions = catalog.filter((item) =>
     item.displayName
-      .toLocaleLowerCase("en-US")
-      .includes(ingredientSearch.trim().toLocaleLowerCase("en-US")),
+      .toLocaleLowerCase(localeName)
+      .includes(ingredientSearch.trim().toLocaleLowerCase(localeName)),
   );
 
   const available = useMemo(
@@ -151,10 +155,10 @@ export function RecipeMatcher({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Available ingredients</h2>
+              <h2>{t("Available ingredients")}</h2>
             </CardTitle>
             <CardDescription>
-              Use everything or uncheck items you do not want to use.
+              {t("Use everything or uncheck items you do not want to use.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -164,8 +168,8 @@ export function RecipeMatcher({
                 value={pantrySearch}
                 onChange={(event) => setPantrySearch(event.target.value)}
                 className="pl-10"
-                placeholder="Search pantry"
-                aria-label="Search pantry ingredients"
+                placeholder={t("Search pantry")}
+                aria-label={t("Search pantry ingredients")}
               />
             </div>
             <div className="flex gap-2">
@@ -176,14 +180,14 @@ export function RecipeMatcher({
                   setSelectedPantry(new Set(pantry.map((item) => item.id)))
                 }
               >
-                Use all
+                {t("Use all")}
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 onClick={() => setSelectedPantry(new Set())}
               >
-                Clear all
+                {t("Clear all")}
               </Button>
             </div>
             <div className="max-h-56 space-y-1 overflow-y-auto pr-1">
@@ -207,13 +211,14 @@ export function RecipeMatcher({
                     {item.ingredient.displayName}
                   </span>
                   <span className="shrink-0 text-xs text-muted-foreground">
-                    {item.quantity ?? "?"} {item.unit ?? ""}
+                    {item.quantity === null ? "?" : formatNumber(item.quantity)}{" "}
+                    {item.unit ?? ""}
                   </span>
                 </label>
               ))}
               {visiblePantry.length === 0 && (
                 <p className="rounded-lg bg-surface-secondary px-3 py-4 text-sm text-muted-foreground">
-                  No pantry ingredients match that search.
+                  {t("No pantry ingredients match that search.")}
                 </p>
               )}
             </div>
@@ -223,10 +228,10 @@ export function RecipeMatcher({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Manual and excluded</h2>
+              <h2>{t("Manual and excluded")}</h2>
             </CardTitle>
             <CardDescription>
-              Add something not in the pantry, or block an ingredient.
+              {t("Add something not in the pantry, or block an ingredient.")}
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -236,8 +241,8 @@ export function RecipeMatcher({
                 value={ingredientSearch}
                 onChange={(event) => setIngredientSearch(event.target.value)}
                 className="pl-10"
-                placeholder="Find ingredient"
-                aria-label="Find ingredient"
+                placeholder={t("Find ingredient")}
+                aria-label={t("Find ingredient")}
               />
             </div>
             {ingredientSearch && (
@@ -268,7 +273,9 @@ export function RecipeMatcher({
                           setExcludedIds([...excludedIds, item.id]);
                         setIngredientSearch("");
                       }}
-                      aria-label={`Exclude ${item.displayName}`}
+                      aria-label={t("Exclude {name}", {
+                        name: item.displayName,
+                      })}
                     >
                       <X className="size-3.5" />
                     </Button>
@@ -279,7 +286,7 @@ export function RecipeMatcher({
             {manualIds.length > 0 && (
               <div>
                 <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  Added manually
+                  {t("Added manually")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {manualIds.map((id) => {
@@ -303,7 +310,9 @@ export function RecipeMatcher({
                               manualIds.filter((value) => value !== id),
                             )
                           }
-                          aria-label={`Remove ${item.displayName}`}
+                          aria-label={t("Remove {name}", {
+                            name: item.displayName,
+                          })}
                         >
                           <X className="size-3" />
                         </Button>
@@ -316,7 +325,7 @@ export function RecipeMatcher({
             {excludedIds.length > 0 && (
               <div>
                 <p className="mb-2 text-xs font-medium text-muted-foreground">
-                  Excluded
+                  {t("Excluded")}
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {excludedIds.map((id) => {
@@ -340,7 +349,9 @@ export function RecipeMatcher({
                               excludedIds.filter((value) => value !== id),
                             )
                           }
-                          aria-label={`Allow ${item.displayName}`}
+                          aria-label={t("Allow {name}", {
+                            name: item.displayName,
+                          })}
                         >
                           <X className="size-3" />
                         </Button>
@@ -356,71 +367,76 @@ export function RecipeMatcher({
         <Card>
           <CardHeader>
             <CardTitle>
-              <h2>Recipe filters</h2>
+              <h2>{t("Recipe filters")}</h2>
             </CardTitle>
           </CardHeader>
           <CardContent className="grid gap-4">
             <label className="flex items-center justify-between gap-4 text-sm font-medium">
-              Ignore basic staples
+              {t("Ignore basic staples")}
               <Switch
                 checked={ignoreStaples}
                 onCheckedChange={setIgnoreStaples}
               />
             </label>
             <div className="space-y-2">
-              <Label>Meal</Label>
+              <Label>{t("Meal")}</Label>
               <Select value={category} onValueChange={setCategory}>
-                <SelectTrigger className="w-full" aria-label="Meal">
+                <SelectTrigger className="w-full" aria-label={t("Meal")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All meals</SelectItem>
+                  <SelectItem value="all">{t("All meals")}</SelectItem>
                   {MEAL_CATEGORIES.map((item) => (
                     <SelectItem key={item.value} value={item.value}>
-                      {item.label}
+                      {t(item.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Difficulty</Label>
+              <Label>{t("Difficulty")}</Label>
               <Select value={difficulty} onValueChange={setDifficulty}>
-                <SelectTrigger className="w-full" aria-label="Difficulty">
+                <SelectTrigger className="w-full" aria-label={t("Difficulty")}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Any difficulty</SelectItem>
+                  <SelectItem value="all">{t("Any difficulty")}</SelectItem>
                   {DIFFICULTIES.map((item) => (
                     <SelectItem key={item.value} value={item.value}>
-                      {item.label}
+                      {t(item.label)}
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label>Maximum time</Label>
+              <Label>{t("Maximum time")}</Label>
               <Select value={maxTime} onValueChange={setMaxTime}>
-                <SelectTrigger className="w-full" aria-label="Maximum time">
+                <SelectTrigger
+                  className="w-full"
+                  aria-label={t("Maximum time")}
+                >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Any time</SelectItem>
-                  <SelectItem value="20">20 minutes</SelectItem>
-                  <SelectItem value="30">30 minutes</SelectItem>
-                  <SelectItem value="45">45 minutes</SelectItem>
-                  <SelectItem value="60">1 hour</SelectItem>
+                  <SelectItem value="all">{t("Any time")}</SelectItem>
+                  {[20, 30, 45].map((minutes) => (
+                    <SelectItem key={minutes} value={String(minutes)}>
+                      {t("{count} minutes", { count: formatNumber(minutes) })}
+                    </SelectItem>
+                  ))}
+                  <SelectItem value="60">{t("1 hour")}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="matcher-dietary">Dietary tag</Label>
+              <Label htmlFor="matcher-dietary">{t("Dietary tag")}</Label>
               <Input
                 id="matcher-dietary"
                 value={dietary}
                 onChange={(event) => setDietary(event.target.value)}
-                placeholder="Vegetarian"
+                placeholder={t("Vegetarian")}
               />
             </div>
           </CardContent>
@@ -430,10 +446,20 @@ export function RecipeMatcher({
       <div className="space-y-9" aria-live="polite">
         <div className="flex items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
-            {results.length} recipe{results.length === 1 ? "" : "s"} ranked
+            {plural(results.length, {
+              one: "{count} recipe ranked",
+              two: "{count} recipes ranked-two",
+              few: "{count} recipes ranked-few",
+              other: "{count} recipes ranked",
+            })}
           </p>
           <Badge variant="secondary">
-            {available.length} ingredients selected
+            {plural(available.length, {
+              one: "{count} ingredient selected",
+              two: "{count} ingredients selected-two",
+              few: "{count} ingredients selected-few",
+              other: "{count} ingredients selected",
+            })}
           </Badge>
         </div>
         {grouped.map(
@@ -449,10 +475,10 @@ export function RecipeMatcher({
                     id={`matcher-${group.key}`}
                     className="text-2xl font-semibold tracking-tight"
                   >
-                    {categoryContent[group.key].title}
+                    {t(categoryContent[group.key].title)}
                   </h2>
                   <p className="mt-1 text-sm text-muted-foreground">
-                    {categoryContent[group.key].description}
+                    {t(categoryContent[group.key].description)}
                   </p>
                 </div>
                 <div className="grid gap-4 lg:grid-cols-2">
@@ -468,10 +494,10 @@ export function RecipeMatcher({
             <div>
               <PackageSearch className="mx-auto size-12 text-primary-text" />
               <h2 className="mt-4 text-xl font-semibold">
-                No recipes fit these filters
+                {t("No recipes fit these filters")}
               </h2>
               <p className="mt-2 text-muted-foreground">
-                Broaden the time, meal, difficulty, or dietary choices.
+                {t("Broaden the time, meal, difficulty, or dietary choices.")}
               </p>
             </div>
           </div>
@@ -483,6 +509,7 @@ export function RecipeMatcher({
 
 function MatchCard({ result }: { result: RecipeMatchResult }) {
   const [pending, startTransition] = useTransition();
+  const { t, formatList, formatNumber, plural } = useI18n();
   const ids = result.missingIngredients
     .map((item) => item.key.replace(/^id:/, ""))
     .filter((id) => /^[0-9a-f-]{36}$/i.test(id));
@@ -494,40 +521,46 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
             {result.recipe.title}
           </h3>
           <p className="mt-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
-            {result.reason}
+            {getMatchReason(result, { t, formatList, plural })}
           </p>
         </div>
         <span className="text-2xl font-semibold tracking-tight text-primary-text">
-          {result.matchPercentage}%
+          {formatNumber(result.matchPercentage)}%
         </span>
       </div>
       <div className="mt-4 flex flex-wrap gap-2 text-xs">
         <Badge variant="secondary">
-          {result.matchedIngredientCount} of {result.requiredIngredientCount}{" "}
-          matched
+          {t("{matched} of {required} matched", {
+            matched: formatNumber(result.matchedIngredientCount),
+            required: formatNumber(result.requiredIngredientCount),
+          })}
         </Badge>
-        {result.recipe.totalMinutes !== undefined && (
+        {result.recipe.totalMinutes != null && (
           <Badge variant="outline">
             <Clock3 className="size-3" />
-            {result.recipe.totalMinutes} min
+            {t("{count} min", {
+              count: formatNumber(result.recipe.totalMinutes),
+            })}
           </Badge>
         )}
       </div>
       {result.missingIngredients.length > 0 && (
         <div className="mt-4">
-          <p className="text-xs font-semibold text-muted-foreground">Missing</p>
+          <p className="text-xs font-semibold text-muted-foreground">
+            {t("Missing")}
+          </p>
           <p className="mt-1 text-sm [overflow-wrap:anywhere]">
-            {result.missingIngredients.map((item) => item.name).join(", ")}
+            {formatList(result.missingIngredients.map((item) => item.name))}
           </p>
         </div>
       )}
       {result.availableIngredients.length > 0 && (
         <div className="mt-3">
           <p className="text-xs font-semibold text-muted-foreground">
-            Available
+            {t("Available")}
           </p>
           <p className="mt-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
-            {result.availableIngredients.map((item) => item.name).join(", ")}
+            {formatList(result.availableIngredients.map((item) => item.name))}
           </p>
         </div>
       )}
@@ -535,7 +568,7 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
         <Button asChild size="sm">
           <Link href={`/recipes/${result.recipe.id}`}>
             <ChefHat className="size-4" />
-            View recipe
+            {t("View recipe")}
           </Link>
         </Button>
         {result.missingIngredients.length > 0 && (
@@ -549,8 +582,8 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
                   result.recipe.id,
                   ids,
                 );
-                if (response.ok) toast.success("Missing ingredients added");
-                else toast.error(response.message);
+                if (response.ok) toast.success(t("Missing ingredients added"));
+                else toast.error(t(response.message));
               })
             }
           >
@@ -559,7 +592,7 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
             ) : (
               <ShoppingBasket className="size-4" />
             )}
-            Add missing
+            {t("Add missing")}
           </Button>
         )}
       </div>

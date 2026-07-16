@@ -1,11 +1,16 @@
 import type { Metadata } from "next";
+import { getServerI18n } from "@/lib/i18n/server";
 
-export const metadata: Metadata = {
-  title: "Cooking mode",
-  description:
-    "A focused, step-by-step cooking view for your private Nana's Recipes cookbook.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return {
+    title: t("Cooking mode"),
+    description: t(
+      "A focused, step-by-step cooking view for your private Nana's Recipes cookbook.",
+    ),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default function CookingLayout({
   children,

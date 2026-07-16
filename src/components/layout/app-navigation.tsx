@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { useI18n } from "@/components/i18n-provider";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
@@ -52,6 +54,7 @@ function isCurrent(pathname: string, href: string) {
 
 export function AppNavigation({ email }: { email: string }) {
   const pathname = usePathname();
+  const { t } = useI18n();
 
   return (
     <>
@@ -67,10 +70,10 @@ export function AppNavigation({ email }: { email: string }) {
         >
           <Link href="/recipes/new">
             <Plus className="size-4" aria-hidden="true" />
-            Add recipe
+            {t("Add recipe")}
           </Link>
         </Button>
-        <nav className="mt-6 space-y-1" aria-label="Main navigation">
+        <nav className="mt-6 space-y-1" aria-label={t("Main navigation")}>
           {[...primaryItems, ...secondaryItems].map((item) => {
             const active = isCurrent(pathname, item.href);
             return (
@@ -90,19 +93,24 @@ export function AppNavigation({ email }: { email: string }) {
                   strokeWidth={1.8}
                   aria-hidden="true"
                 />
-                {item.label}
+                {t(item.label)}
               </Link>
             );
           })}
         </nav>
-        <div className="mt-auto flex items-center gap-2 rounded-xl border border-sidebar-border bg-surface-secondary/65 p-3">
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-sm font-medium">Private cookbook</p>
+        <div className="mt-auto rounded-xl border border-sidebar-border bg-surface-secondary/65 p-3">
+          <div className="min-w-0">
+            <p className="truncate text-sm font-medium">
+              {t("Private cookbook")}
+            </p>
             <p className="mt-0.5 truncate text-xs text-muted-foreground">
               {email}
             </p>
           </div>
-          <ThemeToggle className="size-11 shrink-0" />
+          <div className="mt-3 flex items-center justify-between gap-2">
+            <LanguageSwitcher />
+            <ThemeToggle className="size-11 shrink-0" />
+          </div>
         </div>
       </aside>
 
@@ -112,6 +120,7 @@ export function AppNavigation({ email }: { email: string }) {
       >
         <Logo compact />
         <div className="flex items-center gap-1.5">
+          <LanguageSwitcher />
           <ThemeToggle />
           <Sheet>
             <SheetTrigger asChild>
@@ -120,16 +129,16 @@ export function AppNavigation({ email }: { email: string }) {
                 variant="ghost"
                 size="icon"
                 className="size-11"
-                aria-label="Open more navigation"
+                aria-label={t("Open more navigation")}
               >
                 <Menu className="size-5" aria-hidden="true" />
               </Button>
             </SheetTrigger>
             <SheetContent side="right" className="w-[min(22rem,88vw)]">
               <SheetHeader>
-                <SheetTitle>More from Nana&apos;s Recipes</SheetTitle>
+                <SheetTitle>{t("More from Nana's Recipes")}</SheetTitle>
                 <SheetDescription>
-                  Manage ingredients, favorites, and cookbook settings.
+                  {t("Manage ingredients, favorites, and cookbook settings.")}
                 </SheetDescription>
               </SheetHeader>
               <div className="px-4">
@@ -141,12 +150,12 @@ export function AppNavigation({ email }: { email: string }) {
                   >
                     <Link href="/recipes/new">
                       <Plus className="size-4" aria-hidden="true" />
-                      Add recipe
+                      {t("Add recipe")}
                     </Link>
                   </Button>
                 </SheetClose>
               </div>
-              <nav className="space-y-2 px-4" aria-label="More navigation">
+              <nav className="space-y-2 px-4" aria-label={t("More navigation")}>
                 {secondaryItems.map((item) => {
                   const active = isCurrent(pathname, item.href);
                   return (
@@ -162,14 +171,14 @@ export function AppNavigation({ email }: { email: string }) {
                         )}
                       >
                         <item.icon className="size-5" aria-hidden="true" />
-                        {item.label}
+                        {t(item.label)}
                       </Link>
                     </SheetClose>
                   );
                 })}
               </nav>
               <div className="mx-4 mt-auto mb-4 rounded-xl border border-border bg-surface-secondary/65 p-3">
-                <p className="text-sm font-medium">Private cookbook</p>
+                <p className="text-sm font-medium">{t("Private cookbook")}</p>
                 <p className="mt-0.5 truncate text-xs text-muted-foreground">
                   {email}
                 </p>
@@ -182,7 +191,7 @@ export function AppNavigation({ email }: { email: string }) {
       <nav
         data-app-navigation
         className="safe-bottom safe-inline-compact fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-surface/96 pt-1.5 shadow-[0_-8px_32px_var(--shadow)] backdrop-blur lg:hidden"
-        aria-label="Mobile navigation"
+        aria-label={t("Mobile navigation")}
       >
         {primaryItems.map((item) => {
           const active = isCurrent(pathname, item.href);
@@ -203,7 +212,7 @@ export function AppNavigation({ email }: { email: string }) {
                 strokeWidth={active ? 2.2 : 1.7}
                 aria-hidden="true"
               />
-              {item.label}
+              {t(item.label)}
             </Link>
           );
         })}

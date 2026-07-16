@@ -389,7 +389,7 @@ test("keeps pantry dialogs and fast grocery entry keyboard-friendly at 320px", a
   });
   await expectTouchTarget(saveGroceries, "save groceries button");
   await saveGroceries.click();
-  await expect(page.getByText(/pantry items saved$/)).toBeVisible();
+  await expect(page.getByText(/pantry items? saved$/)).toBeVisible();
   await expect(fastSheet).toBeHidden();
   await expectNoHorizontalOverflow(page, "pantry after mobile entry");
   expect(browserErrors).toEqual([]);

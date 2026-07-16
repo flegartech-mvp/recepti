@@ -13,8 +13,10 @@ import {
 import { PageContainer } from "@/components/layout/page-container";
 import { Badge } from "@/components/ui/badge";
 import { RecipeDetailControls } from "@/features/recipes/components/recipe-detail-controls";
+import { DIFFICULTIES, MEAL_CATEGORIES } from "@/lib/constants";
 import { matchRecipe } from "@/lib/domain";
 import { getRecipe, listPantry } from "@/lib/data/queries";
+import { getServerI18n } from "@/lib/i18n/server";
 
 export async function generateMetadata({
   params,
@@ -22,10 +24,10 @@ export async function generateMetadata({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const recipe = await getRecipe(id);
+  const [recipe, { t }] = await Promise.all([getRecipe(id), getServerI18n()]);
   return {
-    title: recipe?.title ?? "Recipe",
-    description: "Private recipe in Nana's Recipes",
+    title: recipe?.title ?? t("Recipe"),
+    description: t("Private recipe in Nana's Recipes"),
     robots: { index: false, follow: false },
   };
 }
@@ -36,9 +38,21 @@ export default async function RecipeDetailPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const [recipe, pantry] = await Promise.all([getRecipe(id), listPantry()]);
+  const [recipe, pantry, i18n] = await Promise.all([
+    getRecipe(id),
+    listPantry(),
+    getServerI18n(),
+  ]);
   if (!recipe) notFound();
+  const { t, formatDate, formatNumber, plural } = i18n;
   const match = matchRecipe(recipe, pantry);
+  const minuteCount = (count: number) =>
+    plural(count, {
+      one: "{count} minute",
+      two: "{count} minutes-two",
+      few: "{count} minutes-few",
+      other: "{count} minutes",
+    });
 
   return (
     <PageContainer className="max-w-6xl">
@@ -48,7 +62,7 @@ export default async function RecipeDetailPage({
             {recipe.imageUrl ? (
               <Image
                 src={recipe.imageUrl}
-                alt={`Cover for ${recipe.title}`}
+                alt={t("Cover for {title}", { title: recipe.title })}
                 fill
                 priority
                 sizes="(max-width: 1024px) 94vw, 48vw"
@@ -67,10 +81,13 @@ export default async function RecipeDetailPage({
           <div>
             <div className="flex flex-wrap gap-2">
               {recipe.status === "draft" && (
-                <Badge variant="outline">Draft</Badge>
+                <Badge variant="outline">{t("Draft")}</Badge>
               )}
               <Badge variant="secondary" className="capitalize">
-                {recipe.category}
+                {t(
+                  MEAL_CATEGORIES.find((item) => item.value === recipe.category)
+                    ?.label ?? recipe.category,
+                )}
               </Badge>
               {recipe.cuisine && (
                 <Badge variant="secondary">{recipe.cuisine}</Badge>
@@ -98,56 +115,73 @@ export default async function RecipeDetailPage({
               <div>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Clock3 className="size-3.5" />
-                  Prep
-                </dt>
-                <dd className="mt-1 font-semibold">{recipe.prepMinutes} min</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock3 className="size-3.5" />
-                  Cook
-                </dt>
-                <dd className="mt-1 font-semibold">{recipe.cookMinutes} min</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock3 className="size-3.5" />
-                  Rest
-                </dt>
-                <dd className="mt-1 font-semibold">{recipe.restMinutes} min</dd>
-              </div>
-              <div>
-                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Clock3 className="size-3.5" />
-                  Total
+                  {t("Prep")}
                 </dt>
                 <dd className="mt-1 font-semibold">
-                  {recipe.totalMinutes} min
+                  {minuteCount(recipe.prepMinutes)}
+                </dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Clock3 className="size-3.5" />
+                  {t("Cook")}
+                </dt>
+                <dd className="mt-1 font-semibold">
+                  {minuteCount(recipe.cookMinutes)}
+                </dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Clock3 className="size-3.5" />
+                  {t("Rest")}
+                </dt>
+                <dd className="mt-1 font-semibold">
+                  {minuteCount(recipe.restMinutes)}
+                </dd>
+              </div>
+              <div>
+                <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <Clock3 className="size-3.5" />
+                  {t("Total")}
+                </dt>
+                <dd className="mt-1 font-semibold">
+                  {minuteCount(recipe.totalMinutes)}
                 </dd>
               </div>
               <div>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <UsersRound className="size-3.5" />
-                  Serves
+                  {t("Serves")}
                 </dt>
-                <dd className="mt-1 font-semibold">{recipe.servings}</dd>
+                <dd className="mt-1 font-semibold">
+                  {formatNumber(recipe.servings)}
+                </dd>
               </div>
               <div>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <ChefHat className="size-3.5" />
-                  Difficulty
+                  {t("Difficulty")}
                 </dt>
                 <dd className="mt-1 font-semibold capitalize">
-                  {recipe.difficulty}
+                  {t(
+                    DIFFICULTIES.find(
+                      (item) => item.value === recipe.difficulty,
+                    )?.label ?? recipe.difficulty,
+                  )}
                 </dd>
               </div>
               <div>
                 <dt className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <History className="size-3.5" />
-                  Cooked
+                  {t("Cooked")}
                 </dt>
                 <dd className="mt-1 font-semibold">
-                  {recipe.cookedCount} times
+                  {plural(recipe.cookedCount, {
+                    one: "{count} time",
+                    two: "{count} times-two",
+                    few: "{count} times-few",
+                    other: "{count} times",
+                  })}
                 </dd>
               </div>
             </dl>
@@ -164,7 +198,7 @@ export default async function RecipeDetailPage({
             id="steps-heading"
             className="text-2xl font-semibold tracking-tight"
           >
-            Method
+            {t("Method")}
           </h2>
           <ol className="mt-6 space-y-6">
             {recipe.steps.map((step, index) => (
@@ -181,7 +215,8 @@ export default async function RecipeDetailPage({
                   </p>
                   {step.timerSeconds && (
                     <p className="mt-2 text-sm font-medium text-primary-text">
-                      Timer: {Math.round(step.timerSeconds / 60)} minutes
+                      {t("Timer")}:{" "}
+                      {minuteCount(Math.round(step.timerSeconds / 60))}
                     </p>
                   )}
                 </div>
@@ -194,7 +229,7 @@ export default async function RecipeDetailPage({
           <section className="grid gap-5 sm:grid-cols-2">
             {recipe.notes && (
               <div className="rounded-2xl border border-primary/15 bg-surface-tint p-6 text-foreground">
-                <h2 className="font-semibold">Personal notes</h2>
+                <h2 className="font-semibold">{t("Personal notes")}</h2>
                 <p className="mt-3 whitespace-pre-wrap leading-relaxed text-foreground/75 [overflow-wrap:anywhere]">
                   {recipe.notes}
                 </p>
@@ -202,7 +237,7 @@ export default async function RecipeDetailPage({
             )}
             {(recipe.sourceName || recipe.sourceUrl) && (
               <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_8px_24px_var(--shadow)]">
-                <h2 className="font-semibold">Source</h2>
+                <h2 className="font-semibold">{t("Source")}</h2>
                 <p className="mt-3 text-muted-foreground">
                   {recipe.sourceUrl ? (
                     <Link
@@ -211,7 +246,7 @@ export default async function RecipeDetailPage({
                       rel="noopener noreferrer"
                       className="font-medium text-primary-text underline underline-offset-4 [overflow-wrap:anywhere]"
                     >
-                      {recipe.sourceName ?? "Open original source"}
+                      {recipe.sourceName ?? t("Open original source")}
                     </Link>
                   ) : (
                     recipe.sourceName
@@ -225,23 +260,14 @@ export default async function RecipeDetailPage({
         <footer className="flex flex-wrap gap-x-6 gap-y-2 border-t border-border pt-5 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <CalendarDays className="size-3.5" />
-            Created{" "}
-            {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
-              new Date(recipe.createdAt),
-            )}
+            {t("Created")} {formatDate(recipe.createdAt)}
           </span>
           <span>
-            Updated{" "}
-            {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
-              new Date(recipe.updatedAt),
-            )}
+            {t("Updated")} {formatDate(recipe.updatedAt)}
           </span>
           {recipe.lastCookedAt && (
             <span>
-              Last cooked{" "}
-              {new Intl.DateTimeFormat("en", { dateStyle: "medium" }).format(
-                new Date(recipe.lastCookedAt),
-              )}
+              {t("Last cooked")} {formatDate(recipe.lastCookedAt)}
             </span>
           )}
         </footer>

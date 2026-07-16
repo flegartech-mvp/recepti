@@ -25,6 +25,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useI18n } from "@/components/i18n-provider";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -70,6 +71,7 @@ export function ShoppingListManager({
   catalog: Ingredient[];
 }) {
   const router = useRouter();
+  const { t, formatNumber, plural } = useI18n();
   const [pending, startTransition] = useTransition();
   const [items, setItems] = useState(initialItems);
   const [previousInitialItems, setPreviousInitialItems] =
@@ -106,11 +108,11 @@ export function ShoppingListManager({
       const result = await runShoppingMutation(action);
       if (!result.ok) {
         setMutationError(result.message);
-        toast.error(result.message);
+        toast.error(t(result.message));
         router.refresh();
         return;
       }
-      if (success) toast.success(success);
+      if (success) toast.success(t(success));
       after?.();
       router.refresh();
     });
@@ -177,7 +179,12 @@ export function ShoppingListManager({
     const purchasedIdSet = new Set(purchasedIds);
     execute(
       () => movePurchasedToPantryAction(purchasedIds),
-      `${purchasedIds.length} purchased items moved to the pantry`,
+      plural(purchasedIds.length, {
+        one: "{count} purchased item moved to the pantry",
+        two: "{count} purchased items moved to the pantry-two",
+        few: "{count} purchased items moved to the pantry-few",
+        other: "{count} purchased items moved to the pantry",
+      }),
       () =>
         setItems((current) =>
           current.filter((item) => !purchasedIdSet.has(item.id)),
@@ -191,16 +198,16 @@ export function ShoppingListManager({
     >
       {mutationError && (
         <Alert variant="destructive" role="alert">
-          <AlertTitle>Shopping list unchanged</AlertTitle>
+          <AlertTitle>{t("Shopping list unchanged")}</AlertTitle>
           <AlertDescription className="flex flex-wrap items-center justify-between gap-3">
-            <span>{mutationError}</span>
+            <span>{t(mutationError)}</span>
             <Button
               type="button"
               variant="outline"
               size="sm"
               onClick={() => setMutationError(null)}
             >
-              Dismiss
+              {t("Dismiss")}
             </Button>
           </AlertDescription>
         </Alert>
@@ -208,19 +215,19 @@ export function ShoppingListManager({
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="size-4" />
-          Add item
+          {t("Add item")}
         </Button>
         <Button
           variant={shoppingMode ? "secondary" : "outline"}
           onClick={() => setShoppingMode(!shoppingMode)}
         >
           <Smartphone className="size-4" />
-          Shopping mode
+          {t("Shopping mode")}
         </Button>
         {completed.length > 0 && (
           <Button variant="outline" disabled={pending} onClick={movePurchased}>
             <PackageCheck className="size-4" />
-            Move purchased to pantry
+            {t("Move purchased to pantry")}
           </Button>
         )}
       </div>
@@ -228,9 +235,9 @@ export function ShoppingListManager({
       <section className="space-y-3" aria-labelledby="shopping-needed">
         <div className="flex items-center gap-3">
           <h2 id="shopping-needed" className="text-xl font-semibold">
-            Still needed
+            {t("Still needed")}
           </h2>
-          <Badge variant="secondary">{unchecked.length}</Badge>
+          <Badge variant="secondary">{formatNumber(unchecked.length)}</Badge>
         </div>
         {unchecked.length > 0 ? (
           <ul className="grid gap-2">
@@ -264,13 +271,15 @@ export function ShoppingListManager({
               )}
               <h3 className="mt-3 font-semibold">
                 {items.length === 0
-                  ? "Start your shopping list"
-                  : "Everything is checked off"}
+                  ? t("Start your shopping list")
+                  : t("Everything is checked off")}
               </h3>
               <p className="mt-1 text-sm text-muted-foreground">
                 {items.length === 0
-                  ? "Add an item above, or send missing ingredients here from a recipe."
-                  : "Move purchased items to the pantry when you are ready."}
+                  ? t(
+                      "Add an item above, or send missing ingredients here from a recipe.",
+                    )
+                  : t("Move purchased items to the pantry when you are ready.")}
               </p>
             </div>
           </div>
@@ -285,26 +294,29 @@ export function ShoppingListManager({
                 id="shopping-completed"
                 className="text-xl font-semibold text-muted-foreground"
               >
-                Purchased
+                {t("Purchased")}
               </h2>
-              <Badge variant="outline">{completed.length}</Badge>
+              <Badge variant="outline">{formatNumber(completed.length)}</Badge>
             </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button variant="ghost" size="sm">
-                  Clear completed
+                  {t("Clear completed")}
                 </Button>
               </AlertDialogTrigger>
               <AlertDialogContent>
                 <AlertDialogHeader>
-                  <AlertDialogTitle>Clear purchased items?</AlertDialogTitle>
+                  <AlertDialogTitle>
+                    {t("Clear purchased items?")}
+                  </AlertDialogTitle>
                   <AlertDialogDescription>
-                    This deletes checked items without adding them to the
-                    pantry.
+                    {t(
+                      "This deletes checked items without adding them to the pantry.",
+                    )}
                   </AlertDialogDescription>
                 </AlertDialogHeader>
                 <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
+                  <AlertDialogCancel>{t("Cancel")}</AlertDialogCancel>
                   <AlertDialogAction
                     variant="destructive"
                     disabled={pending}
@@ -319,7 +331,7 @@ export function ShoppingListManager({
                       )
                     }
                   >
-                    Clear items
+                    {t("Clear items")}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
@@ -352,26 +364,28 @@ export function ShoppingListManager({
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Add shopping item</DialogTitle>
+            <DialogTitle>{t("Add shopping item")}</DialogTitle>
             <DialogDescription>
-              Existing duplicates are merged when their units are compatible.
+              {t(
+                "Existing duplicates are merged when their units are compatible.",
+              )}
             </DialogDescription>
           </DialogHeader>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label>Ingredient catalog</Label>
+              <Label>{t("Ingredient catalog")}</Label>
               <Select
                 value={ingredientId || "custom"}
                 onValueChange={chooseIngredient}
               >
                 <SelectTrigger
                   className="w-full"
-                  aria-label="Ingredient catalog"
+                  aria-label={t("Ingredient catalog")}
                 >
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="custom">Custom item</SelectItem>
+                  <SelectItem value="custom">{t("Custom item")}</SelectItem>
                   {catalog.map((ingredient) => (
                     <SelectItem key={ingredient.id} value={ingredient.id}>
                       {ingredient.displayName}
@@ -381,7 +395,7 @@ export function ShoppingListManager({
               </Select>
             </div>
             <div className="space-y-2 sm:col-span-2">
-              <Label htmlFor="shopping-name">Item name</Label>
+              <Label htmlFor="shopping-name">{t("Item name")}</Label>
               <Input
                 id="shopping-name"
                 value={name}
@@ -389,7 +403,7 @@ export function ShoppingListManager({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shopping-quantity">Quantity</Label>
+              <Label htmlFor="shopping-quantity">{t("Quantity")}</Label>
               <Input
                 id="shopping-quantity"
                 inputMode="decimal"
@@ -398,7 +412,7 @@ export function ShoppingListManager({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="shopping-unit">Unit</Label>
+              <Label htmlFor="shopping-unit">{t("Unit")}</Label>
               <Input
                 id="shopping-unit"
                 list="shopping-units"
@@ -414,11 +428,11 @@ export function ShoppingListManager({
           </datalist>
           <DialogFooter>
             <Button variant="outline" onClick={() => setDialogOpen(false)}>
-              Cancel
+              {t("Cancel")}
             </Button>
             <Button onClick={addItem} disabled={pending || !name.trim()}>
-              {pending && <LoaderCircle className="size-4 animate-spin" />}Add
-              item
+              {pending && <LoaderCircle className="size-4 animate-spin" />}
+              {t("Add item")}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -440,6 +454,7 @@ function ShoppingRow({
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const { t, formatNumber } = useI18n();
   return (
     <li
       className={cn(
@@ -452,7 +467,10 @@ function ShoppingRow({
         onCheckedChange={onToggle}
         disabled={pending}
         className={large ? "size-7" : ""}
-        aria-label={`Mark ${item.ingredientName} ${item.isCompleted ? "needed" : "purchased"}`}
+        aria-label={t("Mark {name} {state}", {
+          name: item.ingredientName,
+          state: t(item.isCompleted ? "needed" : "purchased"),
+        })}
       />
       <div className="min-w-0 flex-1">
         <p
@@ -462,7 +480,8 @@ function ShoppingRow({
             large && "text-xl",
           )}
         >
-          {item.quantity !== null && `${item.quantity} ${item.unit ?? ""} `}
+          {item.quantity !== null &&
+            `${formatNumber(item.quantity)} ${item.unit ?? ""} `}
           {item.ingredientName}
         </p>
         {item.recipeId && (
@@ -470,7 +489,7 @@ function ShoppingRow({
             href={`/recipes/${item.recipeId}`}
             className="mt-1 block text-xs text-primary-text [overflow-wrap:anywhere] hover:underline"
           >
-            For {item.recipeTitle ?? "a recipe"}
+            {t("For {recipe}", { recipe: item.recipeTitle ?? t("a recipe") })}
           </Link>
         )}
       </div>
@@ -479,7 +498,7 @@ function ShoppingRow({
         size="icon-sm"
         onClick={onDelete}
         disabled={pending}
-        aria-label={`Delete ${item.ingredientName}`}
+        aria-label={t("Delete {name}", { name: item.ingredientName })}
       >
         <Trash2 className="size-4" />
       </Button>

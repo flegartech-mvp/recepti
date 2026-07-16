@@ -20,6 +20,7 @@ import {
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useI18n } from "@/components/i18n-provider";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -51,6 +52,7 @@ import {
 import { formatScaledQuantity } from "@/lib/domain";
 import type { RecipeMatchResult } from "@/lib/domain";
 import type { Recipe } from "@/types/domain";
+import { getMatchReason } from "@/features/matcher/match-copy";
 
 export function RecipeDetailControls({
   recipe,
@@ -60,6 +62,7 @@ export function RecipeDetailControls({
   match: RecipeMatchResult;
 }) {
   const router = useRouter();
+  const { t, formatList, formatNumber, plural } = useI18n();
   const [pending, startTransition] = useTransition();
   const [favorite, setFavorite] = useState(recipe.isFavorite);
   const [servings, setServings] = useState(recipe.servings);
@@ -106,10 +109,10 @@ export function RecipeDetailControls({
     startTransition(async () => {
       const result = await action();
       if (!result.ok) {
-        toast.error(result.message ?? "The action could not be completed.");
+        toast.error(t(result.message ?? "The action could not be completed."));
         return;
       }
-      toast.success(success);
+      toast.success(t(success));
       after?.();
       if (refresh) router.refresh();
     });
@@ -119,15 +122,17 @@ export function RecipeDetailControls({
     startTransition(async () => {
       const result = await deleteRecipeAction(recipe.id);
       if (!result.ok) {
-        toast.error(result.message);
+        toast.error(t(result.message));
         return;
       }
       if (result.data.storageCleanupPending) {
         toast.warning(
-          "Recipe deleted. A private image file may still need removal in Supabase Storage.",
+          t(
+            "Recipe deleted. A private image file may still need removal in Supabase Storage.",
+          ),
         );
       } else {
-        toast.success("Recipe deleted");
+        toast.success(t("Recipe deleted"));
       }
       router.replace("/recipes");
     });
@@ -146,13 +151,13 @@ export function RecipeDetailControls({
         <Button asChild>
           <Link href={`/recipes/${recipe.id}/cook`}>
             <ChefHat className="size-4" aria-hidden="true" />
-            Start cooking
+            {t("Start cooking")}
           </Link>
         </Button>
         <Button asChild variant="outline">
           <Link href={`/recipes/${recipe.id}/edit`}>
             <Pencil className="size-4" aria-hidden="true" />
-            Edit
+            {t("Edit")}
           </Link>
         </Button>
         <Button
@@ -171,32 +176,32 @@ export function RecipeDetailControls({
             className={favorite ? "size-4 fill-current" : "size-4"}
             aria-hidden="true"
           />
-          {favorite ? "Favorited" : "Favorite"}
+          {t(favorite ? "Favorited" : "Favorite")}
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost">More</Button>
+            <Button variant="ghost">{t("More")}</Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onSelect={() => window.print()}>
               <Printer className="size-4" />
-              Print recipe
+              {t("Print recipe")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() =>
                 startTransition(async () => {
                   const result = await duplicateRecipeAction(recipe.id);
                   if (!result.ok) {
-                    toast.error(result.message);
+                    toast.error(t(result.message));
                     return;
                   }
-                  toast.success("Recipe duplicated");
+                  toast.success(t("Recipe duplicated"));
                   router.push(`/recipes/${result.data.id}`);
                 })
               }
             >
               <Copy className="size-4" />
-              Duplicate recipe
+              {t("Duplicate recipe")}
             </DropdownMenuItem>
             <DropdownMenuItem
               onSelect={() =>
@@ -207,7 +212,7 @@ export function RecipeDetailControls({
               }
             >
               <PackagePlus className="size-4" />
-              Add ingredients to pantry
+              {t("Add ingredients to pantry")}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -218,21 +223,22 @@ export function RecipeDetailControls({
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="size-4" aria-hidden="true" />
-              Delete
+              {t("Delete")}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Delete this recipe?</AlertDialogTitle>
+              <AlertDialogTitle>{t("Delete this recipe?")}</AlertDialogTitle>
               <AlertDialogDescription>
-                This removes the recipe, its ingredients, steps, and cooking
-                history. This cannot be undone.
+                {t(
+                  "This removes the recipe, its ingredients, steps, and cooking history. This cannot be undone.",
+                )}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
-              <AlertDialogCancel>Keep recipe</AlertDialogCancel>
+              <AlertDialogCancel>{t("Keep recipe")}</AlertDialogCancel>
               <AlertDialogAction variant="destructive" onClick={deleteRecipe}>
-                Delete recipe
+                {t("Delete recipe")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -248,14 +254,14 @@ export function RecipeDetailControls({
       >
         <Check className="size-4" aria-hidden="true" />
         <AlertTitle>
-          {matchLabel} at {match.matchPercentage}%
+          {t(matchLabel)} {t("at")} {formatNumber(match.matchPercentage)}%
         </AlertTitle>
         <AlertDescription className="space-y-2 [overflow-wrap:anywhere]">
-          <p>{match.reason}</p>
+          <p>{getMatchReason(match, { t, formatList, plural })}</p>
           {match.missingIngredients.length > 0 && (
             <p>
-              <strong>Missing:</strong>{" "}
-              {match.missingIngredients.map((item) => item.name).join(", ")}
+              <strong>{t("Missing")}:</strong>{" "}
+              {formatList(match.missingIngredients.map((item) => item.name))}
             </p>
           )}
         </AlertDescription>
@@ -278,7 +284,7 @@ export function RecipeDetailControls({
             }
           >
             <ShoppingBasket className="size-4" aria-hidden="true" />
-            Add missing to list
+            {t("Add missing to list")}
           </Button>
         )}
       </Alert>
@@ -293,15 +299,17 @@ export function RecipeDetailControls({
               id="ingredients-heading"
               className="text-2xl font-semibold tracking-tight"
             >
-              Ingredients
+              {t("Ingredients")}
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Base recipe: {recipe.servings} servings
+              {t("Base recipe: {count} servings", {
+                count: formatNumber(recipe.servings),
+              })}
             </p>
           </div>
           <div
             className="no-print flex items-center rounded-xl border border-border bg-background p-1"
-            aria-label="Adjust servings"
+            aria-label={t("Adjust servings")}
           >
             <Button
               type="button"
@@ -310,19 +318,19 @@ export function RecipeDetailControls({
               onClick={() =>
                 setServings((value) => Math.max(0.25, value - 0.5))
               }
-              aria-label="Decrease servings"
+              aria-label={t("Decrease servings")}
             >
               <Minus className="size-4" />
             </Button>
             <span className="min-w-20 text-center text-sm font-semibold tabular-nums">
-              {servings} servings
+              {t("{count} servings", { count: formatNumber(servings) })}
             </span>
             <Button
               type="button"
               size="icon-sm"
               variant="ghost"
               onClick={() => setServings((value) => Math.min(100, value + 0.5))}
-              aria-label="Increase servings"
+              aria-label={t("Increase servings")}
             >
               <Plus className="size-4" />
             </Button>
@@ -340,7 +348,9 @@ export function RecipeDetailControls({
                   className="no-print mt-0.5"
                   checked={selected}
                   onCheckedChange={() => toggleIngredient(item.id)}
-                  aria-label={`Mark ${item.displayName} as prepared`}
+                  aria-label={t("Mark {name} as prepared", {
+                    name: item.displayName,
+                  })}
                 />
                 <span
                   className={
@@ -365,12 +375,12 @@ export function RecipeDetailControls({
                   )}
                   {item.isOptional && (
                     <Badge variant="outline" className="ml-2">
-                      Optional
+                      {t("Optional")}
                     </Badge>
                   )}
                   {item.isGarnish && (
                     <Badge variant="outline" className="ml-2">
-                      Garnish
+                      {t("Garnish")}
                     </Badge>
                   )}
                 </span>
@@ -396,7 +406,7 @@ export function RecipeDetailControls({
           ) : (
             <Check className="size-4" />
           )}
-          Mark as cooked
+          {t("Mark as cooked")}
         </Button>
         <Button
           variant="outline"
@@ -405,7 +415,7 @@ export function RecipeDetailControls({
             localStorage.removeItem(storageKey);
           }}
         >
-          Clear ingredient checks
+          {t("Clear ingredient checks")}
         </Button>
       </div>
     </div>

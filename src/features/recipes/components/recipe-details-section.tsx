@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { ImagePlus, X } from "lucide-react";
 import type { ChangeEventHandler } from "react";
@@ -25,6 +27,7 @@ import { Textarea } from "@/components/ui/textarea";
 import type { EditorValues } from "@/features/recipes/components/recipe-editor-types";
 import { DIFFICULTIES, MEAL_CATEGORIES } from "@/lib/constants";
 import type { MealCategory } from "@/types/domain";
+import { useI18n } from "@/components/i18n-provider";
 
 interface RecipeDetailsSectionProps {
   form: UseFormReturn<EditorValues>;
@@ -47,24 +50,27 @@ export function RecipeDetailsSection({
   onImageChange,
   onRemoveImage,
 }: RecipeDetailsSectionProps) {
+  const { t, formatNumber } = useI18n();
   return (
     <Card>
       <CardHeader>
         <CardTitle>
-          <h2>The recipe</h2>
+          <h2>{t("The recipe")}</h2>
         </CardTitle>
         <CardDescription>
-          Start with the details that make this dish easy to recognize later.
+          {t(
+            "Start with the details that make this dish easy to recognize later.",
+          )}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-6 lg:grid-cols-[1fr_18rem]">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="title">Recipe title</Label>
+            <Label htmlFor="title">{t("Recipe title")}</Label>
             <Input
               id="title"
               {...form.register("title", {
-                required: "Give this recipe a title.",
+                required: t("Give this recipe a title."),
               })}
               aria-invalid={Boolean(
                 form.formState.errors.title || validationMessages.title,
@@ -74,12 +80,12 @@ export function RecipeDetailsSection({
               validationMessages.title) && (
               <p className="text-sm text-destructive">
                 {form.formState.errors.title?.message ??
-                  validationMessages.title}
+                  t(validationMessages.title)}
               </p>
             )}
           </div>
           <div className="space-y-2 sm:col-span-2">
-            <Label htmlFor="description">Short description</Label>
+            <Label htmlFor="description">{t("Short description")}</Label>
             <Textarea
               id="description"
               {...form.register("description")}
@@ -87,7 +93,7 @@ export function RecipeDetailsSection({
             />
           </div>
           <div className="space-y-2">
-            <Label>Meal category</Label>
+            <Label>{t("Meal category")}</Label>
             <Select
               value={category}
               onValueChange={(value) =>
@@ -96,48 +102,48 @@ export function RecipeDetailsSection({
                 })
               }
             >
-              <SelectTrigger className="w-full" aria-label="Meal category">
+              <SelectTrigger className="w-full" aria-label={t("Meal category")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {MEAL_CATEGORIES.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
-                    {item.label}
+                    {t(item.label)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label>Difficulty</Label>
+            <Label>{t("Difficulty")}</Label>
             <Select
               value={difficulty}
               onValueChange={(value: EditorValues["difficulty"]) =>
                 form.setValue("difficulty", value, { shouldDirty: true })
               }
             >
-              <SelectTrigger className="w-full" aria-label="Difficulty">
+              <SelectTrigger className="w-full" aria-label={t("Difficulty")}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 {DIFFICULTIES.map((item) => (
                   <SelectItem key={item.value} value={item.value}>
-                    {item.label}
+                    {t(item.label)}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
           </div>
           <div className="space-y-2">
-            <Label htmlFor="cuisine">Cuisine</Label>
+            <Label htmlFor="cuisine">{t("Cuisine")}</Label>
             <Input
               id="cuisine"
               {...form.register("cuisine")}
-              placeholder="Slovenian, Italian, Mediterranean"
+              placeholder={t("Slovenian, Italian, Mediterranean")}
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="servings">Servings</Label>
+            <Label htmlFor="servings">{t("Servings")}</Label>
             <Input
               id="servings"
               type="number"
@@ -148,13 +154,13 @@ export function RecipeDetailsSection({
             />
             {validationMessages.servings && (
               <p className="text-xs text-destructive">
-                {validationMessages.servings}
+                {t(validationMessages.servings)}
               </p>
             )}
           </div>
           <div className="grid grid-cols-3 gap-3 sm:col-span-2">
             <div className="space-y-2">
-              <Label htmlFor="prep">Prep min</Label>
+              <Label htmlFor="prep">{t("Prep min")}</Label>
               <Input
                 id="prep"
                 type="number"
@@ -164,7 +170,7 @@ export function RecipeDetailsSection({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="cook">Cook min</Label>
+              <Label htmlFor="cook">{t("Cook min")}</Label>
               <Input
                 id="cook"
                 type="number"
@@ -174,7 +180,7 @@ export function RecipeDetailsSection({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="rest">Rest min</Label>
+              <Label htmlFor="rest">{t("Rest min")}</Label>
               <Input
                 id="rest"
                 type="number"
@@ -187,16 +193,18 @@ export function RecipeDetailsSection({
               validationMessages.cookMinutes ||
               validationMessages.restMinutes) && (
               <p className="col-span-3 text-xs text-destructive">
-                {validationMessages.prepMinutes ??
-                  validationMessages.cookMinutes ??
-                  validationMessages.restMinutes}
+                {t(
+                  validationMessages.prepMinutes ??
+                    validationMessages.cookMinutes ??
+                    validationMessages.restMinutes,
+                )}
               </p>
             )}
           </div>
         </div>
 
         <div className="space-y-3">
-          <Label htmlFor="cover-image">Cover image</Label>
+          <Label htmlFor="cover-image">{t("Cover image")}</Label>
           <input
             id="cover-image"
             type="file"
@@ -211,7 +219,7 @@ export function RecipeDetailsSection({
             {imagePreview ? (
               <Image
                 src={imagePreview}
-                alt="Recipe cover preview"
+                alt={t("Recipe cover preview")}
                 fill
                 sizes="18rem"
                 unoptimized
@@ -221,9 +229,9 @@ export function RecipeDetailsSection({
               <span className="space-y-2 text-sm text-muted-foreground">
                 <ImagePlus className="mx-auto size-7" aria-hidden="true" />
                 <span className="block">
-                  JPEG, PNG, or WebP
+                  {t("JPEG, PNG, or WebP")}
                   <br />
-                  up to 6 MB
+                  {t("up to 6 MB")}
                 </span>
               </span>
             )}
@@ -236,14 +244,16 @@ export function RecipeDetailsSection({
               onClick={onRemoveImage}
             >
               <X className="size-4" aria-hidden="true" />
-              Remove image
+              {t("Remove image")}
             </Button>
           )}
           {uploadProgress > 0 && (
             <div className="space-y-1.5">
               <Progress value={uploadProgress} />
               <p className="text-xs text-muted-foreground">
-                Uploading {uploadProgress}%
+                {t("Uploading {percentage}%", {
+                  percentage: formatNumber(uploadProgress),
+                })}
               </p>
             </div>
           )}

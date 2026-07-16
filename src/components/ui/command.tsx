@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { InputGroup, InputGroupAddon } from "@/components/ui/input-group";
 import { SearchIcon, CheckIcon } from "lucide-react";
+import { useI18n } from "@/components/i18n-provider";
 
 function Command({
   className,
@@ -43,11 +44,12 @@ function CommandDialog({
   className?: string;
   showCloseButton?: boolean;
 }) {
+  const { t } = useI18n();
   return (
     <Dialog {...props}>
       <DialogHeader className="sr-only">
-        <DialogTitle>{title}</DialogTitle>
-        <DialogDescription>{description}</DialogDescription>
+        <DialogTitle>{t(title)}</DialogTitle>
+        <DialogDescription>{t(description)}</DialogDescription>
       </DialogHeader>
       <DialogContent
         className={cn("overflow-hidden rounded-xl! p-0", className)}

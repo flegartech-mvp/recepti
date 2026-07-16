@@ -1,3 +1,5 @@
+"use client";
+
 import type { UseFormReturn } from "react-hook-form";
 
 import {
@@ -12,6 +14,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import type { EditorValues } from "@/features/recipes/components/recipe-editor-types";
+import { useI18n } from "@/components/i18n-provider";
 
 interface RecipeNotesSectionProps {
   form: UseFormReturn<EditorValues>;
@@ -24,39 +27,40 @@ export function RecipeNotesSection({
   isFavorite,
   validationMessages,
 }: RecipeNotesSectionProps) {
+  const { t } = useI18n();
   return (
     <Card>
       <CardHeader>
         <CardTitle>
-          <h2>Notes and organization</h2>
+          <h2>{t("Notes and organization")}</h2>
         </CardTitle>
         <CardDescription>
-          Add only the context you will want when cooking this again.
+          {t("Add only the context you will want when cooking this again.")}
         </CardDescription>
       </CardHeader>
       <CardContent className="grid gap-5 sm:grid-cols-2">
         <div className="space-y-2">
-          <Label htmlFor="dietary-tags">Dietary tags</Label>
+          <Label htmlFor="dietary-tags">{t("Dietary tags")}</Label>
           <Input
             id="dietary-tags"
             {...form.register("dietaryTags")}
-            placeholder="Vegetarian, gluten-free"
+            placeholder={t("Vegetarian, gluten-free")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="custom-tags">Custom tags</Label>
+          <Label htmlFor="custom-tags">{t("Custom tags")}</Label>
           <Input
             id="custom-tags"
             {...form.register("customTags")}
-            placeholder="Weeknight, freezer-friendly"
+            placeholder={t("Weeknight, freezer-friendly")}
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="source-name">Source name</Label>
+          <Label htmlFor="source-name">{t("Source name")}</Label>
           <Input id="source-name" {...form.register("sourceName")} />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="source-url">Source URL</Label>
+          <Label htmlFor="source-url">{t("Source URL")}</Label>
           <Input
             id="source-url"
             type="url"
@@ -66,12 +70,12 @@ export function RecipeNotesSection({
           />
           {validationMessages.sourceUrl && (
             <p className="text-xs text-destructive">
-              {validationMessages.sourceUrl}
+              {t(validationMessages.sourceUrl)}
             </p>
           )}
         </div>
         <div className="space-y-2 sm:col-span-2">
-          <Label htmlFor="notes">Personal notes</Label>
+          <Label htmlFor="notes">{t("Personal notes")}</Label>
           <Textarea id="notes" rows={5} {...form.register("notes")} />
         </div>
         <label className="flex min-h-11 items-center gap-3 text-sm font-medium sm:col-span-2">
@@ -83,7 +87,7 @@ export function RecipeNotesSection({
               })
             }
           />
-          Keep this recipe in favorites
+          {t("Keep this recipe in favorites")}
         </label>
       </CardContent>
     </Card>

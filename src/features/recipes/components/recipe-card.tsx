@@ -1,8 +1,11 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ChefHat, Clock3, Gauge, Heart, Soup } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
+import { useI18n } from "@/components/i18n-provider";
 import { cn } from "@/lib/utils";
 import type { RecipeSummary } from "@/types/domain";
 
@@ -24,6 +27,7 @@ export function RecipeCard({
   recipe: RecipeSummary;
   compact?: boolean;
 }) {
+  const { t, formatNumber } = useI18n();
   if (compact) {
     return (
       <article className="group relative grid grid-cols-[4.5rem_1fr_auto] items-center gap-4 rounded-xl border border-border bg-card p-3 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-primary/40 hover:shadow-[0_8px_20px_var(--shadow)]">
@@ -41,14 +45,20 @@ export function RecipeCard({
             {recipe.isFavorite && (
               <Heart
                 className="size-4 shrink-0 fill-current text-primary-text"
-                aria-label="Favorite"
+                aria-label={t("Favorite")}
               />
             )}
           </div>
           <p className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-            <span>{categoryLabels[recipe.category]}</span>
-            <span>{recipe.totalMinutes} min</span>
-            <span className="capitalize">{recipe.difficulty}</span>
+            <span>{t(categoryLabels[recipe.category])}</span>
+            <span>
+              {t("{count} min", { count: formatNumber(recipe.totalMinutes) })}
+            </span>
+            <span>
+              {t(
+                recipe.difficulty[0].toUpperCase() + recipe.difficulty.slice(1),
+              )}
+            </span>
           </p>
         </div>
         {recipe.matchPercentage !== undefined && (
@@ -75,7 +85,7 @@ export function RecipeCard({
             {recipe.isFavorite && (
               <Heart
                 className="mt-0.5 size-[1.1rem] shrink-0 fill-current text-primary-text"
-                aria-label="Favorite"
+                aria-label={t("Favorite")}
               />
             )}
           </div>
@@ -86,7 +96,9 @@ export function RecipeCard({
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <Badge variant="secondary">{categoryLabels[recipe.category]}</Badge>
+          <Badge variant="secondary">
+            {t(categoryLabels[recipe.category])}
+          </Badge>
           {recipe.dietaryTags.slice(0, 2).map((tag) => (
             <Badge key={tag} variant="outline">
               {tag}
@@ -96,11 +108,11 @@ export function RecipeCard({
         <div className="mt-auto flex items-center justify-between border-t border-border/70 pt-4 text-xs text-muted-foreground">
           <span className="flex items-center gap-1.5">
             <Clock3 className="size-3.5" aria-hidden="true" />
-            {recipe.totalMinutes} min
+            {t("{count} min", { count: formatNumber(recipe.totalMinutes) })}
           </span>
           <span className="flex items-center gap-1.5 capitalize">
             <ChefHat className="size-3.5" aria-hidden="true" />
-            {recipe.difficulty}
+            {t(recipe.difficulty[0].toUpperCase() + recipe.difficulty.slice(1))}
           </span>
           {recipe.matchPercentage !== undefined && (
             <PantryMatchIndicator percentage={recipe.matchPercentage} />
@@ -118,8 +130,11 @@ function PantryMatchIndicator({
   percentage: number;
   compact?: boolean;
 }) {
+  const { t, formatNumber } = useI18n();
   const roundedPercentage = Math.round(percentage);
-  const label = `${roundedPercentage}% pantry match`;
+  const label = t("{percentage}% pantry match", {
+    percentage: formatNumber(roundedPercentage),
+  });
 
   return (
     <Badge
@@ -132,8 +147,10 @@ function PantryMatchIndicator({
       )}
     >
       <Gauge aria-hidden="true" />
-      <span>{roundedPercentage}%</span>
-      <span className={compact ? "hidden sm:inline" : undefined}>pantry</span>
+      <span>{formatNumber(roundedPercentage)}%</span>
+      <span className={compact ? "hidden sm:inline" : undefined}>
+        {t("pantry")}
+      </span>
     </Badge>
   );
 }
@@ -145,6 +162,7 @@ function RecipeImage({
   recipe: RecipeSummary;
   className?: string;
 }) {
+  const { t } = useI18n();
   return (
     <div
       className={cn(
@@ -155,7 +173,7 @@ function RecipeImage({
       {recipe.imageUrl ? (
         <Image
           src={recipe.imageUrl}
-          alt={`Cover for ${recipe.title}`}
+          alt={t("Cover for {title}", { title: recipe.title })}
           fill
           sizes="(max-width: 768px) 92vw, (max-width: 1280px) 45vw, 30vw"
           className="object-cover transition-transform duration-200 group-hover:scale-[1.025]"

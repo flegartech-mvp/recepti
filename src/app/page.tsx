@@ -9,12 +9,14 @@ import {
 } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { signInWithGoogle } from "@/lib/auth/actions";
 import { getAuthorizationState } from "@/lib/auth/authorization";
 import { safeInternalPath } from "@/lib/auth/redirects";
+import { getServerI18n } from "@/lib/i18n/server";
 
 export const dynamic = "force-dynamic";
 
@@ -31,6 +33,7 @@ export default async function LandingPage({
   if (state.status === "denied") redirect("/private");
 
   const nextPath = safeInternalPath(parameters.next);
+  const { t } = await getServerI18n();
 
   return (
     <main className="min-h-[100dvh] overflow-hidden">
@@ -38,13 +41,14 @@ export default async function LandingPage({
 
       <nav
         className="safe-landing-header safe-inline mx-auto flex w-full max-w-7xl items-center justify-between"
-        aria-label="Public navigation"
+        aria-label={t("Public navigation")}
       >
         <Logo />
         <div className="flex items-center gap-3">
           <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
-            Private by design
+            {t("Private by design")}
           </span>
+          <LanguageSwitcher />
           <ThemeToggle />
         </div>
       </nav>
@@ -52,11 +56,12 @@ export default async function LandingPage({
       <section className="safe-inline mx-auto grid min-h-[calc(100dvh-5rem)] w-full max-w-7xl items-center gap-10 pb-14 pt-5 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pb-20 lg:pt-8">
         <div className="max-w-xl">
           <h1 className="text-balance text-4xl font-semibold leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-6xl">
-            A cookbook that knows what&apos;s at home.
+            {t("A cookbook that knows what's at home.")}
           </h1>
           <p className="mt-6 max-w-[48ch] text-lg leading-relaxed text-muted-foreground sm:text-xl">
-            Save every favorite, keep the pantry close, and find dinner without
-            the usual guesswork.
+            {t(
+              "Save every favorite, keep the pantry close, and find dinner without the usual guesswork.",
+            )}
           </p>
           <form action={signInWithGoogle} className="mt-8">
             <input type="hidden" name="next" value={nextPath} />
@@ -65,17 +70,17 @@ export default async function LandingPage({
               className="h-13 min-w-56 px-6 text-base shadow-lg shadow-primary/15"
             >
               <LogIn className="size-5" aria-hidden="true" />
-              Continue with Google
+              {t("Continue with Google")}
               <ArrowRight className="size-4" aria-hidden="true" />
             </Button>
           </form>
           {!state.configured && (
             <Alert className="mt-6 max-w-lg border-notice bg-notice/40">
-              <AlertTitle>Finish Google sign-in setup</AlertTitle>
+              <AlertTitle>{t("Finish Google sign-in setup")}</AlertTitle>
               <AlertDescription>
-                This copy has no Supabase connection yet. Add
-                NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and
-                OWNER_EMAIL in .env.local, then enable Google in Supabase Auth.
+                {t(
+                  "This copy has no Supabase connection yet. Add NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and OWNER_EMAIL in .env.local, then enable Google in Supabase Auth.",
+                )}
               </AlertDescription>
             </Alert>
           )}
@@ -85,7 +90,9 @@ export default async function LandingPage({
           <div className="organic-shadow relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-surface-tint">
             <Image
               src="/images/menta-hero.png"
-              alt="Fresh herb pasta beside a mint ceramic bowl, basil, and a recipe notebook"
+              alt={t(
+                "Fresh herb pasta beside a mint ceramic bowl, basil, and a recipe notebook",
+              )}
               fill
               priority
               sizes="(max-width: 1024px) 92vw, 46vw"
@@ -99,10 +106,10 @@ export default async function LandingPage({
               </span>
               <p className="text-sm leading-relaxed">
                 <strong className="block text-foreground">
-                  Dinner, made simpler
+                  {t("Dinner, made simpler")}
                 </strong>
                 <span className="text-muted-foreground">
-                  Nana&apos;s Recipes compares saved recipes with the pantry.
+                  {t("Nana's Recipes compares saved recipes with the pantry.")}
                 </span>
               </p>
             </div>
@@ -123,11 +130,12 @@ export default async function LandingPage({
               id="landing-features"
               className="mt-8 max-w-md text-3xl font-semibold tracking-tight sm:text-4xl"
             >
-              Every trusted recipe, thoughtfully kept.
+              {t("Every trusted recipe, thoughtfully kept.")}
             </h2>
             <p className="mt-4 max-w-xl text-muted-foreground">
-              Ingredients, ordered steps, notes, favorites, cooking history, and
-              images stay together in one calm private space.
+              {t(
+                "Ingredients, ordered steps, notes, favorites, cooking history, and images stay together in one calm private space.",
+              )}
             </p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-1">
@@ -137,20 +145,21 @@ export default async function LandingPage({
                 aria-hidden="true"
               />
               <h3 className="mt-6 text-lg font-semibold">
-                A pantry with a purpose
+                {t("A pantry with a purpose")}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-                Track what is fresh, low, expiring, or ready to use.
+                {t("Track what is fresh, low, expiring, or ready to use.")}
               </p>
             </div>
             <div className="rounded-2xl border border-primary/20 bg-primary-soft p-6 text-foreground">
               <Sparkles className="size-6" aria-hidden="true" />
               <h3 className="mt-6 text-lg font-semibold">
-                A clear answer for tonight
+                {t("A clear answer for tonight")}
               </h3>
               <p className="mt-2 text-sm leading-relaxed text-foreground/70">
-                See complete matches first, then honest missing-ingredient
-                details.
+                {t(
+                  "See complete matches first, then honest missing-ingredient details.",
+                )}
               </p>
             </div>
           </div>
