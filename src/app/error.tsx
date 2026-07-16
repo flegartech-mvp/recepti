@@ -3,6 +3,7 @@
 import { AlertTriangle, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function ErrorPage({
   reset,
@@ -11,7 +12,8 @@ export default function ErrorPage({
   reset: () => void;
 }) {
   return (
-    <main className="grid min-h-[60dvh] place-items-center px-4 py-12">
+    <main className="safe-inline grid min-h-[60dvh] place-items-center py-12">
+      <ThemeToggle className="safe-top-control fixed z-20" />
       <div className="max-w-md space-y-6 text-center">
         <span className="mx-auto grid size-14 place-items-center rounded-xl bg-destructive/10 text-destructive">
           <AlertTriangle className="size-7" aria-hidden="true" />

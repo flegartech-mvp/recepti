@@ -44,7 +44,7 @@ export default async function RecipeDetailPage({
     <PageContainer className="max-w-6xl">
       <article className="space-y-8">
         <header className="grid items-center gap-8 lg:grid-cols-[1.02fr_0.98fr]">
-          <div className="relative aspect-[4/3] overflow-hidden rounded-2xl bg-[linear-gradient(145deg,var(--mint-soft),color-mix(in_oklab,var(--peach)_50%,var(--background)))]">
+          <div className="organic-shadow relative aspect-[4/3] overflow-hidden rounded-2xl border border-border bg-[linear-gradient(145deg,var(--surface-tint),color-mix(in_oklab,var(--accent)_46%,var(--background)))]">
             {recipe.imageUrl ? (
               <Image
                 src={recipe.imageUrl}
@@ -55,7 +55,7 @@ export default async function RecipeDetailPage({
                 className="object-cover"
               />
             ) : (
-              <div className="grid h-full place-items-center text-forest/40">
+              <div className="grid h-full place-items-center text-muted-foreground/50">
                 <Soup
                   className="size-20"
                   strokeWidth={1.2}
@@ -86,11 +86,11 @@ export default async function RecipeDetailPage({
                 </Badge>
               ))}
             </div>
-            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.02] tracking-[-0.05em] sm:text-5xl">
+            <h1 className="mt-5 text-balance text-4xl font-semibold leading-[1.04] tracking-[-0.04em] [overflow-wrap:anywhere] sm:text-5xl">
               {recipe.title}
             </h1>
             {recipe.description && (
-              <p className="mt-5 max-w-[55ch] text-lg leading-relaxed text-muted-foreground">
+              <p className="mt-5 max-w-[55ch] text-lg leading-relaxed text-muted-foreground [overflow-wrap:anywhere]">
                 {recipe.description}
               </p>
             )}
@@ -157,7 +157,7 @@ export default async function RecipeDetailPage({
         <RecipeDetailControls recipe={recipe} match={match} />
 
         <section
-          className="rounded-2xl border border-border bg-card p-5 sm:p-7"
+          className="rounded-2xl border border-border bg-card p-5 shadow-[0_8px_24px_var(--shadow)] sm:p-7"
           aria-labelledby="steps-heading"
         >
           <h2
@@ -176,9 +176,11 @@ export default async function RecipeDetailPage({
                   {index + 1}
                 </span>
                 <div className="pt-1">
-                  <p className="leading-relaxed">{step.instruction}</p>
+                  <p className="max-w-[72ch] leading-relaxed [overflow-wrap:anywhere]">
+                    {step.instruction}
+                  </p>
                   {step.timerSeconds && (
-                    <p className="mt-2 text-sm font-medium text-primary">
+                    <p className="mt-2 text-sm font-medium text-primary-text">
                       Timer: {Math.round(step.timerSeconds / 60)} minutes
                     </p>
                   )}
@@ -191,15 +193,15 @@ export default async function RecipeDetailPage({
         {(recipe.notes || recipe.sourceName || recipe.sourceUrl) && (
           <section className="grid gap-5 sm:grid-cols-2">
             {recipe.notes && (
-              <div className="rounded-2xl bg-mint-soft p-6 text-forest">
+              <div className="rounded-2xl border border-primary/15 bg-surface-tint p-6 text-foreground">
                 <h2 className="font-semibold">Personal notes</h2>
-                <p className="mt-3 whitespace-pre-wrap leading-relaxed text-forest/80">
+                <p className="mt-3 whitespace-pre-wrap leading-relaxed text-foreground/75 [overflow-wrap:anywhere]">
                   {recipe.notes}
                 </p>
               </div>
             )}
             {(recipe.sourceName || recipe.sourceUrl) && (
-              <div className="rounded-2xl border border-border bg-card p-6">
+              <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_8px_24px_var(--shadow)]">
                 <h2 className="font-semibold">Source</h2>
                 <p className="mt-3 text-muted-foreground">
                   {recipe.sourceUrl ? (
@@ -207,7 +209,7 @@ export default async function RecipeDetailPage({
                       href={recipe.sourceUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="font-medium text-primary underline underline-offset-4"
+                      className="font-medium text-primary-text underline underline-offset-4 [overflow-wrap:anywhere]"
                     >
                       {recipe.sourceName ?? "Open original source"}
                     </Link>

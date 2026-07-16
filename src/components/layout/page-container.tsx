@@ -10,7 +10,7 @@ export function PageContainer({
   return (
     <div
       className={cn(
-        "mx-auto w-full max-w-[1440px] space-y-8 px-4 py-7 sm:px-6 sm:py-9 xl:px-10",
+        "safe-inline mx-auto w-full max-w-[1360px] space-y-9 py-7 sm:py-10 xl:py-12",
         className,
       )}
     >

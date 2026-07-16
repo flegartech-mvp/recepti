@@ -2,13 +2,15 @@ import Link from "next/link";
 import { CloudOff, RefreshCw } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 
 export const metadata = { title: "Offline" };
 
 export default function OfflinePage() {
   return (
-    <main className="grid min-h-[100dvh] place-items-center px-4 py-12">
+    <main className="safe-inline grid min-h-[100dvh] place-items-center py-12">
+      <ThemeToggle className="safe-top-control fixed z-20" />
       <div className="w-full max-w-md space-y-7 text-center">
         <Logo className="justify-center" />
         <span className="mx-auto grid size-16 place-items-center rounded-2xl bg-accent text-accent-foreground">

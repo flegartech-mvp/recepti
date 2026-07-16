@@ -68,7 +68,7 @@ export function IngredientChecklist({
                   <li key={ingredient.id}>
                     <label
                       className={cn(
-                        "hover:bg-muted/70 focus-within:ring-ring/40 flex min-h-12 cursor-pointer items-start gap-3 rounded-xl px-2 py-2.5 transition-colors focus-within:ring-2",
+                        "hover:bg-muted/70 focus-within:ring-ring flex min-h-12 cursor-pointer items-start gap-3 rounded-xl px-2 py-2.5 transition-colors focus-within:ring-2",
                         checked && "bg-accent/45",
                       )}
                     >

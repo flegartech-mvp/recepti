@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AlertCircle, ArrowLeft } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -27,8 +28,9 @@ export default async function AuthErrorPage({
 }) {
   const reason = (await searchParams).reason ?? "";
   return (
-    <main className="grid min-h-[100dvh] place-items-center px-4 py-12">
-      <Card className="w-full max-w-md border-border/80 shadow-lg shadow-forest/5">
+    <main className="safe-inline grid min-h-[100dvh] place-items-center py-12">
+      <ThemeToggle className="safe-top-control fixed z-20" />
+      <Card className="w-full max-w-md">
         <CardContent className="space-y-6 p-7 sm:p-9">
           <Logo />
           <span className="grid size-12 place-items-center rounded-xl bg-destructive/10 text-destructive">

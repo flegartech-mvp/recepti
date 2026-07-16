@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { signOut } from "@/lib/auth/actions";
@@ -15,8 +16,9 @@ export default async function PrivatePage() {
   if (state.status === "owner") redirect("/dashboard");
 
   return (
-    <main className="grid min-h-[100dvh] place-items-center px-4 py-12">
-      <Card className="w-full max-w-lg overflow-hidden border-border/80 shadow-xl shadow-forest/5">
+    <main className="safe-inline grid min-h-[100dvh] place-items-center py-12">
+      <ThemeToggle className="safe-top-control fixed z-20" />
+      <Card className="w-full max-w-lg overflow-hidden">
         <div className="h-2 bg-primary" />
         <CardContent className="space-y-7 p-7 sm:p-10">
           <Logo />

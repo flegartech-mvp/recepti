@@ -2,8 +2,9 @@
 
 Nana's Recipes is a private digital cookbook for saving recipes, keeping a real pantry,
 and deciding what to cook from ingredients already at home. Its interface uses
-a calm mint-and-sage visual system, responsive navigation, a focused cooking
-mode, and deliberately conservative ingredient/quantity logic.
+a calm neutral-and-mint visual system with persistent light and dark themes,
+responsive navigation, a focused cooking mode, and deliberately conservative
+ingredient/quantity logic.
 
 The current release is owner-only: Google handles identity through Supabase
 Auth, the server requires a signed Google provider claim plus the normalized

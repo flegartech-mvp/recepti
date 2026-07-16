@@ -11,8 +11,8 @@ export function PageHeader({
 }) {
   return (
     <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
-      <div className="min-w-0 space-y-2">
-        <h1 className="text-balance text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">
+      <div className="min-w-0 space-y-2.5">
+        <h1 className="text-balance text-3xl font-semibold leading-tight tracking-[-0.03em] sm:text-[2.65rem]">
           {title}
         </h1>
         {description && (

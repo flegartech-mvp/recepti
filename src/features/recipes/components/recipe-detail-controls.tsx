@@ -243,14 +243,14 @@ export function RecipeDetailControls({
         className={
           match.category === "ready_to_cook"
             ? "border-primary/30 bg-accent/55"
-            : "border-peach bg-peach/25"
+            : "border-notice bg-notice/25"
         }
       >
         <Check className="size-4" aria-hidden="true" />
         <AlertTitle>
           {matchLabel} at {match.matchPercentage}%
         </AlertTitle>
-        <AlertDescription className="space-y-2">
+        <AlertDescription className="space-y-2 [overflow-wrap:anywhere]">
           <p>{match.reason}</p>
           {match.missingIngredients.length > 0 && (
             <p>
@@ -344,7 +344,9 @@ export function RecipeDetailControls({
                 />
                 <span
                   className={
-                    selected ? "text-muted-foreground line-through" : ""
+                    selected
+                      ? "min-w-0 flex-1 text-muted-foreground line-through [overflow-wrap:anywhere]"
+                      : "min-w-0 flex-1 [overflow-wrap:anywhere]"
                   }
                 >
                   <strong className="font-semibold">

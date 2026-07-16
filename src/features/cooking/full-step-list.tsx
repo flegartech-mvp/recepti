@@ -47,7 +47,7 @@ export function FullStepList({
           >
             <button
               type="button"
-              className="focus-visible:ring-ring/40 w-full rounded-lg text-left focus-visible:ring-2"
+              className="focus-visible:ring-ring w-full rounded-lg text-left focus-visible:ring-2"
               onClick={() => onSelectStep(index)}
               aria-current={isCurrent ? "step" : undefined}
             >

@@ -49,7 +49,7 @@ export function TimerControls({
             className={cn(
               "mt-1 font-mono font-semibold tabular-nums",
               compact ? "text-2xl" : "text-3xl sm:text-4xl",
-              timer.status === "complete" && "text-primary",
+              timer.status === "complete" && "text-primary-text",
             )}
             role="timer"
             aria-label={`${timer.label} timer, ${timerStatusText(timer)}, ${formatTimer(timer.remainingSeconds)} remaining`}
@@ -62,7 +62,7 @@ export function TimerControls({
         <span
           className={cn(
             "rounded-full px-2.5 py-1 text-xs font-medium",
-            timer.status === "running" && "bg-peach text-forest",
+            timer.status === "running" && "bg-notice text-notice-foreground",
             timer.status === "paused" && "bg-muted text-muted-foreground",
             timer.status === "complete" && "bg-primary text-primary-foreground",
             timer.status === "idle" && "bg-secondary text-secondary-foreground",

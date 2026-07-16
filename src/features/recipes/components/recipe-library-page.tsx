@@ -220,7 +220,7 @@ export async function RecipeLibraryPage({
       <Button
         asChild
         size="lg"
-        className="fixed bottom-24 right-4 z-10 rounded-full shadow-xl lg:hidden"
+        className="mobile-fab-safe fixed z-10 rounded-full shadow-xl lg:hidden"
       >
         <Link href="/recipes/new">
           <Plus className="size-5" aria-hidden="true" />

@@ -133,9 +133,13 @@ export function SettingsPanel({
                   {profile.name.slice(0, 2).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <div>
-                <p className="font-semibold">{profile.name}</p>
-                <p className="text-sm text-muted-foreground">{profile.email}</p>
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold [overflow-wrap:anywhere]">
+                  {profile.name}
+                </p>
+                <p className="text-sm text-muted-foreground [overflow-wrap:anywhere]">
+                  {profile.email}
+                </p>
               </div>
             </div>
             <form action={signOut}>

@@ -104,7 +104,7 @@ export function RecipeIngredientsSection({
         {fieldArray.fields.map((field, index) => (
           <fieldset
             key={field.id}
-            className="rounded-2xl border border-border p-4"
+            className="rounded-xl border border-border bg-surface-secondary/35 p-4"
           >
             <legend className="px-1 text-sm font-semibold">
               Ingredient {index + 1}

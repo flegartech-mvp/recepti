@@ -86,7 +86,14 @@ export function RecipeMatcher({
   const [difficulty, setDifficulty] = useState("all");
   const [maxTime, setMaxTime] = useState("all");
   const [dietary, setDietary] = useState("");
+  const [pantrySearch, setPantrySearch] = useState("");
   const [ingredientSearch, setIngredientSearch] = useState("");
+
+  const visiblePantry = pantry.filter((item) =>
+    item.ingredient.displayName
+      .toLocaleLowerCase("en-US")
+      .includes(pantrySearch.trim().toLocaleLowerCase("en-US")),
+  );
 
   const manualOptions = catalog.filter((item) =>
     item.displayName
@@ -151,6 +158,16 @@ export function RecipeMatcher({
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
+            <div className="relative">
+              <Search className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-muted-foreground" />
+              <Input
+                value={pantrySearch}
+                onChange={(event) => setPantrySearch(event.target.value)}
+                className="pl-10"
+                placeholder="Search pantry"
+                aria-label="Search pantry ingredients"
+              />
+            </div>
             <div className="flex gap-2">
               <Button
                 size="sm"
@@ -166,14 +183,14 @@ export function RecipeMatcher({
                 variant="ghost"
                 onClick={() => setSelectedPantry(new Set())}
               >
-                Clear
+                Clear all
               </Button>
             </div>
             <div className="max-h-56 space-y-1 overflow-y-auto pr-1">
-              {pantry.map((item) => (
+              {visiblePantry.map((item) => (
                 <label
                   key={item.id}
-                  className="flex min-h-11 items-center gap-3 rounded-xl px-2 text-sm hover:bg-muted"
+                  className="flex min-h-11 items-center gap-3 rounded-lg px-2 text-sm transition-colors duration-200 hover:bg-primary-soft"
                 >
                   <Checkbox
                     checked={selectedPantry.has(item.id)}
@@ -186,12 +203,19 @@ export function RecipeMatcher({
                       })
                     }
                   />
-                  {item.ingredient.displayName}
-                  <span className="ml-auto text-xs text-muted-foreground">
+                  <span className="min-w-0 flex-1 [overflow-wrap:anywhere]">
+                    {item.ingredient.displayName}
+                  </span>
+                  <span className="shrink-0 text-xs text-muted-foreground">
                     {item.quantity ?? "?"} {item.unit ?? ""}
                   </span>
                 </label>
               ))}
+              {visiblePantry.length === 0 && (
+                <p className="rounded-lg bg-surface-secondary px-3 py-4 text-sm text-muted-foreground">
+                  No pantry ingredients match that search.
+                </p>
+              )}
             </div>
           </CardContent>
         </Card>
@@ -219,11 +243,14 @@ export function RecipeMatcher({
             {ingredientSearch && (
               <div className="max-h-40 space-y-1 overflow-y-auto rounded-xl border border-border p-1">
                 {manualOptions.slice(0, 8).map((item) => (
-                  <div key={item.id} className="flex items-center gap-1">
+                  <div
+                    key={item.id}
+                    className="flex min-w-0 items-center gap-1"
+                  >
                     <Button
                       size="sm"
                       variant="ghost"
-                      className="flex-1 justify-start"
+                      className="min-w-0 flex-1 justify-start whitespace-normal text-left [overflow-wrap:anywhere]"
                       onClick={() => {
                         if (!manualIds.includes(item.id))
                           setManualIds([...manualIds, item.id]);
@@ -258,9 +285,19 @@ export function RecipeMatcher({
                   {manualIds.map((id) => {
                     const item = catalog.find((value) => value.id === id)!;
                     return (
-                      <Badge key={id} variant="secondary">
-                        {item.displayName}
-                        <button
+                      <Badge
+                        key={id}
+                        variant="secondary"
+                        className="max-w-full shrink overflow-visible whitespace-normal py-1 pl-2 pr-1 [overflow-wrap:anywhere]"
+                      >
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
+                          {item.displayName}
+                        </span>
+                        <Button
+                          type="button"
+                          size="icon-xs"
+                          variant="ghost"
+                          className="-my-2 -mr-1 shrink-0 rounded-full text-current hover:bg-foreground/10 hover:text-current"
                           onClick={() =>
                             setManualIds(
                               manualIds.filter((value) => value !== id),
@@ -269,7 +306,7 @@ export function RecipeMatcher({
                           aria-label={`Remove ${item.displayName}`}
                         >
                           <X className="size-3" />
-                        </button>
+                        </Button>
                       </Badge>
                     );
                   })}
@@ -285,9 +322,19 @@ export function RecipeMatcher({
                   {excludedIds.map((id) => {
                     const item = catalog.find((value) => value.id === id)!;
                     return (
-                      <Badge key={id} variant="destructive">
-                        {item.displayName}
-                        <button
+                      <Badge
+                        key={id}
+                        variant="destructive"
+                        className="max-w-full shrink overflow-visible whitespace-normal py-1 pl-2 pr-1 [overflow-wrap:anywhere]"
+                      >
+                        <span className="min-w-0 [overflow-wrap:anywhere]">
+                          {item.displayName}
+                        </span>
+                        <Button
+                          type="button"
+                          size="icon-xs"
+                          variant="ghost"
+                          className="-my-2 -mr-1 shrink-0 rounded-full text-current hover:bg-destructive/15 hover:text-current"
                           onClick={() =>
                             setExcludedIds(
                               excludedIds.filter((value) => value !== id),
@@ -296,7 +343,7 @@ export function RecipeMatcher({
                           aria-label={`Allow ${item.displayName}`}
                         >
                           <X className="size-3" />
-                        </button>
+                        </Button>
                       </Badge>
                     );
                   })}
@@ -419,7 +466,7 @@ export function RecipeMatcher({
         {results.length === 0 && (
           <div className="grid min-h-72 place-items-center rounded-2xl border border-dashed border-border text-center">
             <div>
-              <PackageSearch className="mx-auto size-12 text-primary" />
+              <PackageSearch className="mx-auto size-12 text-primary-text" />
               <h2 className="mt-4 text-xl font-semibold">
                 No recipes fit these filters
               </h2>
@@ -442,13 +489,15 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
   return (
     <article className="rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="text-lg font-semibold tracking-tight">
+        <div className="min-w-0 flex-1">
+          <h3 className="text-lg font-semibold tracking-tight [overflow-wrap:anywhere]">
             {result.recipe.title}
           </h3>
-          <p className="mt-1 text-sm text-muted-foreground">{result.reason}</p>
+          <p className="mt-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+            {result.reason}
+          </p>
         </div>
-        <span className="text-2xl font-semibold tracking-tight text-primary">
+        <span className="text-2xl font-semibold tracking-tight text-primary-text">
           {result.matchPercentage}%
         </span>
       </div>
@@ -467,7 +516,7 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
       {result.missingIngredients.length > 0 && (
         <div className="mt-4">
           <p className="text-xs font-semibold text-muted-foreground">Missing</p>
-          <p className="mt-1 text-sm">
+          <p className="mt-1 text-sm [overflow-wrap:anywhere]">
             {result.missingIngredients.map((item) => item.name).join(", ")}
           </p>
         </div>
@@ -477,7 +526,7 @@ function MatchCard({ result }: { result: RecipeMatchResult }) {
           <p className="text-xs font-semibold text-muted-foreground">
             Available
           </p>
-          <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground [overflow-wrap:anywhere]">
             {result.availableIngredients.map((item) => item.name).join(", ")}
           </p>
         </div>

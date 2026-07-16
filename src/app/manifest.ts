@@ -8,8 +8,8 @@ export default function manifest(): MetadataRoute.Manifest {
       "Recipes, pantry planning, and everyday cooking in one private place.",
     start_url: "/dashboard",
     display: "standalone",
-    background_color: "#f6faf7",
-    theme_color: "#266348",
+    background_color: "#f8fbf8",
+    theme_color: "#8fc9aa",
     orientation: "any",
     categories: ["food", "lifestyle", "productivity"],
     icons: [

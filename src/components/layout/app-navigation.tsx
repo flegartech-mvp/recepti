@@ -9,12 +9,14 @@ import {
   House,
   Menu,
   PackageSearch,
+  Plus,
   Refrigerator,
   Settings,
   ShoppingBasket,
 } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import {
   Sheet,
@@ -55,10 +57,20 @@ export function AppNavigation({ email }: { email: string }) {
     <>
       <aside
         data-app-navigation
-        className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar px-4 py-5 lg:flex"
+        className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar px-4 py-5 shadow-[8px_0_32px_color-mix(in_srgb,var(--shadow)_38%,transparent)] lg:flex"
       >
         <Logo className="px-2" />
-        <nav className="mt-9 space-y-1" aria-label="Main navigation">
+        <Button
+          asChild
+          variant="secondary"
+          className="mt-6 w-full justify-start"
+        >
+          <Link href="/recipes/new">
+            <Plus className="size-4" aria-hidden="true" />
+            Add recipe
+          </Link>
+        </Button>
+        <nav className="mt-6 space-y-1" aria-label="Main navigation">
           {[...primaryItems, ...secondaryItems].map((item) => {
             const active = isCurrent(pathname, item.href);
             return (
@@ -67,7 +79,7 @@ export function AppNavigation({ email }: { email: string }) {
                 href={item.href}
                 aria-current={active ? "page" : undefined}
                 className={cn(
-                  "flex min-h-11 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors active:translate-y-px",
+                  "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors duration-200 active:translate-y-px",
                   active
                     ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
                     : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
@@ -83,72 +95,93 @@ export function AppNavigation({ email }: { email: string }) {
             );
           })}
         </nav>
-        <div className="mt-auto rounded-xl border border-sidebar-border bg-background/65 p-3">
-          <p className="truncate text-sm font-medium">Private cookbook</p>
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {email}
-          </p>
+        <div className="mt-auto flex items-center gap-2 rounded-xl border border-sidebar-border bg-surface-secondary/65 p-3">
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-medium">Private cookbook</p>
+            <p className="mt-0.5 truncate text-xs text-muted-foreground">
+              {email}
+            </p>
+          </div>
+          <ThemeToggle className="size-11 shrink-0" />
         </div>
       </aside>
 
       <header
         data-app-navigation
-        className="sticky top-0 z-20 flex h-16 items-center justify-between border-b border-border/80 bg-background/92 px-4 backdrop-blur lg:hidden"
+        className="safe-app-header sticky top-0 z-20 flex items-center justify-between border-b border-border/80 bg-surface/94 shadow-sm backdrop-blur lg:hidden"
       >
         <Logo compact />
-        <Sheet>
-          <SheetTrigger asChild>
-            <Button
-              type="button"
-              variant="ghost"
-              size="icon"
-              aria-label="Open more navigation"
-            >
-              <Menu className="size-5" aria-hidden="true" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[min(22rem,88vw)]">
-            <SheetHeader>
-              <SheetTitle>More from Nana&apos;s Recipes</SheetTitle>
-              <SheetDescription>
-                Manage ingredients, favorites, and cookbook settings.
-              </SheetDescription>
-            </SheetHeader>
-            <nav className="space-y-2 px-4" aria-label="More navigation">
-              {secondaryItems.map((item) => {
-                const active = isCurrent(pathname, item.href);
-                return (
-                  <SheetClose asChild key={item.href}>
-                    <Link
-                      href={item.href}
-                      aria-current={active ? "page" : undefined}
-                      className={cn(
-                        "flex min-h-12 items-center gap-3 rounded-xl px-3 text-sm font-medium transition-colors",
-                        active
-                          ? "bg-primary text-primary-foreground"
-                          : "text-foreground hover:bg-accent",
-                      )}
-                    >
-                      <item.icon className="size-5" aria-hidden="true" />
-                      {item.label}
+        <div className="flex items-center gap-1.5">
+          <ThemeToggle />
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                className="size-11"
+                aria-label="Open more navigation"
+              >
+                <Menu className="size-5" aria-hidden="true" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[min(22rem,88vw)]">
+              <SheetHeader>
+                <SheetTitle>More from Nana&apos;s Recipes</SheetTitle>
+                <SheetDescription>
+                  Manage ingredients, favorites, and cookbook settings.
+                </SheetDescription>
+              </SheetHeader>
+              <div className="px-4">
+                <SheetClose asChild>
+                  <Button
+                    asChild
+                    variant="secondary"
+                    className="w-full justify-start"
+                  >
+                    <Link href="/recipes/new">
+                      <Plus className="size-4" aria-hidden="true" />
+                      Add recipe
                     </Link>
-                  </SheetClose>
-                );
-              })}
-            </nav>
-            <div className="mx-4 mt-auto mb-4 rounded-xl border border-border bg-muted/40 p-3">
-              <p className="text-sm font-medium">Private cookbook</p>
-              <p className="mt-0.5 truncate text-xs text-muted-foreground">
-                {email}
-              </p>
-            </div>
-          </SheetContent>
-        </Sheet>
+                  </Button>
+                </SheetClose>
+              </div>
+              <nav className="space-y-2 px-4" aria-label="More navigation">
+                {secondaryItems.map((item) => {
+                  const active = isCurrent(pathname, item.href);
+                  return (
+                    <SheetClose asChild key={item.href}>
+                      <Link
+                        href={item.href}
+                        aria-current={active ? "page" : undefined}
+                        className={cn(
+                          "flex min-h-12 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors duration-200",
+                          active
+                            ? "bg-primary-soft text-primary-text"
+                            : "text-foreground hover:bg-accent",
+                        )}
+                      >
+                        <item.icon className="size-5" aria-hidden="true" />
+                        {item.label}
+                      </Link>
+                    </SheetClose>
+                  );
+                })}
+              </nav>
+              <div className="mx-4 mt-auto mb-4 rounded-xl border border-border bg-surface-secondary/65 p-3">
+                <p className="text-sm font-medium">Private cookbook</p>
+                <p className="mt-0.5 truncate text-xs text-muted-foreground">
+                  {email}
+                </p>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </header>
 
       <nav
         data-app-navigation
-        className="safe-bottom fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background/96 px-1 pt-1.5 shadow-[0_-8px_32px_color-mix(in_oklab,var(--forest)_8%,transparent)] backdrop-blur lg:hidden"
+        className="safe-bottom safe-inline-compact fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-surface/96 pt-1.5 shadow-[0_-8px_32px_var(--shadow)] backdrop-blur lg:hidden"
         aria-label="Mobile navigation"
       >
         {primaryItems.map((item) => {
@@ -159,8 +192,10 @@ export function AppNavigation({ email }: { email: string }) {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex min-h-14 flex-col items-center justify-center gap-1 rounded-xl text-[0.68rem] font-medium transition-colors",
-                active ? "text-primary" : "text-muted-foreground",
+                "flex min-h-14 flex-col items-center justify-center gap-1 rounded-lg text-[0.68rem] font-semibold transition-colors duration-200",
+                active
+                  ? "bg-primary-soft text-primary-text"
+                  : "text-muted-foreground hover:bg-muted/70 hover:text-foreground",
               )}
             >
               <item.icon

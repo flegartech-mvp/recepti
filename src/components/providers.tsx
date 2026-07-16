@@ -21,7 +21,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       attribute="class"
       defaultTheme="system"
       enableSystem
-      disableTransitionOnChange
+      enableColorScheme
     >
       <TooltipProvider delayDuration={300}>
         {children}

@@ -258,9 +258,9 @@ export function ShoppingListManager({
           <div className="grid min-h-48 place-items-center rounded-2xl border border-dashed border-border text-center">
             <div>
               {items.length === 0 ? (
-                <ShoppingBasket className="mx-auto size-10 text-primary" />
+                <ShoppingBasket className="mx-auto size-10 text-primary-text" />
               ) : (
-                <Check className="mx-auto size-10 text-primary" />
+                <Check className="mx-auto size-10 text-primary-text" />
               )}
               <h3 className="mt-3 font-semibold">
                 {items.length === 0
@@ -457,7 +457,7 @@ function ShoppingRow({
       <div className="min-w-0 flex-1">
         <p
           className={cn(
-            "font-semibold",
+            "font-semibold [overflow-wrap:anywhere]",
             item.isCompleted && "text-muted-foreground line-through",
             large && "text-xl",
           )}
@@ -468,7 +468,7 @@ function ShoppingRow({
         {item.recipeId && (
           <Link
             href={`/recipes/${item.recipeId}`}
-            className="mt-1 block truncate text-xs text-primary hover:underline"
+            className="mt-1 block text-xs text-primary-text [overflow-wrap:anywhere] hover:underline"
           >
             For {item.recipeTitle ?? "a recipe"}
           </Link>

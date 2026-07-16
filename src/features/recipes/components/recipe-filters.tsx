@@ -283,7 +283,7 @@ export function RecipeFilters({
           </SheetTrigger>
           <SheetContent
             side="bottom"
-            className="max-h-[86dvh] overflow-y-auto rounded-t-2xl px-5 pb-8"
+            className="max-h-[86dvh] overflow-y-auto rounded-t-2xl [--safe-panel-bottom:2rem] [--safe-panel-left:1.25rem] [--safe-panel-right:1.25rem]"
           >
             <SheetHeader className="text-left">
               <SheetTitle>Filter recipes</SheetTitle>

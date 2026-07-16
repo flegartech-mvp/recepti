@@ -23,6 +23,7 @@ import {
 } from "react";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { markRecipeCookedAction } from "@/features/recipes/actions";
@@ -189,11 +190,12 @@ export function CookingMode({ recipe }: CookingModeProps) {
   if (isComplete) {
     return (
       <main className="grid min-h-dvh place-items-center px-5 py-12">
-        <section className="organic-shadow bg-card border-border/80 w-full max-w-xl rounded-3xl border p-7 text-center sm:p-12">
-          <div className="bg-accent text-primary mx-auto grid size-16 place-items-center rounded-full">
+        <ThemeToggle className="safe-top-control fixed z-20" />
+        <section className="organic-shadow bg-card border-border/80 w-full max-w-xl rounded-2xl border p-7 text-center sm:p-12">
+          <div className="bg-accent text-primary-text mx-auto grid size-16 place-items-center rounded-full">
             <CircleCheckBig className="size-8" aria-hidden="true" />
           </div>
-          <p className="text-primary mt-6 text-sm font-semibold tracking-[0.16em] uppercase">
+          <p className="text-primary-text mt-6 text-sm font-semibold tracking-[0.16em] uppercase">
             Cooked with Nana&apos;s Recipes
           </p>
           <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
@@ -217,13 +219,13 @@ export function CookingMode({ recipe }: CookingModeProps) {
   }
 
   return (
-    <div className="min-h-dvh bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--mint-soft)_45%,transparent),transparent_36%),linear-gradient(to_bottom,var(--background),color-mix(in_oklab,var(--background)_88%,var(--peach)))]">
+    <div className="min-h-dvh bg-[radial-gradient(circle_at_top_left,color-mix(in_oklab,var(--surface-tint)_45%,transparent),transparent_36%),linear-gradient(to_bottom,var(--background),color-mix(in_oklab,var(--background)_88%,var(--muted)))]">
       <p className="sr-only" aria-live="assertive" aria-atomic="true">
         {timerAnnouncement}
       </p>
 
-      <header className="border-border/70 bg-background/88 sticky top-0 z-40 border-b backdrop-blur-xl">
-        <div className="mx-auto flex min-h-16 max-w-7xl items-center gap-3 px-4 sm:px-6 lg:px-8">
+      <header className="safe-top border-border/70 bg-surface/92 sticky top-0 z-40 border-b shadow-sm backdrop-blur-xl">
+        <div className="safe-inline mx-auto flex min-h-16 max-w-7xl items-center gap-3">
           <Button
             asChild
             variant="ghost"
@@ -237,15 +239,19 @@ export function CookingMode({ recipe }: CookingModeProps) {
           </Button>
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2">
-              <ChefHat className="text-primary size-4" aria-hidden="true" />
+              <ChefHat
+                className="text-primary-text size-4"
+                aria-hidden="true"
+              />
               <span className="text-muted-foreground text-xs font-semibold tracking-[0.15em] uppercase">
                 Cooking mode
               </span>
             </div>
-            <p className="truncate text-sm font-semibold sm:text-base">
+            <p className="line-clamp-2 text-sm leading-tight font-semibold [overflow-wrap:anywhere] sm:text-base">
               {recipe.title}
             </p>
           </div>
+          <ThemeToggle />
           <Button
             type="button"
             variant={wakeLockStatus === "active" ? "secondary" : "ghost"}
@@ -264,7 +270,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
         </div>
       </header>
 
-      <main className="mx-auto w-full max-w-7xl px-4 pt-6 pb-32 sm:px-6 sm:pt-8 lg:px-8 lg:pb-12">
+      <main className="mobile-cooking-content safe-inline mx-auto w-full max-w-7xl pt-6 sm:pt-8">
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] xl:gap-8">
           <div className="min-w-0 space-y-5">
             <section aria-labelledby="cooking-progress-title" className="px-1">
@@ -296,10 +302,10 @@ export function CookingMode({ recipe }: CookingModeProps) {
             {currentStep ? (
               <article
                 ref={stepCardRef}
-                className="organic-shadow bg-card border-border/80 scroll-mt-24 overflow-hidden rounded-3xl border"
+                className="organic-shadow bg-card border-border/80 scroll-mt-24 overflow-hidden rounded-2xl border"
               >
                 <div className="border-border/70 flex items-center justify-between gap-3 border-b px-5 py-4 sm:px-8">
-                  <span className="bg-peach text-forest rounded-full px-3 py-1 text-xs font-semibold tracking-[0.14em] uppercase">
+                  <span className="rounded-full bg-notice px-3 py-1 text-xs font-semibold tracking-[0.14em] text-notice-foreground uppercase">
                     Step {currentStepIndex + 1}
                   </span>
                   {currentStep.timerSeconds ? (
@@ -465,7 +471,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
                   </p>
                 </div>
                 <TimerIcon
-                  className="text-primary mt-0.5 size-5"
+                  className="text-primary-text mt-0.5 size-5"
                   aria-hidden="true"
                 />
               </div>
@@ -512,7 +518,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
 
       {recipe.steps.length > 0 ? (
         <nav
-          className="border-border/80 bg-background/94 safe-bottom fixed inset-x-0 bottom-0 z-40 border-t px-4 pt-3 shadow-[0_-16px_45px_color-mix(in_oklab,var(--forest)_10%,transparent)] backdrop-blur-xl sm:hidden"
+          className="safe-bottom safe-inline border-border/80 bg-surface/94 fixed inset-x-0 bottom-0 z-40 border-t pt-3 shadow-[0_-16px_45px_var(--shadow)] backdrop-blur-xl sm:hidden"
           aria-label="Cooking step controls"
         >
           <div className="mx-auto grid max-w-lg grid-cols-[1fr_auto_1fr] items-center gap-3">

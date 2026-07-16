@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { signInWithGoogle } from "@/lib/auth/actions";
@@ -33,21 +34,24 @@ export default async function LandingPage({
 
   return (
     <main className="min-h-[100dvh] overflow-hidden">
-      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_12%_12%,var(--mint-soft),transparent_31%),radial-gradient(circle_at_89%_82%,color-mix(in_oklab,var(--peach)_58%,transparent),transparent_27%)] opacity-65" />
+      <div className="pointer-events-none fixed inset-0 -z-10 bg-[radial-gradient(circle_at_14%_8%,color-mix(in_srgb,var(--primary-soft)_62%,transparent),transparent_34rem)]" />
 
       <nav
-        className="mx-auto flex h-20 w-full max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8"
+        className="safe-landing-header safe-inline mx-auto flex w-full max-w-7xl items-center justify-between"
         aria-label="Public navigation"
       >
         <Logo />
-        <span className="text-sm font-medium text-muted-foreground">
-          Private by design
-        </span>
+        <div className="flex items-center gap-3">
+          <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
+            Private by design
+          </span>
+          <ThemeToggle />
+        </div>
       </nav>
 
-      <section className="mx-auto grid min-h-[calc(100dvh-5rem)] w-full max-w-7xl items-center gap-10 px-4 pb-14 pt-5 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:px-8 lg:pb-20 lg:pt-8">
+      <section className="safe-inline mx-auto grid min-h-[calc(100dvh-5rem)] w-full max-w-7xl items-center gap-10 pb-14 pt-5 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pb-20 lg:pt-8">
         <div className="max-w-xl">
-          <h1 className="text-balance text-5xl font-semibold leading-[0.98] tracking-[-0.055em] sm:text-6xl lg:text-7xl">
+          <h1 className="text-balance text-4xl font-semibold leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-6xl">
             A cookbook that knows what&apos;s at home.
           </h1>
           <p className="mt-6 max-w-[48ch] text-lg leading-relaxed text-muted-foreground sm:text-xl">
@@ -66,7 +70,7 @@ export default async function LandingPage({
             </Button>
           </form>
           {!state.configured && (
-            <Alert className="mt-6 max-w-lg border-peach bg-peach/25">
+            <Alert className="mt-6 max-w-lg border-notice bg-notice/40">
               <AlertTitle>Finish Google sign-in setup</AlertTitle>
               <AlertDescription>
                 This copy has no Supabase connection yet. Add
@@ -78,7 +82,7 @@ export default async function LandingPage({
         </div>
 
         <div className="relative mx-auto w-full max-w-[590px] lg:justify-self-end">
-          <div className="organic-shadow relative aspect-[4/5] overflow-hidden rounded-[2rem] border border-white/60 bg-mint-soft">
+          <div className="organic-shadow relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-surface-tint">
             <Image
               src="/images/menta-hero.png"
               alt="Fresh herb pasta beside a mint ceramic bowl, basil, and a recipe notebook"
@@ -88,7 +92,7 @@ export default async function LandingPage({
               className="object-cover"
             />
           </div>
-          <div className="absolute -bottom-5 -left-3 hidden w-64 rounded-2xl border border-border/80 bg-card p-4 shadow-xl shadow-forest/10 sm:block lg:-left-8">
+          <div className="surface-shadow absolute -bottom-5 -left-3 hidden w-64 rounded-xl border border-border bg-card p-4 sm:block lg:-left-8">
             <div className="flex items-start gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
                 <Sparkles className="size-5" aria-hidden="true" />
@@ -107,27 +111,29 @@ export default async function LandingPage({
       </section>
 
       <section
-        className="border-t border-border/70 bg-card/70"
+        className="border-t border-border/70 bg-surface/72"
         aria-labelledby="landing-features"
       >
-        <div className="mx-auto grid w-full max-w-7xl gap-5 px-4 py-16 sm:px-6 md:grid-cols-2 lg:grid-cols-[1.35fr_0.65fr] lg:px-8 lg:py-20">
-          <div className="rounded-2xl bg-primary p-7 text-primary-foreground sm:p-9">
-            <BookOpenText className="size-7" aria-hidden="true" />
+        <div className="safe-inline mx-auto grid w-full max-w-7xl gap-5 py-16 md:grid-cols-2 lg:grid-cols-[1.35fr_0.65fr] lg:py-20">
+          <div className="rounded-2xl border border-border bg-surface-secondary p-7 text-foreground shadow-[0_10px_30px_var(--shadow)] sm:p-9">
+            <span className="grid size-11 place-items-center rounded-xl bg-primary-soft text-primary-text">
+              <BookOpenText className="size-6" aria-hidden="true" />
+            </span>
             <h2
               id="landing-features"
               className="mt-8 max-w-md text-3xl font-semibold tracking-tight sm:text-4xl"
             >
               Every trusted recipe, thoughtfully kept.
             </h2>
-            <p className="mt-4 max-w-xl text-primary-foreground/80">
+            <p className="mt-4 max-w-xl text-muted-foreground">
               Ingredients, ordered steps, notes, favorites, cooking history, and
               images stay together in one calm private space.
             </p>
           </div>
           <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-1">
-            <div className="rounded-2xl border border-border bg-card p-6">
+            <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_8px_24px_var(--shadow)]">
               <Refrigerator
-                className="size-6 text-primary"
+                className="size-6 text-primary-text"
                 aria-hidden="true"
               />
               <h3 className="mt-6 text-lg font-semibold">
@@ -137,12 +143,12 @@ export default async function LandingPage({
                 Track what is fresh, low, expiring, or ready to use.
               </p>
             </div>
-            <div className="rounded-2xl border border-border bg-mint-soft p-6 text-forest">
+            <div className="rounded-2xl border border-primary/20 bg-primary-soft p-6 text-foreground">
               <Sparkles className="size-6" aria-hidden="true" />
               <h3 className="mt-6 text-lg font-semibold">
                 A clear answer for tonight
               </h3>
-              <p className="mt-2 text-sm leading-relaxed text-forest/75">
+              <p className="mt-2 text-sm leading-relaxed text-foreground/70">
                 See complete matches first, then honest missing-ingredient
                 details.
               </p>

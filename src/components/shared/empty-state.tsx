@@ -16,9 +16,9 @@ export function EmptyState({
   actionHref?: string;
 }) {
   return (
-    <div className="grid min-h-72 place-items-center rounded-2xl border border-dashed border-border bg-card/55 px-5 py-12 text-center">
+    <div className="grid min-h-72 place-items-center rounded-2xl border border-dashed border-border bg-surface px-5 py-12 text-center shadow-[0_8px_24px_var(--shadow)]">
       <div className="max-w-md space-y-5">
-        <span className="mx-auto grid size-14 place-items-center rounded-2xl bg-accent text-accent-foreground">
+        <span className="mx-auto grid size-14 place-items-center rounded-xl bg-primary-soft text-primary-text">
           <Icon className="size-7" aria-hidden="true" />
         </span>
         <div className="space-y-2">

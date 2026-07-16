@@ -495,9 +495,10 @@ export function PantryManager({
             {fastRows.map((row, index) => (
               <div
                 key={index}
-                className="grid grid-cols-[1fr_5.5rem_5.5rem] gap-2 rounded-xl border border-border p-3"
+                className="grid grid-cols-2 gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_5.5rem_5.5rem]"
               >
                 <Input
+                  className="col-span-2 sm:col-span-1"
                   value={row.ingredientName}
                   onChange={(event) =>
                     setFastRows((current) =>
@@ -512,6 +513,7 @@ export function PantryManager({
                   aria-label={`Fast ingredient ${index + 1}`}
                 />
                 <Input
+                  inputMode="decimal"
                   value={row.quantity}
                   onChange={(event) =>
                     setFastRows((current) =>
@@ -605,8 +607,10 @@ function PantryItemCard({
   return (
     <article className="rounded-2xl border border-border bg-card p-5">
       <div className="flex items-start justify-between gap-4">
-        <div>
-          <h3 className="font-semibold">{item.ingredient.displayName}</h3>
+        <div className="min-w-0 flex-1">
+          <h3 className="font-semibold [overflow-wrap:anywhere]">
+            {item.ingredient.displayName}
+          </h3>
           <p className="mt-1 text-sm text-muted-foreground">
             {item.quantity ?? "Unknown"} {item.unit ?? ""}
           </p>
@@ -622,7 +626,7 @@ function PantryItemCard({
       </div>
       <div className="mt-4 flex flex-wrap gap-2">
         {item.lowStock && (
-          <Badge variant="outline" className="border-peach">
+          <Badge variant="outline" className="border-notice">
             Low stock
           </Badge>
         )}
@@ -633,9 +637,11 @@ function PantryItemCard({
         )}
       </div>
       {item.notes && (
-        <p className="mt-3 text-sm text-muted-foreground">{item.notes}</p>
+        <p className="mt-3 text-sm text-muted-foreground [overflow-wrap:anywhere]">
+          {item.notes}
+        </p>
       )}
-      <div className="mt-5 flex items-center justify-between border-t border-border pt-3">
+      <div className="mt-5 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
         <div className="flex gap-1">
           <Button
             size="icon-sm"

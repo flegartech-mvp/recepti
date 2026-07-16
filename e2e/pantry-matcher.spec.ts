@@ -52,7 +52,9 @@ test("ranks matcher categories and adds missing ingredients to the shopping list
   await expect(soupMatch).toContainText("2 of 4 matched");
   await soupMatch.getByRole("link", { name: "View recipe" }).click();
 
-  await expect(page).toHaveURL(/\/recipes\/r-soup$/);
+  // A cold Turbopack compile for the detail route can exceed Playwright's
+  // default five-second assertion window under the parallel browser suite.
+  await expect(page).toHaveURL(/\/recipes\/r-soup$/, { timeout: 15_000 });
   await page.getByRole("button", { name: "Add missing to list" }).click();
   await expect(
     page.getByText("Missing ingredients added to the shopping list", {

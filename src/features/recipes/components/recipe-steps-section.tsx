@@ -58,7 +58,7 @@ export function RecipeStepsSection({
         {fieldArray.fields.map((field, index) => (
           <div
             key={field.id}
-            className="grid gap-4 rounded-2xl border border-border p-4 sm:grid-cols-[2.5rem_1fr_8rem_auto] sm:items-start"
+            className="grid gap-4 rounded-xl border border-border bg-surface-secondary/35 p-4 sm:grid-cols-[2.5rem_1fr_8rem_auto] sm:items-start"
           >
             <span
               className="grid size-10 place-items-center rounded-xl bg-primary text-sm font-semibold text-primary-foreground"

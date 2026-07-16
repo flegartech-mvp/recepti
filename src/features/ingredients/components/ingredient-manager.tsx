@@ -188,7 +188,9 @@ export function IngredientManager({
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0">
                 <div className="flex flex-wrap items-center gap-2">
-                  <h2 className="font-semibold">{ingredient.displayName}</h2>
+                  <h2 className="font-semibold [overflow-wrap:anywhere]">
+                    {ingredient.displayName}
+                  </h2>
                   {ingredient.isStaple && (
                     <Badge variant="secondary">Staple</Badge>
                   )}
@@ -222,7 +224,7 @@ export function IngredientManager({
               </Button>
             </div>
             {ingredient.aliases.length > 0 && (
-              <p className="mt-3 line-clamp-2 text-xs text-muted-foreground">
+              <p className="mt-3 line-clamp-2 text-xs text-muted-foreground [overflow-wrap:anywhere]">
                 Also: {ingredient.aliases.join(", ")}
               </p>
             )}
@@ -293,7 +295,7 @@ export function IngredientManager({
       {filtered.length === 0 && (
         <div className="grid min-h-64 place-items-center rounded-2xl border border-dashed border-border text-center">
           <div>
-            <PackageSearch className="mx-auto size-10 text-primary" />
+            <PackageSearch className="mx-auto size-10 text-primary-text" />
             <h2 className="mt-4 font-semibold">No ingredients found</h2>
             <p className="mt-1 text-sm text-muted-foreground">
               Try another name, alias, or category.

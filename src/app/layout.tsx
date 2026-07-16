@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 
 import { AppProviders } from "@/components/providers";
 
@@ -17,6 +17,16 @@ export const metadata: Metadata = {
   applicationName: "Nana's Recipes",
   robots: { index: false, follow: false },
   manifest: "/manifest.webmanifest",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8fbf8" },
+    { media: "(prefers-color-scheme: dark)", color: "#111713" },
+  ],
 };
 
 export default function RootLayout({

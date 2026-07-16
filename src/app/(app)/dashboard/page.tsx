@@ -64,7 +64,7 @@ export default async function DashboardPage() {
       />
 
       <section
-        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+        className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-[0_10px_28px_var(--shadow)] xl:grid-cols-4"
         aria-label="Cookbook overview"
       >
         <MetricCard
@@ -94,13 +94,14 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
-        <div className="relative overflow-hidden rounded-2xl bg-primary p-6 text-primary-foreground sm:p-8">
-          <div className="pointer-events-none absolute -right-12 -top-16 size-56 rounded-full bg-white/7" />
-          <Sparkles className="size-7" aria-hidden="true" />
+        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-surface-secondary p-6 text-foreground shadow-[0_10px_28px_var(--shadow)] sm:p-8">
+          <span className="grid size-11 place-items-center rounded-xl bg-primary-soft text-primary-text">
+            <Sparkles className="size-6" aria-hidden="true" />
+          </span>
           <h2 className="mt-8 max-w-lg text-3xl font-semibold tracking-tight sm:text-4xl">
             What can I cook today?
           </h2>
-          <p className="mt-3 max-w-xl text-primary-foreground/75">
+          <p className="mt-3 max-w-xl text-muted-foreground">
             Compare every saved recipe with what is in the pantry, then see
             exactly what is missing.
           </p>
@@ -111,7 +112,7 @@ export default async function DashboardPage() {
             </Link>
           </Button>
         </div>
-        <div className="rounded-2xl border border-border bg-card p-6">
+        <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_10px_28px_var(--shadow)]">
           <h2 className="font-semibold">Quick actions</h2>
           <div className="mt-5 grid gap-2">
             <Button asChild variant="ghost" className="justify-start">

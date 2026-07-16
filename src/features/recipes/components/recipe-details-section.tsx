@@ -197,9 +197,16 @@ export function RecipeDetailsSection({
 
         <div className="space-y-3">
           <Label htmlFor="cover-image">Cover image</Label>
+          <input
+            id="cover-image"
+            type="file"
+            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
+            className="peer sr-only"
+            onChange={onImageChange}
+          />
           <label
             htmlFor="cover-image"
-            className="group relative grid aspect-[4/3] cursor-pointer place-items-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted text-center hover:border-primary/50"
+            className="group relative grid aspect-[4/3] cursor-pointer place-items-center overflow-hidden rounded-2xl border border-dashed border-border bg-muted text-center transition-[border-color,box-shadow] duration-200 hover:border-primary/50 peer-focus-visible:border-ring peer-focus-visible:ring-3 peer-focus-visible:ring-ring"
           >
             {imagePreview ? (
               <Image
@@ -221,13 +228,6 @@ export function RecipeDetailsSection({
               </span>
             )}
           </label>
-          <Input
-            id="cover-image"
-            type="file"
-            accept="image/jpeg,image/png,image/webp,.jpg,.jpeg,.png,.webp"
-            className="sr-only"
-            onChange={onImageChange}
-          />
           {imagePreview && (
             <Button
               type="button"
