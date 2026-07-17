@@ -1,20 +1,18 @@
 import * as React from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { Slot } from "radix-ui";
-
 import { cn } from "@/lib/utils";
-
 const buttonVariants = cva(
   "group/button inline-flex shrink-0 items-center justify-center rounded-lg border border-transparent bg-clip-padding text-sm font-semibold whitespace-nowrap transition-[color,background-color,border-color,box-shadow,transform] duration-200 ease-out outline-none select-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:translate-y-0 disabled:shadow-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[0_6px_16px_var(--shadow)] hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_10px_22px_var(--shadow)] dark:text-primary-foreground",
+          "bg-primary text-primary-foreground shadow-[0_6px_16px_var(--shadow)] hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_10px_22px_var(--shadow)]",
         outline:
           "border-border bg-surface text-foreground shadow-sm hover:border-primary/55 hover:bg-primary-soft hover:text-primary-text aria-expanded:border-primary/55 aria-expanded:bg-primary-soft aria-expanded:text-primary-text",
         secondary:
-          "border-primary/20 bg-secondary text-secondary-foreground shadow-sm hover:border-primary/35 hover:bg-[color-mix(in_srgb,var(--primary-soft),var(--highlight)_15%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "border-primary/15 bg-secondary text-secondary-foreground hover:border-primary/30 hover:bg-[color-mix(in_srgb,var(--primary-soft),var(--primary)_18%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "text-foreground/78 hover:bg-primary-soft hover:text-primary-text aria-expanded:bg-primary-soft aria-expanded:text-primary-text",
         destructive:
@@ -35,13 +33,9 @@ const buttonVariants = cva(
         "icon-lg": "size-12 xl:size-11",
       },
     },
-    defaultVariants: {
-      variant: "default",
-      size: "default",
-    },
+    defaultVariants: { variant: "default", size: "default" },
   },
 );
-
 function Button({
   className,
   variant = "default",
@@ -49,11 +43,8 @@ function Button({
   asChild = false,
   ...props
 }: React.ComponentProps<"button"> &
-  VariantProps<typeof buttonVariants> & {
-    asChild?: boolean;
-  }) {
+  VariantProps<typeof buttonVariants> & { asChild?: boolean }) {
   const Comp = asChild ? Slot.Root : "button";
-
   return (
     <Comp
       data-slot="button"
@@ -64,5 +55,4 @@ function Button({
     />
   );
 }
-
 export { Button, buttonVariants };

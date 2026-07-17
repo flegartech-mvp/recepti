@@ -9,7 +9,6 @@ import {
   Sparkles,
   Store,
 } from "lucide-react";
-
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
 import { Button } from "@/components/ui/button";
@@ -17,12 +16,10 @@ import { MetricCard } from "@/features/dashboard/components/metric-card";
 import { RecipeCard } from "@/features/recipes/components/recipe-card";
 import { getDashboardData } from "@/lib/data/queries";
 import { getServerI18n } from "@/lib/i18n/server";
-
 export async function generateMetadata() {
   const { t } = await getServerI18n();
   return { title: t("Dashboard") };
 }
-
 function greeting(locale: string) {
   const hour = Number(
     new Intl.DateTimeFormat(locale, {
@@ -37,14 +34,12 @@ function greeting(locale: string) {
   if (hour < 18) return "Good afternoon";
   return "Good evening";
 }
-
 const cookingMessages = [
   "A favorite recipe is a small shortcut back home.",
   "Check the pantry first. Dinner may already be waiting.",
   "Taste as you go and keep the notes that matter.",
   "Simple ingredients are allowed to be the whole idea.",
 ];
-
 export default async function DashboardPage() {
   const { locale, t, formatNumber } = await getServerI18n();
   const data = await getDashboardData();
@@ -53,140 +48,164 @@ export default async function DashboardPage() {
     data.recentRecipes.length > 0
       ? data.recentRecipes[data.favoriteCount % data.recentRecipes.length]
       : null;
-
   return (
     <PageContainer>
+      {" "}
       <PageHeader
-        title={t("{greeting}, Nana.", { greeting: t(greeting(locale)) })}
+        title={t("{greeting}, cook.", { greeting: t(greeting(locale)) })}
         description={t(message)}
         action={
           <Button asChild>
+            {" "}
             <Link href="/recipes/new">
-              <Plus className="size-4" aria-hidden="true" />
-              {t("Add recipe")}
-            </Link>
+              {" "}
+              <Plus className="size-4" aria-hidden="true" />{" "}
+              {t("Add recipe")}{" "}
+            </Link>{" "}
           </Button>
         }
-      />
-
+      />{" "}
       <section
         className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-[0_10px_28px_var(--shadow)] xl:grid-cols-4"
         aria-label={t("Cookbook overview")}
       >
+        {" "}
         <MetricCard
           label={t("Recipes")}
           value={formatNumber(data.recipeCount)}
           icon={BookOpenText}
           note={t("Saved in your cookbook")}
-        />
+        />{" "}
         <MetricCard
           label={t("Favorites")}
           value={formatNumber(data.favoriteCount)}
           icon={Heart}
           note={t("The ones worth repeating")}
-        />
+        />{" "}
         <MetricCard
           label={t("Pantry items")}
           value={formatNumber(data.pantryCount)}
           icon={Refrigerator}
           note={t("Currently available at home")}
-        />
+        />{" "}
         <MetricCard
           label={t("Ready now")}
           value={formatNumber(data.makeableCount)}
           icon={ChefHat}
           note={t("Complete pantry matches")}
-        />
-      </section>
-
+        />{" "}
+      </section>{" "}
       <section className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
-        <div className="catalogue-hero relative overflow-hidden rounded-2xl border border-primary/20 bg-surface-secondary p-6 text-foreground shadow-[0_10px_28px_var(--shadow)] sm:p-8">
+        {" "}
+        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-surface-secondary p-6 text-foreground shadow-[0_10px_28px_var(--shadow)] sm:p-8">
+          {" "}
           <span className="grid size-11 place-items-center rounded-xl bg-primary-soft text-primary-text">
-            <Sparkles className="size-6" aria-hidden="true" />
-          </span>
+            {" "}
+            <Sparkles className="size-6" aria-hidden="true" />{" "}
+          </span>{" "}
           <h2 className="mt-8 max-w-lg text-3xl font-semibold tracking-tight sm:text-4xl">
-            {t("What can I cook today?")}
-          </h2>
+            {" "}
+            {t("What can I cook today?")}{" "}
+          </h2>{" "}
           <p className="mt-3 max-w-xl text-muted-foreground">
+            {" "}
             {t(
               "Compare every saved recipe with what is in the pantry, then see exactly what is missing.",
-            )}
-          </p>
+            )}{" "}
+          </p>{" "}
           <Button asChild variant="secondary" className="mt-7">
+            {" "}
             <Link href="/cook-with-what-i-have">
-              {t("Find a recipe")}
-              <ChefHat className="size-4" aria-hidden="true" />
-            </Link>
-          </Button>
-        </div>
+              {" "}
+              {t("Find a recipe")}{" "}
+              <ChefHat className="size-4" aria-hidden="true" />{" "}
+            </Link>{" "}
+          </Button>{" "}
+        </div>{" "}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_10px_28px_var(--shadow)]">
-          <h2 className="font-semibold">{t("Quick actions")}</h2>
+          {" "}
+          <h2 className="font-semibold">{t("Quick actions")}</h2>{" "}
           <div className="mt-5 grid gap-2">
+            {" "}
             <Button asChild variant="ghost" className="justify-start">
+              {" "}
               <Link href="/pantry?add=1">
-                <Refrigerator className="size-4" aria-hidden="true" />
-                {t("Add pantry ingredient")}
-              </Link>
-            </Button>
+                {" "}
+                <Refrigerator className="size-4" aria-hidden="true" />{" "}
+                {t("Add pantry ingredient")}{" "}
+              </Link>{" "}
+            </Button>{" "}
             <Button asChild variant="ghost" className="justify-start">
+              {" "}
               <Link href="/products">
-                <Store className="size-4" aria-hidden="true" />
-                {t("Compare grocery prices")}
-              </Link>
-            </Button>
+                {" "}
+                <Store className="size-4" aria-hidden="true" />{" "}
+                {t("Compare grocery prices")}{" "}
+              </Link>{" "}
+            </Button>{" "}
             <Button asChild variant="ghost" className="justify-start">
+              {" "}
               <Link href="/shopping-list">
-                <Plus className="size-4" aria-hidden="true" />
-                {t("Open shopping list")}
-              </Link>
-            </Button>
+                {" "}
+                <Plus className="size-4" aria-hidden="true" />{" "}
+                {t("Open shopping list")}{" "}
+              </Link>{" "}
+            </Button>{" "}
             <Button
               asChild
               variant="ghost"
               className="justify-start"
               disabled={!surprise}
             >
+              {" "}
               <Link
                 href={surprise ? `/recipes/${surprise.id}` : "/recipes/new"}
               >
-                <Shuffle className="size-4" aria-hidden="true" />
-                {t("Surprise me")}
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
+                {" "}
+                <Shuffle className="size-4" aria-hidden="true" />{" "}
+                {t("Surprise me")}{" "}
+              </Link>{" "}
+            </Button>{" "}
+          </div>{" "}
+        </div>{" "}
+      </section>{" "}
       {data.recentRecipes.length > 0 && (
         <section className="space-y-5">
+          {" "}
           <div className="flex items-center justify-between gap-4">
+            {" "}
             <h2 className="text-2xl font-semibold tracking-tight">
-              {t("Recently added")}
-            </h2>
+              {" "}
+              {t("Recently added")}{" "}
+            </h2>{" "}
             <Button asChild variant="ghost" size="sm">
-              <Link href="/recipes">{t("View all")}</Link>
-            </Button>
-          </div>
+              {" "}
+              <Link href="/recipes">{t("View all")}</Link>{" "}
+            </Button>{" "}
+          </div>{" "}
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
+            {" "}
             {data.recentRecipes.map((recipe) => (
               <RecipeCard key={recipe.id} recipe={recipe} />
-            ))}
-          </div>
+            ))}{" "}
+          </div>{" "}
         </section>
-      )}
-
+      )}{" "}
       {data.recentlyCooked.length > 0 && (
         <section className="space-y-4">
+          {" "}
           <h2 className="text-xl font-semibold tracking-tight">
-            {t("Cooked lately")}
-          </h2>
+            {" "}
+            {t("Cooked lately")}{" "}
+          </h2>{" "}
           <div className="grid gap-3 md:grid-cols-2">
+            {" "}
             {data.recentlyCooked.slice(0, 4).map((recipe) => (
               <RecipeCard key={recipe.id} recipe={recipe} compact />
-            ))}
-          </div>
+            ))}{" "}
+          </div>{" "}
         </section>
-      )}
+      )}{" "}
     </PageContainer>
   );
 }

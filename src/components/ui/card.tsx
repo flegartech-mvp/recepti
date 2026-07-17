@@ -1,7 +1,5 @@
 import * as React from "react";
-
 import { cn } from "@/lib/utils";
-
 function Card({
   className,
   size = "default",
@@ -12,14 +10,13 @@ function Card({
       data-slot="card"
       data-size={size}
       className={cn(
-        "group/card recipe-paper flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
+        "group/card flex flex-col gap-(--card-spacing) overflow-hidden rounded-xl border border-border bg-card py-(--card-spacing) text-sm text-card-foreground shadow-[0_8px_24px_var(--shadow)] [--card-spacing:--spacing(5)] has-data-[slot=card-footer]:pb-0 has-[>img:first-child]:pt-0 data-[size=sm]:[--card-spacing:--spacing(4)] data-[size=sm]:has-data-[slot=card-footer]:pb-0 *:[img:first-child]:rounded-t-xl *:[img:last-child]:rounded-b-xl",
         className,
       )}
       {...props}
     />
   );
 }
-
 function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -32,7 +29,6 @@ function CardHeader({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
 function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -45,7 +41,6 @@ function CardTitle({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
 function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -55,7 +50,6 @@ function CardDescription({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
 function CardAction({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -68,7 +62,6 @@ function CardAction({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
 function CardContent({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -78,7 +71,6 @@ function CardContent({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
 function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
   return (
     <div
@@ -91,7 +83,6 @@ function CardFooter({ className, ...props }: React.ComponentProps<"div">) {
     />
   );
 }
-
 export {
   Card,
   CardHeader,
