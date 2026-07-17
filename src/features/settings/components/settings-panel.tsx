@@ -3,7 +3,8 @@
 import { useEffect, useState, useTransition } from "react";
 import { useTheme } from "next-themes";
 import { useRouter } from "next/navigation";
-import { Download, LoaderCircle, Save, Trash2 } from "lucide-react";
+import Link from "next/link";
+import { Download, LoaderCircle, Save, Store, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -109,6 +110,7 @@ export function SettingsPanel({
         <TabsTrigger value="profile">{t("Profile")}</TabsTrigger>
         <TabsTrigger value="preferences">{t("Preferences")}</TabsTrigger>
         <TabsTrigger value="staples">{t("Staples")}</TabsTrigger>
+        <TabsTrigger value="retailers">{t("Retailers")}</TabsTrigger>
         <TabsTrigger value="data">{t("Data")}</TabsTrigger>
       </TabsList>
 
@@ -292,6 +294,182 @@ export function SettingsPanel({
         </Card>
       </TabsContent>
 
+      <TabsContent value="retailers">
+        <Card className="recipe-paper">
+          <CardHeader>
+            <Store className="size-6 text-primary" aria-hidden="true" />
+            <CardTitle>
+              <h2>{t("Retailer and price preferences")}</h2>
+            </CardTitle>
+            <CardDescription>
+              {t(
+                "Choose which catalogues participate in shopping comparisons. Loyalty prices are excluded unless you opt in.",
+              )}
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <fieldset className="space-y-3">
+              <legend className="text-sm font-semibold">
+                {t("Enabled retailers")}
+              </legend>
+              {(
+                [
+                  ["spar-si", "SPAR Slovenija"],
+                  ["hofer-si", "HOFER Slovenija"],
+                  ["lidl-si", "Lidl Slovenija"],
+                ] as const
+              ).map(([slug, name]) => (
+                <label
+                  key={slug}
+                  className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-background px-3"
+                >
+                  <Checkbox
+                    checked={settings.enabledRetailers.includes(slug)}
+                    onCheckedChange={(checked) =>
+                      setSettings((current) => ({
+                        ...current,
+                        enabledRetailers: checked
+                          ? [...new Set([...current.enabledRetailers, slug])]
+                          : current.enabledRetailers.filter(
+                              (item) => item !== slug,
+                            ),
+                        preferredRetailer:
+                          !checked && current.preferredRetailer === slug
+                            ? null
+                            : current.preferredRetailer,
+                      }))
+                    }
+                  />
+                  <span className="font-medium">{name}</span>
+                </label>
+              ))}
+            </fieldset>
+            <div className="grid gap-6 sm:grid-cols-2">
+              <div className="space-y-2">
+                <Label>{t("Preferred retailer")}</Label>
+                <Select
+                  value={settings.preferredRetailer ?? "none"}
+                  onValueChange={(value) =>
+                    setSettings({
+                      ...settings,
+                      preferredRetailer:
+                        value === "none"
+                          ? null
+                          : (value as SettingsValues["preferredRetailer"]),
+                    })
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">{t("No preference")}</SelectItem>
+                    {settings.enabledRetailers.map((slug) => (
+                      <SelectItem key={slug} value={slug}>
+                        {slug === "spar-si"
+                          ? "SPAR Slovenija"
+                          : slug === "hofer-si"
+                            ? "HOFER Slovenija"
+                            : "Lidl Slovenija"}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="preferred-brands">
+                  {t("Preferred brands")}
+                </Label>
+                <Input
+                  id="preferred-brands"
+                  value={settings.preferredBrands.join(", ")}
+                  onChange={(event) =>
+                    setSettings({
+                      ...settings,
+                      preferredBrands: event.target.value
+                        .split(",")
+                        .map((brand) => brand.trim())
+                        .filter(Boolean)
+                        .slice(0, 50),
+                    })
+                  }
+                  placeholder={t("Comma-separated brand names")}
+                />
+              </div>
+              <div className="space-y-2 sm:col-span-2">
+                <Label htmlFor="excluded-brands">{t("Excluded brands")}</Label>
+                <Input
+                  id="excluded-brands"
+                  value={settings.excludedBrands.join(", ")}
+                  onChange={(event) =>
+                    setSettings({
+                      ...settings,
+                      excludedBrands: event.target.value
+                        .split(",")
+                        .map((brand) => brand.trim())
+                        .filter(Boolean)
+                        .slice(0, 50),
+                    })
+                  }
+                  placeholder={t("Comma-separated brand names")}
+                />
+              </div>
+            </div>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="flex min-h-11 items-center gap-3">
+                <Checkbox
+                  checked={settings.allowLoyaltyPrices}
+                  onCheckedChange={(checked) =>
+                    setSettings({
+                      ...settings,
+                      allowLoyaltyPrices: checked === true,
+                    })
+                  }
+                />
+                {t("Allow loyalty prices")}
+              </label>
+              <label className="flex min-h-11 items-center gap-3">
+                <Checkbox
+                  checked={settings.preferPromotions}
+                  onCheckedChange={(checked) =>
+                    setSettings({
+                      ...settings,
+                      preferPromotions: checked === true,
+                    })
+                  }
+                />
+                {t("Prefer promotional prices")}
+              </label>
+              <label className="flex min-h-11 items-center gap-3">
+                <Checkbox
+                  checked={settings.allowSplitBasket}
+                  onCheckedChange={(checked) =>
+                    setSettings({
+                      ...settings,
+                      allowSplitBasket: checked === true,
+                    })
+                  }
+                />
+                {t("Allow split-store baskets")}
+              </label>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <Button onClick={save} disabled={pending}>
+                {pending ? (
+                  <LoaderCircle className="size-4 animate-spin" />
+                ) : (
+                  <Save className="size-4" />
+                )}
+                {t("Save retailer preferences")}
+              </Button>
+              <Button asChild variant="outline">
+                <Link href="/settings/catalog">{t("Manage catalogue")}</Link>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
       <TabsContent value="data" className="space-y-6">
         <Card>
           <CardHeader>
@@ -375,6 +553,13 @@ export function SettingsPanel({
                       stapleIngredientIds: [],
                       additionalStapleNames: [],
                       reduceMotion: false,
+                      enabledRetailers: ["spar-si", "hofer-si", "lidl-si"],
+                      preferredRetailer: null,
+                      allowLoyaltyPrices: false,
+                      allowSplitBasket: true,
+                      preferPromotions: true,
+                      preferredBrands: [],
+                      excludedBrands: [],
                     };
                     setSettings(resetSettings);
                     setTheme("system");

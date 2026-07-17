@@ -80,7 +80,7 @@ export const slMessages: Record<string, string> = {
   "Good morning": "Dobro jutro",
   "Good afternoon": "Dober dan",
   "Good evening": "Dober večer",
-  "{greeting}, cook.": "{greeting}, kuhar.",
+  "{greeting}, Nana.": "{greeting}, Nana.",
   "A favorite recipe is a small shortcut back home.":
     "Najljubši recept je majhna bližnjica domov.",
   "Check the pantry first. Dinner may already be waiting.":
@@ -804,4 +804,125 @@ export const slMessages: Record<string, string> = {
   "Search for a command to run...": "Poiščite ukaz za izvedbo ...",
   "Leave this recipe editor? Unsaved changes will remain only in this browser draft.":
     "Želite zapustiti urejevalnik recepta? Neshranjene spremembe bodo ostale samo v osnutku tega brskalnika.",
+  Products: "Izdelki",
+  "Product catalogue": "Katalog izdelkov",
+  "Prices for the next family meal": "Cene za naslednji družinski obrok",
+  "Compare fictional demo products now, then connect authorized Slovenian retailer feeds when access is available.":
+    "Zdaj primerjajte izmišljene predstavitvene izdelke, po pridobitvi dostopa pa povežite pooblaščene vire slovenskih trgovcev.",
+  "Search products": "Iskanje izdelkov",
+  "Search by product, brand, category, or EAN":
+    "Iščite po izdelku, znamki, kategoriji ali kodi EAN",
+  Retailer: "Trgovec",
+  Retailers: "Trgovci",
+  "All retailers": "Vsi trgovci",
+  Search: "Išči",
+  "Manage catalogue": "Upravljaj katalog",
+  "Only products with special prices": "Samo izdelki s posebnimi cenami",
+  "{count} products": "{count} izdelkov",
+  "Fixture-backed catalogue": "Katalog s predstavitvenimi podatki",
+  "No products found": "Ni najdenih izdelkov",
+  "Change the search or retailer filters and try again.":
+    "Spremenite iskanje ali filtre trgovcev in poskusite znova.",
+  "Product pages": "Strani izdelkov",
+  "Travel costs are not included. Store availability and promotional conditions may differ. Prices can change after the recorded observation.":
+    "Potni stroški niso vključeni. Razpoložljivost v poslovalnicah in pogoji akcij se lahko razlikujejo. Cene se lahko po zabeleženem času spremenijo.",
+  "Demo data": "Predstavitveni podatki",
+  "Unknown package": "Neznano pakiranje",
+  "Price unavailable": "Cena ni na voljo",
+  "Current price": "Trenutna cena",
+  "Regular price": "Redna cena",
+  "Promotional price": "Akcijska cena",
+  "Loyalty price": "Cena s kartico zvestobe",
+  "View product": "Prikaži izdelek",
+  "Back to products": "Nazaj na izdelke",
+  "Inactive product": "Neaktiven izdelek",
+  "Package size": "Velikost pakiranja",
+  Uncategorized: "Nerazvrščeno",
+  EAN: "EAN",
+  "Not provided": "Ni navedeno",
+  "Last updated": "Nazadnje posodobljeno",
+  "Match confidence": "Zanesljivost povezave",
+  "Not matched": "Ni povezano",
+  Availability: "Razpoložljivost",
+  "Unknown availability": "Razpoložljivost ni znana",
+  "Open official source": "Odpri uradni vir",
+  "Catalogue administration": "Upravljanje kataloga",
+  "Review retailer feeds, validate imports, and keep uncertain matches under owner control.":
+    "Preglejte vire trgovcev, preverite uvoze in ohranite nadzor lastnika nad negotovimi povezavami.",
+  "Import products": "Uvozi izdelke",
+  "Validate an authorized CSV or JSON file before any database import.":
+    "Pred uvozom v podatkovno zbirko preverite pooblaščeno datoteko CSV ali JSON.",
+  "CSV or JSON file": "Datoteka CSV ali JSON",
+  "Maximum 10 MB. Uploaded content is validated on the server.":
+    "Največ 10 MB. Naložena vsebina se preveri na strežniku.",
+  "Preview dry-run": "Predogled poskusnega uvoza",
+  "Import needs attention": "Uvoz zahteva pozornost",
+  "Import preview ready": "Predogled uvoza je pripravljen",
+  "Dry-run complete. No database rows were changed.":
+    "Poskusni uvoz je končan. Nobena vrstica v podatkovni zbirki ni bila spremenjena.",
+  "The file did not contain any valid products.":
+    "Datoteka ni vsebovala nobenega veljavnega izdelka.",
+  "Choose a retailer and a CSV or JSON file.":
+    "Izberite trgovca ter datoteko CSV ali JSON.",
+  "The import file must be between 1 byte and 10 MB.":
+    "Uvozna datoteka mora biti velika med 1 bajtom in 10 MB.",
+  "Only CSV and JSON files are accepted.":
+    "Dovoljene so samo datoteke CSV in JSON.",
+  "{valid} valid, {invalid} invalid":
+    "{valid} veljavnih, {invalid} neveljavnih",
+  "Row {row}: {message}": "Vrstica {row}: {message}",
+  "Safe import modes": "Varni načini uvoza",
+  "Live synchronization stays disabled until an authorized retailer feed is configured.":
+    "Sinhronizacija v živo ostane onemogočena, dokler ni nastavljen pooblaščen vir trgovca.",
+  "Uploaded CSV and JSON": "Naložene datoteke CSV in JSON",
+  "Local development fixtures": "Lokalni razvojni vzorčni podatki",
+  "Manual owner entry": "Ročni vnos lastnika",
+  "Authorized API or feed": "Pooblaščen API ali vir",
+  "No retailer partnership implied":
+    "Brez namigovanja na partnerstvo s trgovci",
+  "Demo prices and product names are fictional. Do not treat them as current shop prices.":
+    "Predstavitvene cene in imena izdelkov so izmišljeni. Ne obravnavajte jih kot trenutne cene v trgovinah.",
+  "Compare prices": "Primerjaj cene",
+  "Compare products for {item}": "Primerjaj izdelke za {item}",
+  "Package estimates use only compatible mass, volume, or piece units.":
+    "Ocene pakiranj uporabljajo samo združljive enote mase, prostornine ali kosov.",
+  Promotion: "Akcija",
+  Loyalty: "Kartica zvestobe",
+  Regular: "Redna cena",
+  "{packages} packages, {total} total, {excess} excess":
+    "{packages} pakiranj, skupaj {total}, presežek {excess}",
+  "{price} per package. Required quantity cannot be compared safely.":
+    "{price} na pakiranje. Zahtevane količine ni mogoče varno primerjati.",
+  "Last updated {date}": "Nazadnje posodobljeno {date}",
+  "Match confidence {value}%": "Zanesljivost povezave {value} %",
+  Selected: "Izbrano",
+  Choose: "Izberi",
+  Details: "Podrobnosti",
+  "Product selection could not be saved":
+    "Izbire izdelka ni bilo mogoče shraniti",
+  "Preferred product saved": "Prednostni izdelek je shranjen",
+  "Travel cost is not included. Availability is unknown unless a reliable store-level source is connected. Promotional conditions may apply.":
+    "Potni stroški niso vključeni. Razpoložljivost ni znana brez zanesljivega vira za posamezno poslovalnico. Veljajo lahko dodatni pogoji akcije.",
+  "Retailer and price preferences": "Nastavitve trgovcev in cen",
+  "Choose which catalogues participate in shopping comparisons. Loyalty prices are excluded unless you opt in.":
+    "Izberite kataloge za primerjavo nakupov. Cene s kartico zvestobe so izključene, dokler jih ne omogočite.",
+  "Enabled retailers": "Omogočeni trgovci",
+  "Preferred retailer": "Prednostni trgovec",
+  "Basket estimates": "Ocene košarice",
+  "{count} comparable items": "{count} primerljivih izdelkov",
+  "Cheapest single store": "Najceneje v eni trgovini",
+  "Cheapest split basket": "Najcenejša razdeljena košarica",
+  "Across enabled retailers": "Med omogočenimi trgovci",
+  "Estimates cover only safely matched items with compatible units. Verify prices and availability in store.":
+    "Ocene vključujejo le varno povezane izdelke z združljivimi enotami. Cene in zalogo preverite v trgovini.",
+  "No preference": "Brez prednosti",
+  "Preferred brands": "Prednostne znamke",
+  "Excluded brands": "Izključene znamke",
+  "Comma-separated brand names": "Imena znamk, ločena z vejicami",
+  "Allow loyalty prices": "Dovoli cene s kartico zvestobe",
+  "Prefer promotional prices": "Daj prednost akcijskim cenam",
+  "Allow split-store baskets": "Dovoli košarico iz več trgovin",
+  "Save retailer preferences": "Shrani nastavitve trgovcev",
+  "Compare grocery prices": "Primerjaj cene živil",
+  "Cucina con amore": "Cucina con amore",
 };

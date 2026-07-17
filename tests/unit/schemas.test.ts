@@ -158,9 +158,13 @@ describe("settings and versioned export validation", () => {
 
     expect(cookbookExportSchema.safeParse(exportEnvelope).success).toBe(true);
     expect(
-      cookbookExportSchema.safeParse({ ...exportEnvelope, schemaVersion: 2 })
+      cookbookExportSchema.safeParse({ ...exportEnvelope, schemaVersion: 3 })
         .success,
     ).toBe(false);
+    expect(
+      cookbookExportSchema.safeParse({ ...exportEnvelope, schemaVersion: 2 })
+        .success,
+    ).toBe(true);
     expect(
       cookbookExportSchema.safeParse({ ...exportEnvelope, unexpected: "data" })
         .success,

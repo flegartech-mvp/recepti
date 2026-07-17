@@ -169,7 +169,7 @@ const cookingHistoryEntrySchema = z
 /** Versioned and strict so an import can be rejected before any database write. */
 export const cookbookExportSchema = z
   .object({
-    schemaVersion: z.literal(1),
+    schemaVersion: z.union([z.literal(1), z.literal(2)]),
     product: z.literal("Nana's Recipes"),
     exportedAt: timestampSchema,
     ingredients: z.array(exportIngredientSchema).max(20_000),

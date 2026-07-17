@@ -52,7 +52,10 @@ function groupedBy(
  */
 export function shapeCookbookExport(payload: unknown): unknown {
   const source = record(payload);
-  if (source.schemaVersion === 1 && source.product === "Nana's Recipes") {
+  if (
+    (source.schemaVersion === 1 || source.schemaVersion === 2) &&
+    source.product === "Nana's Recipes"
+  ) {
     return payload;
   }
   const ingredientRows = rows(source.ingredients);
@@ -207,6 +210,22 @@ export function shapeCookbookExport(payload: unknown): unknown {
       stapleIngredientIds: stringArray(preferences.staple_ingredient_ids),
       additionalStapleNames: stringArray(preferences.additional_staple_names),
       reduceMotion: booleanValue(preferences.reduce_motion),
+      enabledRetailers:
+        stringArray(preferences.enabled_retailers).length > 0
+          ? stringArray(preferences.enabled_retailers)
+          : ["spar-si", "hofer-si", "lidl-si"],
+      preferredRetailer: nullableText(preferences.preferred_retailer),
+      allowLoyaltyPrices: booleanValue(preferences.allow_loyalty_prices),
+      allowSplitBasket:
+        preferences.allow_split_basket === undefined
+          ? true
+          : booleanValue(preferences.allow_split_basket),
+      preferPromotions:
+        preferences.prefer_promotions === undefined
+          ? true
+          : booleanValue(preferences.prefer_promotions),
+      preferredBrands: stringArray(preferences.preferred_brands),
+      excludedBrands: stringArray(preferences.excluded_brands),
     },
   };
 }

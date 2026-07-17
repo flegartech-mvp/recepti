@@ -34,7 +34,7 @@ begin
 
   export_payload := public.export_cookbook_data();
   if export_payload ->> 'product' <> 'Nana''s Recipes'
-    or (export_payload ->> 'schemaVersion')::integer <> 1
+    or (export_payload ->> 'schemaVersion')::integer <> 2
     or jsonb_array_length(export_payload -> 'recipes') <> 5 then
     raise exception 'Export envelope did not match the seeded cookbook.';
   end if;
@@ -66,6 +66,65 @@ begin
   exception
     when insufficient_privilege then null;
   end;
+end;
+$test$;
+
+do $test$
+declare
+  retailer_id uuid;
+  product_id uuid;
+  ingredient_id uuid;
+  history_count integer;
+begin
+  select id into retailer_id from public.retailers where slug = 'spar-si';
+  select id into ingredient_id from public.ingredients where user_id = auth.uid() order by created_at limit 1;
+  if retailer_id is null or ingredient_id is null then
+    raise exception 'Retailer seed or owner ingredient is missing.';
+  end if;
+
+  insert into public.retailer_products (
+    retailer_id, external_id, name, normalized_name, package_quantity,
+    package_unit, package_text, source_payload_hash
+  ) values (
+    retailer_id, 'smoke-product', 'Smoke test milk', 'smoke test milk',
+    1, 'l', '1 l', repeat('a', 64)
+  ) returning id into product_id;
+
+  begin
+    insert into public.retailer_products (
+      retailer_id, external_id, name, normalized_name, source_payload_hash
+    ) values (
+      retailer_id, 'smoke-product', 'Duplicate', 'duplicate', repeat('b', 64)
+    );
+    raise exception 'Retailer product uniqueness was not enforced.';
+  exception when unique_violation then null;
+  end;
+
+  insert into public.retailer_offers (
+    retailer_product_id, regular_price, promotional_price,
+    observed_at, source_hash
+  ) values (
+    product_id, 1.29, 1.09, now(), repeat('c', 64)
+  );
+  select count(*) into history_count from public.retailer_price_history where retailer_product_id = product_id;
+  if history_count <> 1 then
+    raise exception 'Retailer price history trigger did not archive the offer.';
+  end if;
+
+  insert into public.ingredient_product_matches (
+    ingredient_id, retailer_product_id, confidence, match_method, review_status
+  ) values (ingredient_id, product_id, 0.75, 'normalized_name', 'suggested');
+
+  update public.user_preferences set
+    preferred_retailer = 'spar-si', allow_loyalty_prices = true
+  where user_id = auth.uid();
+  if not exists (
+    select 1 from public.user_preferences
+    where user_id = auth.uid() and preferred_retailer = 'spar-si'
+      and allow_loyalty_prices
+  ) then
+    raise exception 'Retailer preferences were not persisted.';
+  end if;
 end;
 $test$;
 
@@ -254,10 +313,12 @@ do $test$
 declare
   visible_recipes integer;
   visible_pantry integer;
+  visible_products integer;
 begin
   select count(*) into visible_recipes from public.recipes;
   select count(*) into visible_pantry from public.pantry_items;
-  if visible_recipes <> 0 or visible_pantry <> 0 then
+  select count(*) into visible_products from public.retailer_products;
+  if visible_recipes <> 0 or visible_pantry <> 0 or visible_products <> 0 then
     raise exception 'RLS exposed owner rows to another authenticated identity.';
   end if;
 

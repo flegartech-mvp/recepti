@@ -59,6 +59,13 @@ import { UNITS } from "@/lib/constants";
 import type { ShoppingListItemInput } from "@/lib/validation";
 import { cn } from "@/lib/utils";
 import type { Ingredient, ShoppingListItem } from "@/types/domain";
+import { ProductComparisonButton } from "@/features/retailers/components/product-comparison-button";
+import { BasketSummary } from "@/features/retailers/components/basket-summary";
+import {
+  defaultRetailerPreferences,
+  type RetailerPreferences,
+  type RetailerProduct,
+} from "@/lib/retailers/types";
 
 const isUuid = (value: string | undefined | null) =>
   Boolean(value && /^[0-9a-f-]{36}$/i.test(value));
@@ -66,9 +73,13 @@ const isUuid = (value: string | undefined | null) =>
 export function ShoppingListManager({
   initialItems,
   catalog,
+  comparisonProducts = [],
+  retailerPreferences = defaultRetailerPreferences,
 }: {
   initialItems: ShoppingListItem[];
   catalog: Ingredient[];
+  comparisonProducts?: RetailerProduct[];
+  retailerPreferences?: RetailerPreferences;
 }) {
   const router = useRouter();
   const { t, formatNumber, plural } = useI18n();
@@ -212,6 +223,11 @@ export function ShoppingListManager({
           </AlertDescription>
         </Alert>
       )}
+      <BasketSummary
+        items={unchecked}
+        products={comparisonProducts}
+        preferences={retailerPreferences}
+      />
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => setDialogOpen(true)}>
           <Plus className="size-4" />
@@ -247,6 +263,12 @@ export function ShoppingListManager({
                 item={item}
                 large={shoppingMode}
                 pending={pending}
+                products={comparisonProducts.filter(
+                  (product) =>
+                    item.ingredientId &&
+                    product.ingredientIds.includes(item.ingredientId),
+                )}
+                preferences={retailerPreferences}
                 onToggle={() => toggle(item)}
                 onDelete={() => {
                   execute(
@@ -344,6 +366,12 @@ export function ShoppingListManager({
                 item={item}
                 large={shoppingMode}
                 pending={pending}
+                products={comparisonProducts.filter(
+                  (product) =>
+                    item.ingredientId &&
+                    product.ingredientIds.includes(item.ingredientId),
+                )}
+                preferences={retailerPreferences}
                 onToggle={() => toggle(item)}
                 onDelete={() => {
                   execute(
@@ -447,12 +475,16 @@ function ShoppingRow({
   pending,
   onToggle,
   onDelete,
+  products,
+  preferences,
 }: {
   item: ShoppingListItem;
   large: boolean;
   pending: boolean;
   onToggle: () => void;
   onDelete: () => void;
+  products: RetailerProduct[];
+  preferences: RetailerPreferences;
 }) {
   const { t, formatNumber } = useI18n();
   return (
@@ -493,6 +525,11 @@ function ShoppingRow({
           </Link>
         )}
       </div>
+      <ProductComparisonButton
+        item={item}
+        products={products}
+        preferences={preferences}
+      />
       <Button
         variant="ghost"
         size="icon-sm"

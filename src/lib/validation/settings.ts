@@ -1,5 +1,7 @@
 import { z } from "zod";
 
+import { RETAILER_SLUGS } from "@/lib/retailers/types";
+
 import { normalizedUniqueStringArray, uuidSchema } from "./common";
 
 export const settingsSchema = z
@@ -12,6 +14,22 @@ export const settingsSchema = z
     stapleIngredientIds: z.array(uuidSchema).max(500).default([]),
     additionalStapleNames: normalizedUniqueStringArray(100, 120).default([]),
     reduceMotion: z.boolean().default(false),
+    enabledRetailers: z
+      .array(z.enum(RETAILER_SLUGS))
+      .max(3)
+      .default([...RETAILER_SLUGS]),
+    preferredRetailer: z.enum(RETAILER_SLUGS).nullable().default(null),
+    allowLoyaltyPrices: z.boolean().default(false),
+    allowSplitBasket: z.boolean().default(true),
+    preferPromotions: z.boolean().default(true),
+    preferredBrands: z
+      .array(z.string().trim().min(1).max(120))
+      .max(50)
+      .default([]),
+    excludedBrands: z
+      .array(z.string().trim().min(1).max(120))
+      .max(50)
+      .default([]),
   })
   .strict()
   .superRefine((settings, context) => {
@@ -23,6 +41,16 @@ export const settingsSchema = z
         code: "custom",
         message: "Remove duplicate staple ingredients.",
         path: ["stapleIngredientIds"],
+      });
+    }
+    if (
+      settings.preferredRetailer &&
+      !settings.enabledRetailers.includes(settings.preferredRetailer)
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["preferredRetailer"],
+        message: "The preferred retailer must be enabled.",
       });
     }
   });

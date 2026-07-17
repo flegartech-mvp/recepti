@@ -63,7 +63,7 @@ test.describe("private cookbook authorization", () => {
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), cook\./,
+        name: /Good (morning|afternoon|evening), Nana\./,
       }),
     ).toBeVisible();
     await expect(

@@ -7,6 +7,7 @@ import {
   Refrigerator,
   Shuffle,
   Sparkles,
+  Store,
 } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-container";
@@ -56,7 +57,7 @@ export default async function DashboardPage() {
   return (
     <PageContainer>
       <PageHeader
-        title={t("{greeting}, cook.", { greeting: t(greeting(locale)) })}
+        title={t("{greeting}, Nana.", { greeting: t(greeting(locale)) })}
         description={t(message)}
         action={
           <Button asChild>
@@ -99,7 +100,7 @@ export default async function DashboardPage() {
       </section>
 
       <section className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
-        <div className="relative overflow-hidden rounded-2xl border border-primary/20 bg-surface-secondary p-6 text-foreground shadow-[0_10px_28px_var(--shadow)] sm:p-8">
+        <div className="catalogue-hero relative overflow-hidden rounded-2xl border border-primary/20 bg-surface-secondary p-6 text-foreground shadow-[0_10px_28px_var(--shadow)] sm:p-8">
           <span className="grid size-11 place-items-center rounded-xl bg-primary-soft text-primary-text">
             <Sparkles className="size-6" aria-hidden="true" />
           </span>
@@ -125,6 +126,12 @@ export default async function DashboardPage() {
               <Link href="/pantry?add=1">
                 <Refrigerator className="size-4" aria-hidden="true" />
                 {t("Add pantry ingredient")}
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" className="justify-start">
+              <Link href="/products">
+                <Store className="size-4" aria-hidden="true" />
+                {t("Compare grocery prices")}
               </Link>
             </Button>
             <Button asChild variant="ghost" className="justify-start">

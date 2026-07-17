@@ -22,7 +22,7 @@ export function AppShell({
       <AppNavigation email={email} />
       <main
         id="main-content"
-        className="mobile-content-safe min-h-[100dvh] bg-background lg:ml-64"
+        className="mobile-content-safe min-h-[100dvh] bg-transparent lg:ml-64"
       >
         {children}
       </main>

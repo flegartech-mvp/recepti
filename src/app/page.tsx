@@ -55,6 +55,7 @@ export default async function LandingPage({
 
       <section className="safe-inline mx-auto grid min-h-[calc(100dvh-5rem)] w-full max-w-7xl items-center gap-10 pb-14 pt-5 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16 lg:pb-20 lg:pt-8">
         <div className="max-w-xl">
+          <p className="kitchen-note mb-3">{t("Cucina con amore")}</p>
           <h1 className="text-balance text-4xl font-semibold leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-6xl">
             {t("A cookbook that knows what's at home.")}
           </h1>
@@ -87,7 +88,7 @@ export default async function LandingPage({
         </div>
 
         <div className="relative mx-auto w-full max-w-[590px] lg:justify-self-end">
-          <div className="organic-shadow relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-surface-tint">
+          <div className="organic-shadow relative aspect-[4/5] overflow-hidden rounded-2xl border-4 border-surface outline outline-1 outline-border bg-surface-tint">
             <Image
               src="/images/menta-hero.png"
               alt={t(
@@ -99,7 +100,7 @@ export default async function LandingPage({
               className="object-cover"
             />
           </div>
-          <div className="surface-shadow absolute -bottom-5 -left-3 hidden w-64 rounded-xl border border-border bg-card p-4 sm:block lg:-left-8">
+          <div className="recipe-paper surface-shadow absolute -bottom-5 -left-3 hidden w-64 rounded-xl border border-border bg-card p-4 sm:block lg:-left-8">
             <div className="flex items-start gap-3">
               <span className="grid size-10 shrink-0 place-items-center rounded-xl bg-accent text-accent-foreground">
                 <Sparkles className="size-5" aria-hidden="true" />
@@ -122,7 +123,7 @@ export default async function LandingPage({
         aria-labelledby="landing-features"
       >
         <div className="safe-inline mx-auto grid w-full max-w-7xl gap-5 py-16 md:grid-cols-2 lg:grid-cols-[1.35fr_0.65fr] lg:py-20">
-          <div className="rounded-2xl border border-border bg-surface-secondary p-7 text-foreground shadow-[0_10px_30px_var(--shadow)] sm:p-9">
+          <div className="catalogue-hero rounded-2xl border border-border bg-surface-secondary p-7 text-foreground shadow-[0_10px_30px_var(--shadow)] sm:p-9">
             <span className="grid size-11 place-items-center rounded-xl bg-primary-soft text-primary-text">
               <BookOpenText className="size-6" aria-hidden="true" />
             </span>

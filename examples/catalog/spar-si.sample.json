@@ -1,0 +1,17 @@
+{
+  "products": [
+    {
+      "externalId": "demo-spar-001",
+      "name": "Predstavitveno polnomastno mleko 3,5 %",
+      "brand": "Domača izbira",
+      "category": "Mlečni izdelki",
+      "packageText": "1 l",
+      "price": "1,29",
+      "promotionalPrice": "1,09",
+      "currency": "EUR",
+      "observedAt": "2026-07-15T08:00:00.000Z",
+      "validUntil": "2027-07-31T23:59:59.000Z",
+      "imageMode": "local-placeholder"
+    }
+  ]
+}

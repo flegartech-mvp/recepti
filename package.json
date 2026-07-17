@@ -14,7 +14,11 @@
     "test:db": "tsx scripts/test-database.ts",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
-    "db:seed": "tsx scripts/seed.ts"
+    "db:seed": "tsx scripts/seed.ts",
+    "catalog:import": "tsx scripts/catalog.ts import",
+    "catalog:sync": "tsx scripts/catalog.ts sync",
+    "catalog:seed": "tsx scripts/catalog.ts seed",
+    "catalog:validate": "tsx scripts/catalog.ts validate"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.4.0",

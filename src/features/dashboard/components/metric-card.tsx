@@ -12,7 +12,7 @@ export function MetricCard({
   note: string;
 }) {
   return (
-    <div className="bg-card p-4 sm:min-h-40 sm:p-5">
+    <div className="recipe-paper bg-card p-4 sm:min-h-36 sm:p-5">
       <div className="flex items-start justify-between gap-4">
         <div>
           <p className="text-sm font-medium text-muted-foreground">{label}</p>
@@ -24,7 +24,7 @@ export function MetricCard({
           <Icon className="size-5" aria-hidden="true" />
         </span>
       </div>
-      <p className="mt-4 text-xs text-muted-foreground">{note}</p>
+      <p className="mt-3 text-sm leading-snug text-muted-foreground">{note}</p>
     </div>
   );
 }

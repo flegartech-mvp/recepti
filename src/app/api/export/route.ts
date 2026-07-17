@@ -16,7 +16,7 @@ export async function GET() {
   let payload: unknown;
   if (isTestAuthenticationEnabled()) {
     payload = {
-      schemaVersion: 1,
+      schemaVersion: 2,
       product: "Nana's Recipes",
       exportedAt: new Date().toISOString(),
       ingredients: [],
@@ -32,6 +32,13 @@ export async function GET() {
         stapleIngredientIds: [],
         additionalStapleNames: [],
         reduceMotion: false,
+        enabledRetailers: ["spar-si", "hofer-si", "lidl-si"],
+        preferredRetailer: null,
+        allowLoyaltyPrices: false,
+        allowSplitBasket: true,
+        preferPromotions: true,
+        preferredBrands: [],
+        excludedBrands: [],
       },
     };
   } else {

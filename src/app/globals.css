@@ -20,6 +20,10 @@
   --color-overlay: var(--overlay);
   --color-notice: var(--notice);
   --color-notice-foreground: var(--notice-foreground);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-soft: var(--terracotta-soft);
+  --color-highlight: var(--highlight);
+  --color-wood: var(--wood);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -60,39 +64,45 @@
 
 :root {
   color-scheme: light;
-  --background: #f8fbf8;
-  --surface: #ffffff;
-  --surface-secondary: #f0f7f2;
-  --primary: #8fc9aa;
-  --primary-hover: #76b894;
-  --primary-soft: #dff2e7;
-  --primary-text: #24543a;
-  --text: #202923;
-  --text-muted: #68746c;
-  --border: #dce8df;
-  --danger: #c95c5c;
-  --shadow: rgba(42, 76, 55, 0.1);
-  --overlay: rgba(17, 23, 19, 0.44);
+  --background: #f6eedc;
+  --surface: #fffaf0;
+  --surface-secondary: #e7e6cf;
+  --primary: #5b6c32;
+  --primary-hover: #465526;
+  --primary-soft: #dfe3c2;
+  --primary-text: #35441e;
+  --terracotta: #a64f34;
+  --terracotta-soft: #f0d5c7;
+  --highlight: #e4c96d;
+  --wood: #7a5438;
+  --text: #30251f;
+  --text-muted: #6d6056;
+  --border: #d4c2a3;
+  --danger: #9d3d34;
+  --shadow: rgba(92, 65, 42, 0.15);
+  --overlay: rgba(38, 27, 21, 0.54);
+  --paper-line: rgba(122, 84, 56, 0.055);
+  --gingham: rgba(91, 108, 50, 0.045);
   --foreground: var(--text);
   --card: var(--surface);
   --card-foreground: var(--text);
   --popover: var(--surface);
   --popover-foreground: var(--text);
-  --primary-foreground: #173d2a;
+  --primary-foreground: #fffaf0;
   --secondary: var(--primary-soft);
   --secondary-foreground: var(--primary-text);
   --muted: var(--surface-secondary);
   --muted-foreground: var(--text-muted);
   --accent: var(--primary-soft);
   --accent-foreground: var(--primary-text);
-  --destructive: #a94343;
+  --destructive: #9d3d34;
   --input: var(--border);
   --ring: var(--primary-text);
-  --chart-1: #76b894;
-  --chart-2: #8fc9aa;
-  --chart-3: #5f9876;
-  --chart-4: #b7dfc8;
-  --chart-5: #24543a;
+  --chart-1: #5b6c32;
+  --chart-2: #a64f34;
+  --chart-3: #7a5438;
+  --chart-4: #e4c96d;
+  --chart-5: #35441e;
   --radius: 0.75rem;
   --sidebar: var(--surface);
   --sidebar-foreground: var(--text);
@@ -109,25 +119,31 @@
 
 .dark {
   color-scheme: dark;
-  --background: #111713;
-  --surface: #18201b;
-  --surface-secondary: #202b24;
-  --primary: #91d1ad;
-  --primary-hover: #a6dfc0;
-  --primary-soft: #263f31;
-  --primary-text: #d8f4e3;
-  --text: #edf5ef;
-  --text-muted: #a7b7ac;
-  --border: #334239;
-  --danger: #e57a7a;
-  --shadow: rgba(0, 0, 0, 0.28);
-  --overlay: rgba(4, 8, 5, 0.64);
+  --background: #1c1511;
+  --surface: #2a201a;
+  --surface-secondary: #342a21;
+  --primary: #aab77a;
+  --primary-hover: #c1ca94;
+  --primary-soft: #3f492d;
+  --primary-text: #e9edcd;
+  --terracotta: #d27b5e;
+  --terracotta-soft: #573126;
+  --highlight: #d6b95e;
+  --wood: #b38764;
+  --text: #f3e8d2;
+  --text-muted: #c2b3a1;
+  --border: #5a4737;
+  --danger: #e08373;
+  --shadow: rgba(8, 5, 3, 0.38);
+  --overlay: rgba(12, 8, 5, 0.72);
+  --paper-line: rgba(243, 232, 210, 0.035);
+  --gingham: rgba(170, 183, 122, 0.035);
   --foreground: var(--text);
   --card: var(--surface);
   --card-foreground: var(--text);
   --popover: var(--surface);
   --popover-foreground: var(--text);
-  --primary-foreground: #173d2a;
+  --primary-foreground: #201812;
   --secondary: var(--primary-soft);
   --secondary-foreground: var(--primary-text);
   --muted: var(--surface-secondary);
@@ -137,11 +153,11 @@
   --destructive: var(--danger);
   --input: var(--border);
   --ring: var(--primary);
-  --chart-1: #91d1ad;
-  --chart-2: #76b894;
-  --chart-3: #b4e4c7;
-  --chart-4: #5f9876;
-  --chart-5: #d8f4e3;
+  --chart-1: #aab77a;
+  --chart-2: #d27b5e;
+  --chart-3: #b38764;
+  --chart-4: #d6b95e;
+  --chart-5: #e9edcd;
   --sidebar: var(--surface);
   --sidebar-foreground: var(--text);
   --sidebar-primary: var(--primary-soft);
@@ -164,6 +180,42 @@
     min-height: 100dvh;
     font-family: Cambria, Georgia, "Times New Roman", Times, serif;
     text-rendering: optimizeLegibility;
+    background-image:
+      radial-gradient(
+        circle at 8% 0%,
+        color-mix(in srgb, var(--highlight) 16%, transparent),
+        transparent 27rem
+      ),
+      radial-gradient(
+        circle at 92% 14%,
+        color-mix(in srgb, var(--terracotta) 10%, transparent),
+        transparent 30rem
+      ),
+      linear-gradient(
+        135deg,
+        var(--background),
+        color-mix(in srgb, var(--background), var(--surface) 36%)
+      );
+    background-attachment: fixed;
+  }
+  body::before {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    content: "";
+    opacity: 0.72;
+    background-image:
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 5px,
+        var(--paper-line) 5px 6px
+      ),
+      repeating-linear-gradient(
+        90deg,
+        transparent 0 19px,
+        var(--gingham) 19px 20px
+      );
   }
   html {
     @apply font-sans;
@@ -324,6 +376,86 @@
   }
   .surface-shadow {
     box-shadow: 0 12px 32px var(--shadow);
+  }
+  .recipe-paper {
+    position: relative;
+    background-image:
+      linear-gradient(
+        105deg,
+        transparent 0 72%,
+        color-mix(in srgb, var(--highlight) 6%, transparent)
+      ),
+      repeating-linear-gradient(
+        0deg,
+        transparent 0 7px,
+        var(--paper-line) 7px 8px
+      );
+    box-shadow:
+      0 12px 30px var(--shadow),
+      inset 0 1px color-mix(in srgb, var(--surface) 82%, white);
+  }
+  .recipe-paper::after {
+    position: absolute;
+    top: 0.65rem;
+    right: 0.65rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-top: 1px solid color-mix(in srgb, var(--terracotta) 35%, transparent);
+    border-right: 1px solid
+      color-mix(in srgb, var(--terracotta) 35%, transparent);
+    border-radius: 0 0.25rem 0 0;
+    pointer-events: none;
+    content: "";
+  }
+  .kitchen-note {
+    color: var(--terracotta);
+    font-family: "Segoe Print", "Bradley Hand", "Comic Sans MS", cursive;
+    font-size: 0.88rem;
+    line-height: 1.35;
+    transform: rotate(-0.7deg);
+  }
+  .catalogue-hero {
+    position: relative;
+    background-image:
+      radial-gradient(
+        circle at 86% 18%,
+        color-mix(in srgb, var(--highlight) 28%, transparent),
+        transparent 12rem
+      ),
+      linear-gradient(
+        115deg,
+        var(--surface),
+        color-mix(in srgb, var(--surface-secondary) 76%, var(--surface))
+      );
+  }
+  .catalogue-hero::after {
+    position: absolute;
+    right: -2rem;
+    bottom: -3.5rem;
+    width: 15rem;
+    height: 15rem;
+    border: 1.4rem double color-mix(in srgb, var(--primary) 12%, transparent);
+    border-radius: 999px;
+    content: "";
+  }
+  .product-placeholder {
+    background-image:
+      linear-gradient(
+        45deg,
+        transparent 46%,
+        color-mix(in srgb, var(--primary) 7%, transparent) 46% 54%,
+        transparent 54%
+      ),
+      linear-gradient(
+        -45deg,
+        transparent 46%,
+        color-mix(in srgb, var(--terracotta) 6%, transparent) 46% 54%,
+        transparent 54%
+      );
+    background-size: 28px 28px;
+  }
+  .page-kitchen {
+    isolation: isolate;
   }
 }
 

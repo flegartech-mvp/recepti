@@ -10,11 +10,11 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground shadow-[0_6px_16px_var(--shadow)] hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_10px_22px_var(--shadow)]",
+          "bg-primary text-primary-foreground shadow-[0_6px_16px_var(--shadow)] hover:-translate-y-0.5 hover:bg-primary-hover hover:shadow-[0_10px_22px_var(--shadow)] dark:text-primary-foreground",
         outline:
           "border-border bg-surface text-foreground shadow-sm hover:border-primary/55 hover:bg-primary-soft hover:text-primary-text aria-expanded:border-primary/55 aria-expanded:bg-primary-soft aria-expanded:text-primary-text",
         secondary:
-          "border-primary/15 bg-secondary text-secondary-foreground hover:border-primary/30 hover:bg-[color-mix(in_srgb,var(--primary-soft),var(--primary)_18%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
+          "border-primary/20 bg-secondary text-secondary-foreground shadow-sm hover:border-primary/35 hover:bg-[color-mix(in_srgb,var(--primary-soft),var(--highlight)_15%)] aria-expanded:bg-secondary aria-expanded:text-secondary-foreground",
         ghost:
           "text-foreground/78 hover:bg-primary-soft hover:text-primary-text aria-expanded:bg-primary-soft aria-expanded:text-primary-text",
         destructive:

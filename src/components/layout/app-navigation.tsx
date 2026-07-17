@@ -13,6 +13,7 @@ import {
   Refrigerator,
   Settings,
   ShoppingBasket,
+  Store,
 } from "lucide-react";
 
 import { Logo } from "@/components/brand/logo";
@@ -40,6 +41,7 @@ const primaryItems = [
 ];
 
 const secondaryItems = [
+  { href: "/products", label: "Products", icon: Store },
   { href: "/ingredients", label: "Ingredients", icon: PackageSearch },
   { href: "/favorites", label: "Favorites", icon: Heart },
   { href: "/settings", label: "Settings", icon: Settings },
@@ -60,7 +62,7 @@ export function AppNavigation({ email }: { email: string }) {
     <>
       <aside
         data-app-navigation
-        className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-sidebar-border bg-sidebar px-4 py-5 shadow-[8px_0_32px_color-mix(in_srgb,var(--shadow)_38%,transparent)] lg:flex"
+        className="fixed inset-y-0 left-0 z-20 hidden w-64 flex-col border-r border-sidebar-border bg-[linear-gradient(180deg,var(--sidebar),color-mix(in_srgb,var(--surface-secondary),var(--sidebar)_62%))] px-4 py-5 shadow-[8px_0_32px_color-mix(in_srgb,var(--shadow)_50%,transparent)] lg:flex"
       >
         <Logo className="px-2" />
         <Button
@@ -84,7 +86,7 @@ export function AppNavigation({ email }: { email: string }) {
                 className={cn(
                   "flex min-h-11 items-center gap-3 rounded-lg px-3 text-sm font-semibold transition-colors duration-200 active:translate-y-px",
                   active
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm"
+                    ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-sm ring-1 ring-primary/15"
                     : "text-sidebar-foreground/72 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
                 )}
               >
@@ -116,7 +118,7 @@ export function AppNavigation({ email }: { email: string }) {
 
       <header
         data-app-navigation
-        className="safe-app-header sticky top-0 z-20 flex items-center justify-between border-b border-border/80 bg-surface/94 shadow-sm backdrop-blur lg:hidden"
+        className="safe-app-header sticky top-0 z-20 flex items-center justify-between border-b border-border/80 bg-surface/94 shadow-[0_6px_22px_var(--shadow)] backdrop-blur lg:hidden"
       >
         <Logo compact />
         <div className="flex items-center gap-1.5">

@@ -1,7 +1,7 @@
 /**
  * Generated-style Supabase types for the public schema.
  *
- * Source of truth: supabase/migrations/202607150001-007. Regenerate these
+ * Source of truth: supabase/migrations through 202607170001. Regenerate these
  * types with the Supabase CLI after applying migrations to a linked project.
  */
 export type Json =
@@ -565,6 +565,429 @@ export type Database = {
         };
         Relationships: [];
       };
+      retailers: {
+        Row: {
+          id: string;
+          slug: string;
+          display_name: string;
+          country_code: string;
+          website_url: string | null;
+          logo_path: string | null;
+          enabled: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          slug: string;
+          display_name: string;
+          country_code?: string;
+          website_url?: string | null;
+          logo_path?: string | null;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          slug?: string;
+          display_name?: string;
+          country_code?: string;
+          website_url?: string | null;
+          logo_path?: string | null;
+          enabled?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      retailer_stores: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          external_id: string;
+          name: string;
+          address: string | null;
+          postal_code: string | null;
+          city: string | null;
+          latitude: number | null;
+          longitude: number | null;
+          active: boolean;
+          last_seen_at: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          external_id: string;
+          name: string;
+          address?: string | null;
+          postal_code?: string | null;
+          city?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          active?: boolean;
+          last_seen_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          external_id?: string;
+          name?: string;
+          address?: string | null;
+          postal_code?: string | null;
+          city?: string | null;
+          latitude?: number | null;
+          longitude?: number | null;
+          active?: boolean;
+          last_seen_at?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      retailer_products: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          external_id: string;
+          sku: string | null;
+          ean: string | null;
+          source_slug: string | null;
+          name: string;
+          normalized_name: string;
+          brand: string | null;
+          description: string | null;
+          category: string | null;
+          subcategory: string | null;
+          package_quantity: number | null;
+          package_unit: string | null;
+          package_text: string | null;
+          country_of_origin: string | null;
+          source_url: string | null;
+          source_image_url: string | null;
+          authorized_storage_path: string | null;
+          image_mode: string;
+          active: boolean;
+          first_seen_at: string;
+          last_seen_at: string;
+          source_payload_hash: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          external_id: string;
+          sku?: string | null;
+          ean?: string | null;
+          source_slug?: string | null;
+          name: string;
+          normalized_name: string;
+          brand?: string | null;
+          description?: string | null;
+          category?: string | null;
+          subcategory?: string | null;
+          package_quantity?: number | null;
+          package_unit?: string | null;
+          package_text?: string | null;
+          country_of_origin?: string | null;
+          source_url?: string | null;
+          source_image_url?: string | null;
+          authorized_storage_path?: string | null;
+          image_mode?: string;
+          active?: boolean;
+          first_seen_at?: string;
+          last_seen_at?: string;
+          source_payload_hash: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          external_id?: string;
+          sku?: string | null;
+          ean?: string | null;
+          source_slug?: string | null;
+          name?: string;
+          normalized_name?: string;
+          brand?: string | null;
+          description?: string | null;
+          category?: string | null;
+          subcategory?: string | null;
+          package_quantity?: number | null;
+          package_unit?: string | null;
+          package_text?: string | null;
+          country_of_origin?: string | null;
+          source_url?: string | null;
+          source_image_url?: string | null;
+          authorized_storage_path?: string | null;
+          image_mode?: string;
+          active?: boolean;
+          first_seen_at?: string;
+          last_seen_at?: string;
+          source_payload_hash?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
+      retailer_offers: {
+        Row: {
+          id: string;
+          retailer_product_id: string;
+          store_id: string | null;
+          currency: string;
+          regular_price: number | null;
+          promotional_price: number | null;
+          loyalty_price: number | null;
+          unit_price: number | null;
+          unit_price_unit: string | null;
+          valid_from: string | null;
+          valid_until: string | null;
+          availability_status: string;
+          promotion_label: string | null;
+          observed_at: string;
+          source_hash: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          retailer_product_id: string;
+          store_id?: string | null;
+          currency?: string;
+          regular_price?: number | null;
+          promotional_price?: number | null;
+          loyalty_price?: number | null;
+          unit_price?: number | null;
+          unit_price_unit?: string | null;
+          valid_from?: string | null;
+          valid_until?: string | null;
+          availability_status?: string;
+          promotion_label?: string | null;
+          observed_at: string;
+          source_hash: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          retailer_product_id?: string;
+          store_id?: string | null;
+          currency?: string;
+          regular_price?: number | null;
+          promotional_price?: number | null;
+          loyalty_price?: number | null;
+          unit_price?: number | null;
+          unit_price_unit?: string | null;
+          valid_from?: string | null;
+          valid_until?: string | null;
+          availability_status?: string;
+          promotion_label?: string | null;
+          observed_at?: string;
+          source_hash?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      retailer_price_history: {
+        Row: {
+          id: string;
+          retailer_product_id: string;
+          store_id: string | null;
+          currency: string;
+          regular_price: number | null;
+          promotional_price: number | null;
+          loyalty_price: number | null;
+          observed_at: string;
+          source_hash: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          retailer_product_id: string;
+          store_id?: string | null;
+          currency?: string;
+          regular_price?: number | null;
+          promotional_price?: number | null;
+          loyalty_price?: number | null;
+          observed_at: string;
+          source_hash: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          retailer_product_id?: string;
+          store_id?: string | null;
+          currency?: string;
+          regular_price?: number | null;
+          promotional_price?: number | null;
+          loyalty_price?: number | null;
+          observed_at?: string;
+          source_hash?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      ingredient_product_matches: {
+        Row: {
+          id: string;
+          user_id: string;
+          ingredient_id: string;
+          retailer_product_id: string;
+          confidence: number;
+          match_method: string;
+          review_status: string;
+          notes: string | null;
+          created_at: string;
+          reviewed_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          ingredient_id: string;
+          retailer_product_id: string;
+          confidence?: number;
+          match_method: string;
+          review_status?: string;
+          notes?: string | null;
+          created_at?: string;
+          reviewed_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          ingredient_id?: string;
+          retailer_product_id?: string;
+          confidence?: number;
+          match_method?: string;
+          review_status?: string;
+          notes?: string | null;
+          created_at?: string;
+          reviewed_at?: string | null;
+        };
+        Relationships: [];
+      };
+      retailer_import_runs: {
+        Row: {
+          id: string;
+          retailer_id: string;
+          import_mode: string;
+          started_at: string;
+          completed_at: string | null;
+          status: string;
+          records_seen: number;
+          records_inserted: number;
+          records_updated: number;
+          records_skipped: number;
+          records_failed: number;
+          source_identifier: string | null;
+          error_summary: string | null;
+          metadata: Json;
+        };
+        Insert: {
+          id?: string;
+          retailer_id: string;
+          import_mode: string;
+          started_at?: string;
+          completed_at?: string | null;
+          status?: string;
+          records_seen?: number;
+          records_inserted?: number;
+          records_updated?: number;
+          records_skipped?: number;
+          records_failed?: number;
+          source_identifier?: string | null;
+          error_summary?: string | null;
+          metadata?: Json;
+        };
+        Update: {
+          id?: string;
+          retailer_id?: string;
+          import_mode?: string;
+          started_at?: string;
+          completed_at?: string | null;
+          status?: string;
+          records_seen?: number;
+          records_inserted?: number;
+          records_updated?: number;
+          records_skipped?: number;
+          records_failed?: number;
+          source_identifier?: string | null;
+          error_summary?: string | null;
+          metadata?: Json;
+        };
+        Relationships: [];
+      };
+      retailer_import_errors: {
+        Row: {
+          id: string;
+          import_run_id: string;
+          row_number: number | null;
+          external_id: string | null;
+          error_code: string | null;
+          error_message: string;
+          safe_payload: Json | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          import_run_id: string;
+          row_number?: number | null;
+          external_id?: string | null;
+          error_code?: string | null;
+          error_message: string;
+          safe_payload?: Json | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          import_run_id?: string;
+          row_number?: number | null;
+          external_id?: string | null;
+          error_code?: string | null;
+          error_message?: string;
+          safe_payload?: Json | null;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      shopping_product_selections: {
+        Row: {
+          id: string;
+          user_id: string;
+          shopping_list_item_id: string;
+          retailer_product_id: string;
+          selection_mode: string;
+          excluded: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          shopping_list_item_id: string;
+          retailer_product_id: string;
+          selection_mode?: string;
+          excluded?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          shopping_list_item_id?: string;
+          retailer_product_id?: string;
+          selection_mode?: string;
+          excluded?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       shopping_list_items: {
         Row: {
           completed_at: string | null;
@@ -655,11 +1078,18 @@ export type Database = {
       user_preferences: {
         Row: {
           additional_staple_names: string[];
+          allow_loyalty_prices: boolean;
+          allow_split_basket: boolean;
           created_at: string;
           default_servings: number;
+          enabled_retailers: string[];
+          excluded_brands: string[];
           id: string;
           ignore_staples_by_default: boolean;
           measurement_preference: Database["public"]["Enums"]["measurement_preference"];
+          prefer_promotions: boolean;
+          preferred_brands: string[];
+          preferred_retailer: string | null;
           reduce_motion: boolean;
           staple_ingredient_ids: string[];
           theme: Database["public"]["Enums"]["theme_preference"];
@@ -668,11 +1098,18 @@ export type Database = {
         };
         Insert: {
           additional_staple_names?: string[];
+          allow_loyalty_prices?: boolean;
+          allow_split_basket?: boolean;
           created_at?: string;
           default_servings?: number;
+          enabled_retailers?: string[];
+          excluded_brands?: string[];
           id?: string;
           ignore_staples_by_default?: boolean;
           measurement_preference?: Database["public"]["Enums"]["measurement_preference"];
+          prefer_promotions?: boolean;
+          preferred_brands?: string[];
+          preferred_retailer?: string | null;
           reduce_motion?: boolean;
           staple_ingredient_ids?: string[];
           theme?: Database["public"]["Enums"]["theme_preference"];
@@ -681,11 +1118,18 @@ export type Database = {
         };
         Update: {
           additional_staple_names?: string[];
+          allow_loyalty_prices?: boolean;
+          allow_split_basket?: boolean;
           created_at?: string;
           default_servings?: number;
+          enabled_retailers?: string[];
+          excluded_brands?: string[];
           id?: string;
           ignore_staples_by_default?: boolean;
           measurement_preference?: Database["public"]["Enums"]["measurement_preference"];
+          prefer_promotions?: boolean;
+          preferred_brands?: string[];
+          preferred_retailer?: string | null;
           reduce_motion?: boolean;
           staple_ingredient_ids?: string[];
           theme?: Database["public"]["Enums"]["theme_preference"];

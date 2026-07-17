@@ -899,13 +899,20 @@ export async function getUserSettings(): Promise<SettingsValues> {
     stapleIngredientIds: [],
     additionalStapleNames: [],
     reduceMotion: false,
+    enabledRetailers: ["spar-si", "hofer-si", "lidl-si"],
+    preferredRetailer: null,
+    allowLoyaltyPrices: false,
+    allowSplitBasket: true,
+    preferPromotions: true,
+    preferredBrands: [],
+    excludedBrands: [],
   };
   if (isTestAuthenticationEnabled()) return defaults;
   const client = await createClient();
   const { data, error } = await client
     .from("user_preferences")
     .select(
-      "theme,default_servings,measurement_preference,staple_ingredient_ids,additional_staple_names,reduce_motion",
+      "theme,default_servings,measurement_preference,staple_ingredient_ids,additional_staple_names,reduce_motion,enabled_retailers,preferred_retailer,allow_loyalty_prices,allow_split_basket,prefer_promotions,preferred_brands,excluded_brands",
     )
     .maybeSingle();
   if (error || !data) return defaults;
@@ -917,6 +924,13 @@ export async function getUserSettings(): Promise<SettingsValues> {
     stapleIngredientIds: data.staple_ingredient_ids,
     additionalStapleNames: data.additional_staple_names,
     reduceMotion: data.reduce_motion,
+    enabledRetailers: data.enabled_retailers,
+    preferredRetailer: data.preferred_retailer,
+    allowLoyaltyPrices: data.allow_loyalty_prices,
+    allowSplitBasket: data.allow_split_basket,
+    preferPromotions: data.prefer_promotions,
+    preferredBrands: data.preferred_brands,
+    excludedBrands: data.excluded_brands,
   });
   return parsed.success ? parsed.data : defaults;
 }
