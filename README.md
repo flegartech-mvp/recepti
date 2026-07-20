@@ -1,8 +1,8 @@
 # Nana's Recipes
 
-Nana's Recipes now includes a warm Italian nonna-kitchen design system and an owner-only Slovenian retailer catalogue foundation for SPAR, HOFER, and Lidl. The catalogue uses fictional fixtures until authorized feeds are connected; it never represents demo prices as live shop data.
+Nana's Recipes includes a warm Italian nonna-kitchen design system and a private, curated household catalogue for SPAR, HOFER, and Lidl. Products live in `src/data/grocery-products.ts`: add or adjust them there whenever you want. They are reference values, never live retailer data.
 
-See [Retailer catalogue and price comparison](docs/retailer-catalogue.md) for the schema, import formats, commands, security model, image modes, price disclaimers, stale-data strategy, and exact live-feed connection steps.
+See [Retailer catalogue and price comparison](docs/retailer-catalogue.md) for the product format, ingredient matching rules, package conversions, and maintenance steps.
 
 Nana's Recipes is a private digital cookbook for saving recipes, keeping a real pantry,
 and deciding what to cook from ingredients already at home. Its interface uses

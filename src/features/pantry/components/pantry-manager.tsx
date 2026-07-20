@@ -65,6 +65,7 @@ import {
   savePantryItemAction,
 } from "@/features/pantry/actions";
 import { STORAGE_LOCATIONS, UNITS } from "@/lib/constants";
+import { pantryAdjustmentStep } from "@/data/pantry-starters";
 import type { PantryItemInput } from "@/lib/validation";
 import type { Ingredient, PantryItem, StorageLocation } from "@/types/domain";
 
@@ -324,7 +325,7 @@ export function PantryManager({
                 }}
                 onAdjust={(delta) =>
                   execute(
-                    () => adjustPantryQuantityAction(item.id, delta),
+                    () => adjustPantryQuantityAction(item.id, delta, item.unit),
                     "Quantity updated",
                   )
                 }
@@ -621,6 +622,7 @@ function PantryItemCard({
   onDelete: () => void;
 }) {
   const { t, formatDate, formatNumber, plural } = useI18n();
+  const step = pantryAdjustmentStep(item.ingredient.normalizedName, item.unit);
   const days = item.expirationDate
     ? differenceInCalendarDays(parseISO(item.expirationDate), new Date())
     : null;
@@ -687,8 +689,8 @@ function PantryItemCard({
           <Button
             size="icon-sm"
             variant="ghost"
-            disabled={pending || item.quantity === null}
-            onClick={() => onAdjust(-1)}
+            disabled={pending || item.quantity === null || item.quantity === 0}
+            onClick={() => onAdjust(-step)}
             aria-label={t("Decrease {name}", {
               name: item.ingredient.displayName,
             })}
@@ -699,7 +701,7 @@ function PantryItemCard({
             size="icon-sm"
             variant="ghost"
             disabled={pending || item.quantity === null}
-            onClick={() => onAdjust(1)}
+            onClick={() => onAdjust(step)}
             aria-label={t("Increase {name}", {
               name: item.ingredient.displayName,
             })}
@@ -708,7 +710,7 @@ function PantryItemCard({
           </Button>
         </div>
         <div className="flex gap-1">
-          <Button size="sm" variant="ghost" onClick={onDeplete}>
+          <Button size="sm" variant="ghost" onClick={onDeplete} disabled={item.id.startsWith("starter:")}>
             <Check className="size-4" />
             {t("Depleted")}
           </Button>

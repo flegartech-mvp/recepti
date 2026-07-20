@@ -62,12 +62,28 @@ export async function savePantryBatchAction(
 export async function adjustPantryQuantityAction(
   id: string,
   delta: number,
+  unit?: string | null,
 ): Promise<ActionResult> {
   await requireOwner("/pantry");
   if (!Number.isFinite(delta) || Math.abs(delta) > 1_000_000)
     return { ok: false, message: "That quantity change is invalid." };
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
+  if (id.startsWith("starter:")) {
+    const ingredientId = id.slice("starter:".length);
+    if (!/^[0-9a-f-]{36}$/i.test(ingredientId) || delta <= 0)
+      return { ok: false, message: "That pantry starter cannot be adjusted." };
+    const { error } = await client.from("pantry_items").insert({
+      ingredient_id: ingredientId,
+      quantity: delta,
+      unit: unit ?? null,
+      is_depleted: false,
+    });
+    if (error) return { ok: false, message: "The pantry starter could not be added." };
+    revalidatePath("/pantry");
+    revalidatePath("/dashboard");
+    return { ok: true, data: undefined };
+  }
   const { data: item, error: readError } = await client
     .from("pantry_items")
     .select("quantity")
@@ -86,6 +102,7 @@ export async function adjustPantryQuantityAction(
   if (error)
     return { ok: false, message: "The pantry quantity could not be adjusted." };
   revalidatePath("/pantry");
+  revalidatePath("/dashboard");
   return { ok: true, data: undefined };
 }
 

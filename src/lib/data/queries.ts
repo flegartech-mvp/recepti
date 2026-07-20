@@ -10,6 +10,7 @@ import {
 } from "@/lib/data/demo";
 import { attachMakeabilityToRecipeSummaries } from "@/lib/data/recipe-makeability";
 import { rankRecipes } from "@/lib/domain";
+import { pantryStarters } from "@/data/pantry-starters";
 import { createClient } from "@/lib/supabase/server";
 import type {
   DashboardData,
@@ -835,10 +836,33 @@ export async function listPantry(): Promise<PantryItem[]> {
   const { data, error } = await client
     .from("pantry_items")
     .select("*,ingredients(*)")
-    .eq("is_depleted", false)
     .order("created_at", { ascending: false });
   if (error) throw new Error("Pantry items could not be loaded.");
-  return (data ?? []).map(mapPantryItem);
+  const items = (data ?? []).map(mapPantryItem);
+  const { data: ingredients, error: ingredientsError } = await client
+    .from("ingredients")
+    .select("*")
+    .in("normalized_name", pantryStarters.map((starter) => starter.slug));
+  if (ingredientsError) throw new Error("Pantry starters could not be loaded.");
+  const stockedIngredientIds = new Set(items.map((item) => item.ingredientId));
+  const starterItems = (ingredients ?? [])
+    .map(mapIngredient)
+    .filter((ingredient) => !stockedIngredientIds.has(ingredient.id))
+    .map((ingredient) => ({
+      id: `starter:${ingredient.id}`,
+      ingredientId: ingredient.id,
+      ingredient,
+      quantity: 0,
+      unit: ingredient.defaultUnit,
+      storageLocation: "pantry" as StorageLocation,
+      expirationDate: null,
+      lowStock: false,
+      isDepleted: true,
+      notes: null,
+      createdAt: "",
+      updatedAt: "",
+    }));
+  return [...items, ...starterItems];
 }
 
 export async function listShoppingItems(): Promise<ShoppingListItem[]> {

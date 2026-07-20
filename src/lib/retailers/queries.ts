@@ -1,4 +1,6 @@
 import { getUserSettings } from "@/lib/data/queries";
+import { groceryProducts } from "@/data/grocery-products";
+import type { Ingredient } from "@/types/domain";
 
 import {
   defaultRetailerPreferences,
@@ -7,14 +9,23 @@ import {
 } from "./types";
 
 /**
- * Retailer catalogue imports are intentionally optional. The rest of the
- * cookbook stays fully usable until an authorized feed has supplied products.
+ * Curated products are linked by normalized ingredient identity, never a
+ * display name, so a renamed product cannot break recipe matching.
  */
 export async function listComparisonProducts(
-  ingredientIds: string[],
+  ingredients: Pick<Ingredient, "id" | "normalizedName">[],
 ): Promise<RetailerProduct[]> {
-  void ingredientIds;
-  return [];
+  const idsBySlug = new Map(
+    ingredients.map((ingredient) => [ingredient.normalizedName, ingredient.id]),
+  );
+  return groceryProducts
+    .map((product) => ({
+      ...product,
+      ingredientIds: product.ingredientSlugs
+        .map((slug) => idsBySlug.get(slug))
+        .filter((id): id is string => Boolean(id)),
+    }))
+    .filter((product) => product.ingredientIds.length > 0);
 }
 
 export async function getRetailerPreferences(): Promise<RetailerPreferences> {

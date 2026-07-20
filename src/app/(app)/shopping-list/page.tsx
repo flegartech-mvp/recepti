@@ -20,9 +20,7 @@ export default async function ShoppingListPage() {
     getServerI18n(),
   ]);
   const [comparisonProducts, retailerPreferences] = await Promise.all([
-    listComparisonProducts(
-      items.flatMap((item) => (item.ingredientId ? [item.ingredientId] : [])),
-    ),
+    listComparisonProducts(ingredients),
     getRetailerPreferences(),
   ]);
   return (
