@@ -25,12 +25,21 @@ export const defaultRetailerPreferences: RetailerPreferences = {
 export interface RetailerProduct {
   id: string;
   name: string;
+  brand?: string;
+  category?: string;
+  aliases?: string[];
   retailerSlug: RetailerSlug;
   retailerName: string;
   ingredientIds: string[];
+  ingredientSlugs: string[];
   price: number | null;
   currency: string;
   unitLabel: string | null;
+  packageQuantity: number | null;
+  packageUnit: string | null;
   isPromotional: boolean;
   isLoyaltyPrice: boolean;
+  priceCheckedAt?: string;
+  sourceUrl?: string;
+  sourceCheckedAt?: string;
 }

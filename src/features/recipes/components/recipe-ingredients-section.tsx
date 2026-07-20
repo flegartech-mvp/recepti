@@ -14,13 +14,8 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { IngredientAutocomplete } from "@/features/ingredients/components/ingredient-autocomplete";
+import type { IngredientSearchResult } from "@/lib/domain/ingredient-search";
 import {
   emptyIngredient,
   type EditorIngredient,
@@ -48,34 +43,29 @@ export function RecipeIngredientsSection({
   validationMessages,
 }: RecipeIngredientsSectionProps) {
   const { t, formatNumber } = useI18n();
-  const chooseCatalogIngredient = (index: number, id: string) => {
-    if (id === "custom") {
-      form.setValue(`ingredients.${index}.ingredientId`, "", {
+  const chooseCatalogIngredient = (
+    index: number,
+    result: IngredientSearchResult,
+  ) => {
+    const ingredientId = /^[0-9a-f-]{36}$/i.test(result.ingredient.id)
+      ? result.ingredient.id
+      : "";
+    form.setValue(`ingredients.${index}.ingredientId`, ingredientId, {
+      shouldDirty: true,
+    });
+    form.setValue(`ingredients.${index}.canonicalName`, result.canonicalName, {
+      shouldDirty: true,
+    });
+    form.setValue(`ingredients.${index}.displayName`, result.displayName, {
+      shouldDirty: true,
+    });
+    form.setValue(
+      `ingredients.${index}.unit`,
+      result.ingredient.defaultUnit ?? "",
+      {
         shouldDirty: true,
-      });
-      form.setValue(`ingredients.${index}.canonicalName`, "", {
-        shouldDirty: true,
-      });
-      form.setValue(`ingredients.${index}.displayName`, "", {
-        shouldDirty: true,
-      });
-      return;
-    }
-
-    const match = catalog.find((item) => item.id === id);
-    if (!match) return;
-    form.setValue(`ingredients.${index}.ingredientId`, match.id, {
-      shouldDirty: true,
-    });
-    form.setValue(`ingredients.${index}.canonicalName`, match.canonicalName, {
-      shouldDirty: true,
-    });
-    form.setValue(`ingredients.${index}.displayName`, match.displayName, {
-      shouldDirty: true,
-    });
-    form.setValue(`ingredients.${index}.unit`, match.defaultUnit ?? "", {
-      shouldDirty: true,
-    });
+      },
+    );
   };
 
   return (
@@ -114,47 +104,36 @@ export function RecipeIngredientsSection({
               {t("Ingredient {number}", { number: formatNumber(index + 1) })}
             </legend>
             <div className="grid gap-4 md:grid-cols-12">
-              <div className="space-y-2 md:col-span-4">
-                <Label>{t("Catalog ingredient")}</Label>
-                <Select
-                  value={ingredients[index]?.ingredientId || "custom"}
-                  onValueChange={(value) =>
-                    chooseCatalogIngredient(index, value)
-                  }
-                >
-                  <SelectTrigger
-                    className="w-full"
-                    aria-label={t("Ingredient {number} catalog", {
-                      number: formatNumber(index + 1),
-                    })}
-                  >
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="custom">
-                      {t("New or custom ingredient")}
-                    </SelectItem>
-                    {catalog.map((item) => (
-                      <SelectItem key={item.id} value={item.id}>
-                        {item.displayName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2 md:col-span-4">
+              <div className="space-y-2 md:col-span-8">
                 <Label htmlFor={`ingredient-name-${index}`}>
                   {t("Ingredient name")}
                 </Label>
-                <Input
+                <IngredientAutocomplete
                   id={`ingredient-name-${index}`}
-                  {...form.register(`ingredients.${index}.canonicalName`)}
-                  aria-invalid={
-                    duplicateIndexes.has(index) ||
-                    Boolean(
-                      validationMessages[`ingredients.${index}.canonicalName`],
-                    )
-                  }
+                  value={ingredients[index]?.canonicalName ?? ""}
+                  catalog={catalog}
+                  ariaLabel={t("Ingredient name")}
+                  placeholder={t("Search ingredients or add your own")}
+                  onValueChange={(value) => {
+                    form.setValue(`ingredients.${index}.ingredientId`, "", {
+                      shouldDirty: true,
+                    });
+                    form.setValue(`ingredients.${index}.canonicalName`, value, {
+                      shouldDirty: true,
+                    });
+                  }}
+                  onSelect={(result) => chooseCatalogIngredient(index, result)}
+                  onCustom={(value) => {
+                    form.setValue(`ingredients.${index}.ingredientId`, "", {
+                      shouldDirty: true,
+                    });
+                    form.setValue(`ingredients.${index}.canonicalName`, value, {
+                      shouldDirty: true,
+                    });
+                    form.setValue(`ingredients.${index}.displayName`, value, {
+                      shouldDirty: true,
+                    });
+                  }}
                 />
                 {duplicateIndexes.has(index) && (
                   <p className="text-xs text-destructive">

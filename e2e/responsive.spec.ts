@@ -27,7 +27,7 @@ test.describe("responsive owner experience", () => {
 
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), Nana\./,
+        name: /Good (morning|afternoon|evening), cook\./,
       }),
     ).toBeVisible();
     expect(
@@ -77,6 +77,8 @@ test.describe("responsive owner experience", () => {
     });
 
     await page.getByRole("button", { name: "Open more navigation" }).click();
+    await page.waitForTimeout(250);
+    expect(browserErrors).toEqual([]);
     const moreNavigation = page.getByRole("navigation", {
       name: "More navigation",
     });

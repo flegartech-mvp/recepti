@@ -40,13 +40,11 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { IngredientAutocomplete } from "@/features/ingredients/components/ingredient-autocomplete";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+  localizedIngredientName,
+  type IngredientSearchResult,
+} from "@/lib/domain/ingredient-search";
 import {
   clearCompletedShoppingAction,
   deleteShoppingItemAction,
@@ -82,7 +80,7 @@ export function ShoppingListManager({
   retailerPreferences?: RetailerPreferences;
 }) {
   const router = useRouter();
-  const { t, formatNumber, plural } = useI18n();
+  const { locale, t, formatNumber, plural } = useI18n();
   const [pending, startTransition] = useTransition();
   const [items, setItems] = useState(initialItems);
   const [previousInitialItems, setPreviousInitialItems] =
@@ -100,13 +98,28 @@ export function ShoppingListManager({
     setItems(initialItems);
   }
 
+  const localizedItems = useMemo(
+    () =>
+      items.map((item) => {
+        const ingredient = catalog.find(
+          (candidate) => candidate.id === item.ingredientId,
+        );
+        return ingredient
+          ? {
+              ...item,
+              ingredientName: localizedIngredientName(ingredient, locale),
+            }
+          : item;
+      }),
+    [catalog, items, locale],
+  );
   const unchecked = useMemo(
-    () => items.filter((item) => !item.isCompleted),
-    [items],
+    () => localizedItems.filter((item) => !item.isCompleted),
+    [localizedItems],
   );
   const completed = useMemo(
-    () => items.filter((item) => item.isCompleted),
-    [items],
+    () => localizedItems.filter((item) => item.isCompleted),
+    [localizedItems],
   );
 
   const execute = (
@@ -128,17 +141,10 @@ export function ShoppingListManager({
       router.refresh();
     });
 
-  const chooseIngredient = (id: string) => {
-    if (id === "custom") {
-      setIngredientId("");
-      setName("");
-      return;
-    }
-    const ingredient = catalog.find((item) => item.id === id);
-    if (!ingredient) return;
-    setIngredientId(id);
-    setName(ingredient.displayName);
-    setUnit(ingredient.defaultUnit ?? "");
+  const chooseIngredient = (result: IngredientSearchResult) => {
+    setIngredientId(isUuid(result.ingredient.id) ? result.ingredient.id : "");
+    setName(result.displayName);
+    setUnit(result.ingredient.defaultUnit ?? "");
   };
 
   const addItem = () => {
@@ -263,11 +269,7 @@ export function ShoppingListManager({
                 item={item}
                 large={shoppingMode}
                 pending={pending}
-                products={comparisonProducts.filter(
-                  (product) =>
-                    item.ingredientId &&
-                    product.ingredientIds.includes(item.ingredientId),
-                )}
+                products={comparisonProducts}
                 preferences={retailerPreferences}
                 onToggle={() => toggle(item)}
                 onDelete={() => {
@@ -366,11 +368,7 @@ export function ShoppingListManager({
                 item={item}
                 large={shoppingMode}
                 pending={pending}
-                products={comparisonProducts.filter(
-                  (product) =>
-                    item.ingredientId &&
-                    product.ingredientIds.includes(item.ingredientId),
-                )}
+                products={comparisonProducts}
                 preferences={retailerPreferences}
                 onToggle={() => toggle(item)}
                 onDelete={() => {
@@ -401,33 +399,24 @@ export function ShoppingListManager({
           </DialogHeader>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label>{t("Ingredient catalog")}</Label>
-              <Select
-                value={ingredientId || "custom"}
-                onValueChange={chooseIngredient}
-              >
-                <SelectTrigger
-                  className="w-full"
-                  aria-label={t("Ingredient catalog")}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="custom">{t("Custom item")}</SelectItem>
-                  {catalog.map((ingredient) => (
-                    <SelectItem key={ingredient.id} value={ingredient.id}>
-                      {ingredient.displayName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="shopping-name">{t("Item name")}</Label>
-              <Input
+              <IngredientAutocomplete
                 id="shopping-name"
                 value={name}
-                onChange={(event) => setName(event.target.value)}
+                catalog={catalog}
+                products={comparisonProducts}
+                disabled={pending}
+                ariaLabel={t("Item name")}
+                placeholder={t("Search ingredients or retailer products")}
+                onValueChange={(value) => {
+                  setIngredientId("");
+                  setName(value);
+                }}
+                onSelect={chooseIngredient}
+                onCustom={(value) => {
+                  setIngredientId("");
+                  setName(value);
+                }}
               />
             </div>
             <div className="space-y-2">
@@ -490,7 +479,7 @@ function ShoppingRow({
   return (
     <li
       className={cn(
-        "flex items-center gap-4 rounded-2xl border border-border bg-card p-4",
+        "grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-2xl border border-border bg-card p-4 sm:grid-cols-[auto_minmax(0,1fr)_auto_auto]",
         large && "min-h-20 p-5",
       )}
     >
@@ -525,12 +514,8 @@ function ShoppingRow({
           </Link>
         )}
       </div>
-      <ProductComparisonButton
-        item={item}
-        products={products}
-        preferences={preferences}
-      />
       <Button
+        className="sm:col-start-4 sm:row-start-1"
         variant="ghost"
         size="icon-sm"
         onClick={onDelete}
@@ -539,6 +524,13 @@ function ShoppingRow({
       >
         <Trash2 className="size-4" />
       </Button>
+      <div className="col-span-2 col-start-2 min-w-0 sm:col-span-1 sm:col-start-3 sm:row-start-1">
+        <ProductComparisonButton
+          item={item}
+          products={products}
+          preferences={preferences}
+        />
+      </div>
     </li>
   );
 }

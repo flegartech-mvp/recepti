@@ -222,6 +222,7 @@ function candidatesFor(
   return available.filter(
     (candidate) =>
       !candidate.isDepleted &&
+      (candidate.quantity == null || candidate.quantity > 0) &&
       ingredientsShareIdentity(ingredient, availableIdentity(candidate)),
   );
 }

@@ -24,6 +24,17 @@ describe("English and Slovenian localization", () => {
     );
   });
 
+  it("localizes the shared ingredient autocomplete controls", () => {
+    expect(translate("sl", "Ingredient suggestions")).toBe("Predlogi sestavin");
+    expect(translate("sl", "Add custom ingredient")).toBe(
+      "Dodaj sestavino po meri",
+    );
+    expect(translate("sl", "Product comparison")).toBe("Primerjava izdelkov");
+    expect(translate("sl", "Compare {name}", { name: "Mleko" })).toBe(
+      "Primerjaj Mleko",
+    );
+  });
+
   it("formats Slovenian numbers, dates, lists, and four plural forms", () => {
     expect(formatNumber("sl", 12345.5)).toMatch(/12\.345,5/);
     expect(formatDate("sl", "2026-07-16")).toMatch(/16\. jul\. 2026/iu);

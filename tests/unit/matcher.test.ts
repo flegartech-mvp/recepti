@@ -345,4 +345,15 @@ describe("deterministic recipe matcher", () => {
     expect(ranked[0]?.recipe.id).toBe("breakfast");
     expect(ranked[0]?.matchPercentage).toBe(0);
   });
+
+  it("treats a known zero quantity as missing rather than possessed", () => {
+    const result = matchRecipe(
+      recipe([ingredient("egg", { quantity: 2, unit: "piece" })]),
+      [pantryIngredient("egg", { quantity: 0, unit: "piece" })],
+    );
+
+    expect(result.missingIngredients).toHaveLength(1);
+    expect(result.quantityIssues).toHaveLength(0);
+    expect(result.matchPercentage).toBe(0);
+  });
 });

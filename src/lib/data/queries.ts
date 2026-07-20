@@ -10,6 +10,11 @@ import {
 } from "@/lib/data/demo";
 import { attachMakeabilityToRecipeSummaries } from "@/lib/data/recipe-makeability";
 import { rankRecipes } from "@/lib/domain";
+import {
+  pantryStarterItems,
+  withStarterIngredients,
+} from "@/data/pantry-starters";
+import { normalizeIngredientSearch } from "@/lib/domain/ingredient-search";
 import { createClient } from "@/lib/supabase/server";
 import type {
   DashboardData,
@@ -795,50 +800,62 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
 export async function listIngredients(query = ""): Promise<Ingredient[]> {
   await requireOwner("/ingredients");
   if (isTestAuthenticationEnabled()) {
-    const normalized = query.trim().toLocaleLowerCase("en-US");
-    return demoIngredients.filter(
-      (item) =>
-        !normalized ||
-        item.displayName.toLocaleLowerCase("en-US").includes(normalized),
-    );
+    const normalized = normalizeIngredientSearch(query);
+    return withStarterIngredients(demoIngredients).filter((item) => {
+      const searchable = [
+        item.canonicalName,
+        item.displayName,
+        item.normalizedName,
+        ...item.aliases,
+      ].map(normalizeIngredientSearch);
+      return (
+        !normalized || searchable.some((value) => value.includes(normalized))
+      );
+    });
   }
   const client = await createClient();
   const pageSize = 500;
   const rows: unknown[] = [];
-  const escapedQuery = query
-    .trim()
-    .replaceAll("%", "\\%")
-    .replaceAll("_", "\\_");
   for (let offset = 0; ; offset += pageSize) {
-    let request = client
+    const request = client
       .from("ingredients")
       .select("*")
       .order("display_name")
       .order("id")
       .range(offset, offset + pageSize - 1);
-    if (escapedQuery) {
-      request = request.ilike("display_name", `%${escapedQuery}%`);
-    }
     const { data, error } = await request;
     if (error) throw new Error("Ingredients could not be loaded.");
     const page = data ?? [];
     rows.push(...page);
     if (page.length < pageSize) break;
   }
-  return rows.map(mapIngredient);
+  const normalized = normalizeIngredientSearch(query);
+  return withStarterIngredients(rows.map(mapIngredient)).filter((item) => {
+    const searchable = [
+      item.canonicalName,
+      item.displayName,
+      item.normalizedName,
+      ...item.aliases,
+    ].map(normalizeIngredientSearch);
+    return (
+      !normalized || searchable.some((value) => value.includes(normalized))
+    );
+  });
 }
 
 export async function listPantry(): Promise<PantryItem[]> {
   await requireOwner("/pantry");
-  if (isTestAuthenticationEnabled()) return demoPantry;
+  if (isTestAuthenticationEnabled()) {
+    return [...demoPantry, ...pantryStarterItems(demoPantry)];
+  }
   const client = await createClient();
   const { data, error } = await client
     .from("pantry_items")
     .select("*,ingredients(*)")
-    .eq("is_depleted", false)
     .order("created_at", { ascending: false });
   if (error) throw new Error("Pantry items could not be loaded.");
-  return (data ?? []).map(mapPantryItem);
+  const items = (data ?? []).map(mapPantryItem);
+  return [...items, ...pantryStarterItems(items)];
 }
 
 export async function listShoppingItems(): Promise<ShoppingListItem[]> {

@@ -25,7 +25,9 @@ const coreRoutes = [
   "/cook-with-what-i-have",
   "/shopping-list",
   "/ingredients",
+  "/products",
   "/settings",
+  "/settings/catalog",
   "/recipes/r-pasta",
 ] as const;
 
@@ -161,7 +163,7 @@ test("keeps the app shell mobile-native from 320px through tablet layouts", asyn
 
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), Nana\./,
+        name: /Good (morning|afternoon|evening), cook\./,
       }),
     ).toBeVisible({ timeout: 15_000 });
     await expectNoHorizontalOverflow(page, `dashboard at ${viewport.width}px`);
