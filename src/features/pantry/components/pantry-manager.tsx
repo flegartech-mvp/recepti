@@ -67,7 +67,11 @@ import {
 import { STORAGE_LOCATIONS, UNITS } from "@/lib/constants";
 import { pantryAdjustmentStep } from "@/data/pantry-starters";
 import { IngredientAutocomplete } from "@/features/ingredients/components/ingredient-autocomplete";
-import type { IngredientSearchResult } from "@/lib/domain/ingredient-search";
+import {
+  localizedIngredientName,
+  normalizeIngredientSearch,
+  type IngredientSearchResult,
+} from "@/lib/domain/ingredient-search";
 import type { PantryItemInput } from "@/lib/validation";
 import type { Ingredient, PantryItem, StorageLocation } from "@/types/domain";
 
@@ -131,18 +135,32 @@ export function PantryManager({
   const [fastRows, setFastRows] = useState<FormState[]>(
     Array.from({ length: 5 }, emptyForm),
   );
+  const localizedItems = useMemo(
+    () =>
+      items.map((item) => ({
+        ...item,
+        ingredient: {
+          ...item.ingredient,
+          displayName: localizedIngredientName(item.ingredient, locale),
+        },
+      })),
+    [items, locale],
+  );
 
   const filtered = useMemo(() => {
-    const localeName = locale === "sl" ? "sl-SI" : "en-GB";
-    const normalized = query.trim().toLocaleLowerCase(localeName);
-    const result = items.filter(
-      (item) =>
-        !normalized ||
-        item.ingredient.displayName
-          .toLocaleLowerCase(localeName)
-          .includes(normalized) ||
-        item.notes?.toLocaleLowerCase(localeName).includes(normalized),
-    );
+    const normalized = normalizeIngredientSearch(query);
+    const result = localizedItems.filter((item) => {
+      const searchable = [
+        item.ingredient.displayName,
+        item.ingredient.canonicalName,
+        item.ingredient.normalizedName,
+        ...item.ingredient.aliases,
+        item.notes ?? "",
+      ].map(normalizeIngredientSearch);
+      return (
+        !normalized || searchable.some((value) => value.includes(normalized))
+      );
+    });
     result.sort((a, b) => {
       if (sort === "recent") return b.createdAt.localeCompare(a.createdAt);
       if (sort === "expiration")
@@ -157,7 +175,7 @@ export function PantryManager({
       return a.ingredient.displayName.localeCompare(b.ingredient.displayName);
     });
     return result;
-  }, [items, locale, query, sort]);
+  }, [localizedItems, query, sort]);
 
   const groups = STORAGE_LOCATIONS.map((location) => ({
     ...location,

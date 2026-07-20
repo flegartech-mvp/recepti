@@ -6,6 +6,7 @@ import {
   withStarterIngredients,
 } from "@/data/pantry-starters";
 import {
+  localizedIngredientName,
   normalizeIngredientSearch,
   searchIngredients,
 } from "@/lib/domain/ingredient-search";
@@ -26,6 +27,21 @@ describe("shared ingredient search", () => {
       searchIngredients(catalog, "garlic cl", { locale: "en" })[0]
         ?.canonicalName,
     ).toBe("Garlic");
+  });
+
+  it("localizes a persisted starter identity for pantry display", () => {
+    const milk = ingredientDefinitionToIngredient(
+      pantryStarters.find((definition) => definition.slug === "milk")!,
+    );
+    expect(
+      localizedIngredientName(
+        {
+          ...milk,
+          id: "00000000-0000-4000-8000-000000000002",
+        },
+        "sl",
+      ),
+    ).toBe("Mleko");
   });
 
   it("ranks exact and prefix matches ahead of fuzzy matches", () => {
