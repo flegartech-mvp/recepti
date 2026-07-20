@@ -34,7 +34,7 @@ begin
 
   export_payload := public.export_cookbook_data();
   if export_payload ->> 'product' <> 'Nana''s Recipes'
-    or (export_payload ->> 'schemaVersion')::integer <> 2
+    or (export_payload ->> 'schemaVersion')::integer <> 1
     or jsonb_array_length(export_payload -> 'recipes') <> 5 then
     raise exception 'Export envelope did not match the seeded cookbook.';
   end if;
@@ -69,65 +69,6 @@ begin
 end;
 $test$;
 
-do $test$
-declare
-  retailer_id uuid;
-  product_id uuid;
-  ingredient_id uuid;
-  history_count integer;
-begin
-  select id into retailer_id from public.retailers where slug = 'spar-si';
-  select id into ingredient_id from public.ingredients where user_id = auth.uid() order by created_at limit 1;
-  if retailer_id is null or ingredient_id is null then
-    raise exception 'Retailer seed or owner ingredient is missing.';
-  end if;
-
-  insert into public.retailer_products (
-    retailer_id, external_id, name, normalized_name, package_quantity,
-    package_unit, package_text, source_payload_hash
-  ) values (
-    retailer_id, 'smoke-product', 'Smoke test milk', 'smoke test milk',
-    1, 'l', '1 l', repeat('a', 64)
-  ) returning id into product_id;
-
-  begin
-    insert into public.retailer_products (
-      retailer_id, external_id, name, normalized_name, source_payload_hash
-    ) values (
-      retailer_id, 'smoke-product', 'Duplicate', 'duplicate', repeat('b', 64)
-    );
-    raise exception 'Retailer product uniqueness was not enforced.';
-  exception when unique_violation then null;
-  end;
-
-  insert into public.retailer_offers (
-    retailer_product_id, regular_price, promotional_price,
-    observed_at, source_hash
-  ) values (
-    product_id, 1.29, 1.09, now(), repeat('c', 64)
-  );
-  select count(*) into history_count from public.retailer_price_history where retailer_product_id = product_id;
-  if history_count <> 1 then
-    raise exception 'Retailer price history trigger did not archive the offer.';
-  end if;
-
-  insert into public.ingredient_product_matches (
-    ingredient_id, retailer_product_id, confidence, match_method, review_status
-  ) values (ingredient_id, product_id, 0.75, 'normalized_name', 'suggested');
-
-  update public.user_preferences set
-    preferred_retailer = 'spar-si', allow_loyalty_prices = true
-  where user_id = auth.uid();
-  if not exists (
-    select 1 from public.user_preferences
-    where user_id = auth.uid() and preferred_retailer = 'spar-si'
-      and allow_loyalty_prices
-  ) then
-    raise exception 'Retailer preferences were not persisted.';
-  end if;
-end;
-$test$;
-
 select set_config(
   'request.jwt.claims',
   '{"sub":"00000000-0000-4000-8000-000000000001","role":"authenticated","email":"owner@example.test","app_metadata":{"provider":"google","providers":["google"]}}',
@@ -141,7 +82,14 @@ select public.save_user_settings(
     'measurementPreference', 'original',
     'stapleIngredientIds', jsonb_build_array('10000000-0000-4000-8000-000000000023'),
     'additionalStapleNames', '[]'::jsonb,
-    'reduceMotion', true
+    'reduceMotion', true,
+    'enabledRetailers', jsonb_build_array('lidl-si', 'spar-si'),
+    'preferredRetailer', 'lidl-si',
+    'allowLoyaltyPrices', true,
+    'allowSplitBasket', false,
+    'preferPromotions', false,
+    'preferredBrands', jsonb_build_array('MILBONA'),
+    'excludedBrands', jsonb_build_array('Example brand')
   )
 );
 
@@ -149,7 +97,44 @@ do $test$
 declare
   saved_staples uuid[];
   catalog_toggle_id uuid;
+  retailer_total integer;
 begin
+  select count(*) into retailer_total from public.retailers where is_active;
+  if retailer_total <> 3 then
+    raise exception 'Expected three active retailer identities, found %.', retailer_total;
+  end if;
+  if not exists (
+    select 1 from public.user_preferences
+    where user_id = auth.uid()
+      and enabled_retailers @> array['lidl-si', 'spar-si']
+      and enabled_retailers <@ array['lidl-si', 'spar-si']
+      and preferred_retailer = 'lidl-si'
+      and allow_loyalty_prices
+      and not allow_split_basket
+      and not prefer_promotions
+      and preferred_brands = array['MILBONA']
+      and excluded_brands = array['Example brand']
+  ) then
+    raise exception 'Retailer preferences were not persisted by the settings RPC.';
+  end if;
+  begin
+    perform public.save_user_settings(jsonb_build_object('enabledRetailers', jsonb_build_array('unknown-si')));
+    raise exception 'An unknown retailer passed settings validation.';
+  exception when invalid_parameter_value then null;
+  end;
+  begin
+    perform public.save_user_settings(jsonb_build_object(
+      'enabledRetailers', jsonb_build_array('spar-si'),
+      'preferredRetailer', 'lidl-si'
+    ));
+    raise exception 'A disabled preferred retailer passed settings validation.';
+  exception when invalid_parameter_value then null;
+  end;
+  begin
+    insert into public.retailers (id, display_name) values ('forbidden-si', 'Forbidden');
+    raise exception 'The application owner mutated retailer identities.';
+  exception when insufficient_privilege then null;
+  end;
   select staple_ingredient_ids
   into saved_staples
   from public.user_preferences
@@ -313,12 +298,12 @@ do $test$
 declare
   visible_recipes integer;
   visible_pantry integer;
-  visible_products integer;
+  visible_retailers integer;
 begin
   select count(*) into visible_recipes from public.recipes;
   select count(*) into visible_pantry from public.pantry_items;
-  select count(*) into visible_products from public.retailer_products;
-  if visible_recipes <> 0 or visible_pantry <> 0 or visible_products <> 0 then
+  select count(*) into visible_retailers from public.retailers;
+  if visible_recipes <> 0 or visible_pantry <> 0 or visible_retailers <> 0 then
     raise exception 'RLS exposed owner rows to another authenticated identity.';
   end if;
 

@@ -51,7 +51,7 @@ test("captures the nonna dashboard in both themes and viewports", async ({
     await page.goto("/dashboard");
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), Nana\./,
+        name: /Good (morning|afternoon|evening), cook\./,
       }),
     ).toBeVisible();
     await expect(page.locator("html")).toHaveClass(new RegExp(capture.theme));

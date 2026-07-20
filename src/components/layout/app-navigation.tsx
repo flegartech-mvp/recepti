@@ -181,7 +181,7 @@ export function AppNavigation({ email }: { email: string }) {
                         {" "}
                         <item.icon className="size-5" aria-hidden="true" />{" "}
                         {t(item.label)}{" "}
-                      </Link>{" "}
+                      </Link>
                     </SheetClose>
                   );
                 })}{" "}

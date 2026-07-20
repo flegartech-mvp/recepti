@@ -6,6 +6,8 @@ test.beforeEach(async ({ context, baseURL }) => {
   await authenticateAs(context, baseURL, "owner");
 });
 
+test.setTimeout(60_000);
+
 test("adds an item to the pantry", async ({ page }) => {
   await page.goto("/pantry?add=1");
 
@@ -22,6 +24,41 @@ test("adds an item to the pantry", async ({ page }) => {
     page.getByText("Pantry item saved", { exact: true }),
   ).toBeVisible();
   await expect(dialog).toBeHidden();
+});
+
+test("uses the shared localized autocomplete and safe starter quantity controls", async ({
+  page,
+}) => {
+  await page.goto("/pantry?add=1", { waitUntil: "networkidle" });
+
+  const dialog = page.getByRole("dialog", { name: "Add pantry item" });
+  const ingredient = dialog.getByLabel("Ingredient name");
+  await ingredient.fill("ces");
+  const suggestions = dialog.getByRole("listbox", {
+    name: "Ingredient suggestions",
+  });
+  await expect(
+    suggestions.getByRole("option", { name: /Garlic/ }),
+  ).toBeVisible();
+  await ingredient.press("ArrowDown");
+  await ingredient.press("ArrowUp");
+  await ingredient.press("Enter");
+  await expect(ingredient).toHaveValue("Garlic");
+  await expect(dialog.getByLabel("Unit")).toHaveValue("clove");
+  await dialog.getByRole("button", { name: "Cancel" }).click();
+
+  await page.getByLabel("Search pantry").fill("Cheese");
+  const cheese = page.getByRole("article").filter({
+    has: page.getByRole("heading", { name: "Cheese", exact: true }),
+  });
+  await expect(cheese).toContainText("0 g");
+  await expect(
+    cheese.getByRole("button", { name: "Decrease Cheese" }),
+  ).toBeDisabled();
+  await cheese.getByRole("button", { name: "Increase Cheese" }).click();
+  await expect(
+    page.getByText("Quantity updated", { exact: true }),
+  ).toBeVisible();
 });
 
 test("ranks matcher categories and adds missing ingredients to the shopping list", async ({

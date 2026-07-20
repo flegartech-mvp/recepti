@@ -66,6 +66,8 @@ import {
 } from "@/features/pantry/actions";
 import { STORAGE_LOCATIONS, UNITS } from "@/lib/constants";
 import { pantryAdjustmentStep } from "@/data/pantry-starters";
+import { IngredientAutocomplete } from "@/features/ingredients/components/ingredient-autocomplete";
+import type { IngredientSearchResult } from "@/lib/domain/ingredient-search";
 import type { PantryItemInput } from "@/lib/validation";
 import type { Ingredient, PantryItem, StorageLocation } from "@/types/domain";
 
@@ -194,23 +196,13 @@ export function PantryManager({
     isDepleted: false,
   });
 
-  const chooseIngredient = (id: string) => {
-    if (id === "custom") {
-      setForm((current) => ({
-        ...current,
-        ingredientId: "",
-        ingredientName: "",
-      }));
-      return;
-    }
-    const ingredient = catalog.find((item) => item.id === id);
-    if (ingredient)
-      setForm((current) => ({
-        ...current,
-        ingredientId: ingredient.id,
-        ingredientName: ingredient.displayName,
-        unit: ingredient.defaultUnit ?? current.unit,
-      }));
+  const chooseIngredient = (result: IngredientSearchResult) => {
+    setForm((current) => ({
+      ...current,
+      ingredientId: isUuid(result.ingredient.id) ? result.ingredient.id : "",
+      ingredientName: result.displayName,
+      unit: result.ingredient.defaultUnit ?? current.unit,
+    }));
   };
 
   return (
@@ -359,34 +351,28 @@ export function PantryManager({
           </DialogHeader>
           <div className="grid gap-5 sm:grid-cols-2">
             <div className="space-y-2 sm:col-span-2">
-              <Label>{t("Ingredient catalog")}</Label>
-              <Select
-                value={form.ingredientId || "custom"}
-                onValueChange={chooseIngredient}
-              >
-                <SelectTrigger
-                  className="w-full"
-                  aria-label={t("Ingredient catalog")}
-                >
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="custom">{t("New ingredient")}</SelectItem>
-                  {catalog.map((ingredient) => (
-                    <SelectItem key={ingredient.id} value={ingredient.id}>
-                      {ingredient.displayName}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2 sm:col-span-2">
               <Label htmlFor="pantry-name">{t("Ingredient name")}</Label>
-              <Input
+              <IngredientAutocomplete
                 id="pantry-name"
                 value={form.ingredientName}
-                onChange={(event) =>
-                  setForm({ ...form, ingredientName: event.target.value })
+                catalog={catalog}
+                ariaLabel={t("Ingredient name")}
+                placeholder={t("Search ingredients or add your own")}
+                disabled={pending}
+                onValueChange={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    ingredientId: "",
+                    ingredientName: value,
+                  }))
+                }
+                onSelect={chooseIngredient}
+                onCustom={(value) =>
+                  setForm((current) => ({
+                    ...current,
+                    ingredientId: "",
+                    ingredientName: value,
+                  }))
                 }
               />
             </div>
@@ -512,14 +498,50 @@ export function PantryManager({
                 key={index}
                 className="grid grid-cols-2 gap-2 rounded-xl border border-border p-3 sm:grid-cols-[1fr_5.5rem_5.5rem]"
               >
-                <Input
+                <IngredientAutocomplete
+                  id={`fast-ingredient-${index}`}
                   className="col-span-2 sm:col-span-1"
                   value={row.ingredientName}
-                  onChange={(event) =>
+                  catalog={catalog}
+                  disabled={pending}
+                  onValueChange={(value) =>
                     setFastRows((current) =>
                       current.map((item, itemIndex) =>
                         itemIndex === index
-                          ? { ...item, ingredientName: event.target.value }
+                          ? {
+                              ...item,
+                              ingredientId: "",
+                              ingredientName: value,
+                            }
+                          : item,
+                      ),
+                    )
+                  }
+                  onSelect={(result) =>
+                    setFastRows((current) =>
+                      current.map((item, itemIndex) =>
+                        itemIndex === index
+                          ? {
+                              ...item,
+                              ingredientId: isUuid(result.ingredient.id)
+                                ? result.ingredient.id
+                                : "",
+                              ingredientName: result.displayName,
+                              unit: result.ingredient.defaultUnit ?? item.unit,
+                            }
+                          : item,
+                      ),
+                    )
+                  }
+                  onCustom={(value) =>
+                    setFastRows((current) =>
+                      current.map((item, itemIndex) =>
+                        itemIndex === index
+                          ? {
+                              ...item,
+                              ingredientId: "",
+                              ingredientName: value,
+                            }
                           : item,
                       ),
                     )
@@ -527,7 +549,7 @@ export function PantryManager({
                   placeholder={t("Ingredient {number}", {
                     number: formatNumber(index + 1),
                   })}
-                  aria-label={t("Fast ingredient {number}", {
+                  ariaLabel={t("Fast ingredient {number}", {
                     number: formatNumber(index + 1),
                   })}
                 />
@@ -622,7 +644,7 @@ function PantryItemCard({
   onDelete: () => void;
 }) {
   const { t, formatDate, formatNumber, plural } = useI18n();
-  const step = pantryAdjustmentStep(item.ingredient.normalizedName, item.unit);
+  const step = pantryAdjustmentStep(item.ingredient, item.unit);
   const days = item.expirationDate
     ? differenceInCalendarDays(parseISO(item.expirationDate), new Date())
     : null;
@@ -710,7 +732,12 @@ function PantryItemCard({
           </Button>
         </div>
         <div className="flex gap-1">
-          <Button size="sm" variant="ghost" onClick={onDeplete} disabled={item.id.startsWith("starter:")}>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={onDeplete}
+            disabled={item.id.startsWith("starter:")}
+          >
             <Check className="size-4" />
             {t("Depleted")}
           </Button>

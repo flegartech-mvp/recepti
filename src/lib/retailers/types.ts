@@ -25,6 +25,9 @@ export const defaultRetailerPreferences: RetailerPreferences = {
 export interface RetailerProduct {
   id: string;
   name: string;
+  brand?: string;
+  category?: string;
+  aliases?: string[];
   retailerSlug: RetailerSlug;
   retailerName: string;
   ingredientIds: string[];
@@ -36,4 +39,7 @@ export interface RetailerProduct {
   packageUnit: string | null;
   isPromotional: boolean;
   isLoyaltyPrice: boolean;
+  priceCheckedAt?: string;
+  sourceUrl?: string;
+  sourceCheckedAt?: string;
 }

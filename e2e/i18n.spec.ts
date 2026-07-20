@@ -37,7 +37,9 @@ test("detects Slovenian on a first visit", async ({ browser, baseURL }) => {
   await page.goto("/");
 
   await expect(page.locator("html")).toHaveAttribute("lang", "sl");
-  await expect(page.getByText("Zasebno po zasnovi")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Kuharica, ki ve, kaj je doma." }),
+  ).toBeVisible();
   await context.close();
 });
 
@@ -142,7 +144,10 @@ test("renders every main owner page in Slovenian without horizontal overflow", a
     ["/shopping-list", "Nakupovalni seznam", "heading"],
     ["/cook-with-what-i-have", "Kaj lahko skuham?", "heading"],
     ["/ingredients", "Katalog sestavin", "heading"],
+    ["/products", "Katalog izdelkov", "heading"],
     ["/settings", "Nastavitve", "heading"],
+    ["/settings/catalog", "Upravljanje kataloga", "heading"],
+    ["/products/lidl-si-11008519", "Mozzarella XXL", "heading"],
     ["/recipes/r-pasta", "Creamy mushroom pasta", "heading"],
     ["/recipes/r-pasta/cook", "Način kuhanja", "text"],
   ] as const;

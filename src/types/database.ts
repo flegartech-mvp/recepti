@@ -1,9 +1,3 @@
-/**
- * Generated-style Supabase types for the public schema.
- *
- * Source of truth: supabase/migrations through 202607170001. Regenerate these
- * types with the Supabase CLI after applying migrations to a linked project.
- */
 export type Json =
   | string
   | number
@@ -13,6 +7,11 @@ export type Json =
   | Json[];
 
 export type Database = {
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
+  __InternalSupabase: {
+    PostgrestVersion: "14.5";
+  };
   public: {
     Tables: {
       cooking_history: {
@@ -502,7 +501,7 @@ export type Database = {
           source_url: string | null;
           status: Database["public"]["Enums"]["recipe_status"];
           title: string;
-          total_minutes: number;
+          total_minutes: number | null;
           updated_at: string;
           user_id: string;
           visibility: Database["public"]["Enums"]["recipe_visibility"];
@@ -523,14 +522,14 @@ export type Database = {
           prep_minutes?: number;
           rest_minutes?: number;
           revision?: number;
-          search_document?: never;
+          search_document?: unknown;
           servings?: number;
           slug?: string | null;
           source_name?: string | null;
           source_url?: string | null;
           status?: Database["public"]["Enums"]["recipe_status"];
           title: string;
-          total_minutes?: never;
+          total_minutes?: number | null;
           updated_at?: string;
           user_id?: string;
           visibility?: Database["public"]["Enums"]["recipe_visibility"];
@@ -551,14 +550,14 @@ export type Database = {
           prep_minutes?: number;
           rest_minutes?: number;
           revision?: number;
-          search_document?: never;
+          search_document?: unknown;
           servings?: number;
           slug?: string | null;
           source_name?: string | null;
           source_url?: string | null;
           status?: Database["public"]["Enums"]["recipe_status"];
           title?: string;
-          total_minutes?: never;
+          total_minutes?: number | null;
           updated_at?: string;
           user_id?: string;
           visibility?: Database["public"]["Enums"]["recipe_visibility"];
@@ -567,423 +566,30 @@ export type Database = {
       };
       retailers: {
         Row: {
-          id: string;
-          slug: string;
-          display_name: string;
           country_code: string;
-          website_url: string | null;
-          logo_path: string | null;
-          enabled: boolean;
           created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          slug: string;
           display_name: string;
+          id: string;
+          is_active: boolean;
+          sort_order: number;
+          updated_at: string;
+        };
+        Insert: {
           country_code?: string;
-          website_url?: string | null;
-          logo_path?: string | null;
-          enabled?: boolean;
           created_at?: string;
+          display_name: string;
+          id: string;
+          is_active?: boolean;
+          sort_order?: number;
           updated_at?: string;
         };
         Update: {
-          id?: string;
-          slug?: string;
+          country_code?: string;
+          created_at?: string;
           display_name?: string;
-          country_code?: string;
-          website_url?: string | null;
-          logo_path?: string | null;
-          enabled?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      retailer_stores: {
-        Row: {
-          id: string;
-          retailer_id: string;
-          external_id: string;
-          name: string;
-          address: string | null;
-          postal_code: string | null;
-          city: string | null;
-          latitude: number | null;
-          longitude: number | null;
-          active: boolean;
-          last_seen_at: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
           id?: string;
-          retailer_id: string;
-          external_id: string;
-          name: string;
-          address?: string | null;
-          postal_code?: string | null;
-          city?: string | null;
-          latitude?: number | null;
-          longitude?: number | null;
-          active?: boolean;
-          last_seen_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          retailer_id?: string;
-          external_id?: string;
-          name?: string;
-          address?: string | null;
-          postal_code?: string | null;
-          city?: string | null;
-          latitude?: number | null;
-          longitude?: number | null;
-          active?: boolean;
-          last_seen_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      retailer_products: {
-        Row: {
-          id: string;
-          retailer_id: string;
-          external_id: string;
-          sku: string | null;
-          ean: string | null;
-          source_slug: string | null;
-          name: string;
-          normalized_name: string;
-          brand: string | null;
-          description: string | null;
-          category: string | null;
-          subcategory: string | null;
-          package_quantity: number | null;
-          package_unit: string | null;
-          package_text: string | null;
-          country_of_origin: string | null;
-          source_url: string | null;
-          source_image_url: string | null;
-          authorized_storage_path: string | null;
-          image_mode: string;
-          active: boolean;
-          first_seen_at: string;
-          last_seen_at: string;
-          source_payload_hash: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          retailer_id: string;
-          external_id: string;
-          sku?: string | null;
-          ean?: string | null;
-          source_slug?: string | null;
-          name: string;
-          normalized_name: string;
-          brand?: string | null;
-          description?: string | null;
-          category?: string | null;
-          subcategory?: string | null;
-          package_quantity?: number | null;
-          package_unit?: string | null;
-          package_text?: string | null;
-          country_of_origin?: string | null;
-          source_url?: string | null;
-          source_image_url?: string | null;
-          authorized_storage_path?: string | null;
-          image_mode?: string;
-          active?: boolean;
-          first_seen_at?: string;
-          last_seen_at?: string;
-          source_payload_hash: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          retailer_id?: string;
-          external_id?: string;
-          sku?: string | null;
-          ean?: string | null;
-          source_slug?: string | null;
-          name?: string;
-          normalized_name?: string;
-          brand?: string | null;
-          description?: string | null;
-          category?: string | null;
-          subcategory?: string | null;
-          package_quantity?: number | null;
-          package_unit?: string | null;
-          package_text?: string | null;
-          country_of_origin?: string | null;
-          source_url?: string | null;
-          source_image_url?: string | null;
-          authorized_storage_path?: string | null;
-          image_mode?: string;
-          active?: boolean;
-          first_seen_at?: string;
-          last_seen_at?: string;
-          source_payload_hash?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [];
-      };
-      retailer_offers: {
-        Row: {
-          id: string;
-          retailer_product_id: string;
-          store_id: string | null;
-          currency: string;
-          regular_price: number | null;
-          promotional_price: number | null;
-          loyalty_price: number | null;
-          unit_price: number | null;
-          unit_price_unit: string | null;
-          valid_from: string | null;
-          valid_until: string | null;
-          availability_status: string;
-          promotion_label: string | null;
-          observed_at: string;
-          source_hash: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          retailer_product_id: string;
-          store_id?: string | null;
-          currency?: string;
-          regular_price?: number | null;
-          promotional_price?: number | null;
-          loyalty_price?: number | null;
-          unit_price?: number | null;
-          unit_price_unit?: string | null;
-          valid_from?: string | null;
-          valid_until?: string | null;
-          availability_status?: string;
-          promotion_label?: string | null;
-          observed_at: string;
-          source_hash: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          retailer_product_id?: string;
-          store_id?: string | null;
-          currency?: string;
-          regular_price?: number | null;
-          promotional_price?: number | null;
-          loyalty_price?: number | null;
-          unit_price?: number | null;
-          unit_price_unit?: string | null;
-          valid_from?: string | null;
-          valid_until?: string | null;
-          availability_status?: string;
-          promotion_label?: string | null;
-          observed_at?: string;
-          source_hash?: string;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      retailer_price_history: {
-        Row: {
-          id: string;
-          retailer_product_id: string;
-          store_id: string | null;
-          currency: string;
-          regular_price: number | null;
-          promotional_price: number | null;
-          loyalty_price: number | null;
-          observed_at: string;
-          source_hash: string;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          retailer_product_id: string;
-          store_id?: string | null;
-          currency?: string;
-          regular_price?: number | null;
-          promotional_price?: number | null;
-          loyalty_price?: number | null;
-          observed_at: string;
-          source_hash: string;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          retailer_product_id?: string;
-          store_id?: string | null;
-          currency?: string;
-          regular_price?: number | null;
-          promotional_price?: number | null;
-          loyalty_price?: number | null;
-          observed_at?: string;
-          source_hash?: string;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      ingredient_product_matches: {
-        Row: {
-          id: string;
-          user_id: string;
-          ingredient_id: string;
-          retailer_product_id: string;
-          confidence: number;
-          match_method: string;
-          review_status: string;
-          notes: string | null;
-          created_at: string;
-          reviewed_at: string | null;
-        };
-        Insert: {
-          id?: string;
-          user_id?: string;
-          ingredient_id: string;
-          retailer_product_id: string;
-          confidence?: number;
-          match_method: string;
-          review_status?: string;
-          notes?: string | null;
-          created_at?: string;
-          reviewed_at?: string | null;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          ingredient_id?: string;
-          retailer_product_id?: string;
-          confidence?: number;
-          match_method?: string;
-          review_status?: string;
-          notes?: string | null;
-          created_at?: string;
-          reviewed_at?: string | null;
-        };
-        Relationships: [];
-      };
-      retailer_import_runs: {
-        Row: {
-          id: string;
-          retailer_id: string;
-          import_mode: string;
-          started_at: string;
-          completed_at: string | null;
-          status: string;
-          records_seen: number;
-          records_inserted: number;
-          records_updated: number;
-          records_skipped: number;
-          records_failed: number;
-          source_identifier: string | null;
-          error_summary: string | null;
-          metadata: Json;
-        };
-        Insert: {
-          id?: string;
-          retailer_id: string;
-          import_mode: string;
-          started_at?: string;
-          completed_at?: string | null;
-          status?: string;
-          records_seen?: number;
-          records_inserted?: number;
-          records_updated?: number;
-          records_skipped?: number;
-          records_failed?: number;
-          source_identifier?: string | null;
-          error_summary?: string | null;
-          metadata?: Json;
-        };
-        Update: {
-          id?: string;
-          retailer_id?: string;
-          import_mode?: string;
-          started_at?: string;
-          completed_at?: string | null;
-          status?: string;
-          records_seen?: number;
-          records_inserted?: number;
-          records_updated?: number;
-          records_skipped?: number;
-          records_failed?: number;
-          source_identifier?: string | null;
-          error_summary?: string | null;
-          metadata?: Json;
-        };
-        Relationships: [];
-      };
-      retailer_import_errors: {
-        Row: {
-          id: string;
-          import_run_id: string;
-          row_number: number | null;
-          external_id: string | null;
-          error_code: string | null;
-          error_message: string;
-          safe_payload: Json | null;
-          created_at: string;
-        };
-        Insert: {
-          id?: string;
-          import_run_id: string;
-          row_number?: number | null;
-          external_id?: string | null;
-          error_code?: string | null;
-          error_message: string;
-          safe_payload?: Json | null;
-          created_at?: string;
-        };
-        Update: {
-          id?: string;
-          import_run_id?: string;
-          row_number?: number | null;
-          external_id?: string | null;
-          error_code?: string | null;
-          error_message?: string;
-          safe_payload?: Json | null;
-          created_at?: string;
-        };
-        Relationships: [];
-      };
-      shopping_product_selections: {
-        Row: {
-          id: string;
-          user_id: string;
-          shopping_list_item_id: string;
-          retailer_product_id: string;
-          selection_mode: string;
-          excluded: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          user_id?: string;
-          shopping_list_item_id: string;
-          retailer_product_id: string;
-          selection_mode?: string;
-          excluded?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          user_id?: string;
-          shopping_list_item_id?: string;
-          retailer_product_id?: string;
-          selection_mode?: string;
-          excluded?: boolean;
-          created_at?: string;
+          is_active?: boolean;
+          sort_order?: number;
           updated_at?: string;
         };
         Relationships: [];
@@ -1151,20 +757,11 @@ export type Database = {
         Returns: number;
       };
       add_recipe_missing_to_shopping: {
-        Args: {
-          p_ingredient_ids?: string[] | null;
-          p_recipe_id: string;
-        };
+        Args: { p_ingredient_ids?: string[]; p_recipe_id: string };
         Returns: number;
       };
-      bulk_upsert_pantry_items: {
-        Args: { p_items: Json };
-        Returns: string[];
-      };
-      create_recipe: {
-        Args: { p_recipe: Json };
-        Returns: string;
-      };
+      bulk_upsert_pantry_items: { Args: { p_items: Json }; Returns: string[] };
+      create_recipe: { Args: { p_recipe: Json }; Returns: string };
       create_recipe_with_details: {
         Args: {
           p_images?: Json;
@@ -1175,32 +772,19 @@ export type Database = {
         };
         Returns: string;
       };
-      delete_all_cookbook_data: {
-        Args: Record<PropertyKey, never>;
-        Returns: Json;
-      };
+      delete_all_cookbook_data: { Args: never; Returns: Json };
       delete_recipe_with_images: {
         Args: { p_recipe_id: string };
         Returns: string[];
       };
-      duplicate_recipe: {
-        Args: { p_recipe_id: string };
-        Returns: string;
-      };
-      export_cookbook_data: {
-        Args: Record<PropertyKey, never>;
-        Returns: Json;
-      };
+      duplicate_recipe: { Args: { p_recipe_id: string }; Returns: string };
+      export_cookbook_data: { Args: never; Returns: Json };
       import_cookbook: {
         Args: { p_mode?: string; p_payload: Json };
         Returns: Json;
       };
       mark_recipe_cooked: {
-        Args: {
-          p_notes?: string | null;
-          p_recipe_id: string;
-          p_servings?: number | null;
-        };
+        Args: { p_notes?: string; p_recipe_id: string; p_servings?: number };
         Returns: string;
       };
       merge_ingredients: {
@@ -1209,28 +793,25 @@ export type Database = {
       };
       move_completed_shopping_to_pantry: {
         Args: {
-          p_item_ids?: string[] | null;
+          p_item_ids?: string[];
           p_location?: Database["public"]["Enums"]["storage_location"];
         };
         Returns: Json;
       };
-      search_key: {
-        Args: { value: string };
-        Returns: string;
-      };
+      save_user_settings: { Args: { p_settings: Json }; Returns: string };
+      search_key: { Args: { value: string }; Returns: string };
       search_recipes: {
         Args: {
-          p_category?: string | null;
-          p_cuisine?: string | null;
-          p_dietary_tag?: string | null;
-          p_difficulty?:
-            Database["public"]["Enums"]["recipe_difficulty"] | null;
-          p_favorite?: boolean | null;
+          p_category?: string;
+          p_cuisine?: string;
+          p_dietary_tag?: string;
+          p_difficulty?: Database["public"]["Enums"]["recipe_difficulty"];
+          p_favorite?: boolean;
           p_limit?: number;
-          p_max_prep_minutes?: number | null;
-          p_max_total_minutes?: number | null;
+          p_max_prep_minutes?: number;
+          p_max_total_minutes?: number;
           p_offset?: number;
-          p_query?: string | null;
+          p_query?: string;
           p_sort?: string;
         };
         Returns: {
@@ -1238,17 +819,17 @@ export type Database = {
           cook_minutes: number;
           cooked_count: number;
           created_at: string;
-          cuisine: string | null;
-          description: string | null;
-          difficulty: Database["public"]["Enums"]["recipe_difficulty"] | null;
+          cuisine: string;
+          description: string;
+          difficulty: Database["public"]["Enums"]["recipe_difficulty"];
           id: string;
-          image_path: string | null;
+          image_path: string;
           is_favorite: boolean;
-          last_cooked_at: string | null;
+          last_cooked_at: string;
           prep_minutes: number;
           rest_minutes: number;
           servings: number;
-          slug: string | null;
+          slug: string;
           status: Database["public"]["Enums"]["recipe_status"];
           title: string;
           total_count: number;
@@ -1256,33 +837,23 @@ export type Database = {
           updated_at: string;
         }[];
       };
-      save_user_settings: {
-        Args: { p_settings: Json };
-        Returns: string;
-      };
       update_recipe: {
         Args: { p_recipe: Json; p_recipe_id: string };
         Returns: string;
       };
       update_recipe_with_details: {
         Args: {
-          p_images?: Json | null;
-          p_ingredients?: Json | null;
+          p_images?: Json;
+          p_ingredients?: Json;
           p_recipe: Json;
           p_recipe_id: string;
-          p_steps?: Json | null;
-          p_tags?: Json | null;
+          p_steps?: Json;
+          p_tags?: Json;
         };
         Returns: string;
       };
-      upsert_pantry_item: {
-        Args: { p_item: Json };
-        Returns: string;
-      };
-      upsert_shopping_item: {
-        Args: { p_item: Json };
-        Returns: string;
-      };
+      upsert_pantry_item: { Args: { p_item: Json }; Returns: string };
+      upsert_shopping_item: { Args: { p_item: Json }; Returns: string };
     };
     Enums: {
       image_kind: "cover" | "gallery";
@@ -1318,27 +889,36 @@ export type Database = {
   };
 };
 
-type PublicSchema = Database[Extract<keyof Database, "public">];
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">;
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<
+  keyof Database,
+  "public"
+>];
 
 export type Tables<
-  PublicTableNameOrOptions extends
-    | keyof (PublicSchema["Tables"] & PublicSchema["Views"])
-    | { schema: keyof Database },
-  TableName extends (PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-        Database[PublicTableNameOrOptions["schema"]]["Views"])
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
     : never) = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
-      Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
       Row: infer R;
     }
     ? R
     : never
-  : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
-        PublicSchema["Views"])
-    ? (PublicSchema["Tables"] &
-        PublicSchema["Views"])[PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
         Row: infer R;
       }
       ? R
@@ -1346,19 +926,23 @@ export type Tables<
     : never;
 
 export type TablesInsert<
-  PublicTableNameOrOptions extends
-    keyof PublicSchema["Tables"] | { schema: keyof Database },
-  TableName extends (PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Insert: infer I;
     }
     ? I
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Insert: infer I;
       }
       ? I
@@ -1366,19 +950,23 @@ export type TablesInsert<
     : never;
 
 export type TablesUpdate<
-  PublicTableNameOrOptions extends
-    keyof PublicSchema["Tables"] | { schema: keyof Database },
-  TableName extends (PublicTableNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicTableNameOrOptions["schema"]]["Tables"]
+  DefaultSchemaTableNameOrOptions extends
+    keyof DefaultSchema["Tables"] | { schema: keyof DatabaseWithoutInternals },
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
     : never) = never,
-> = PublicTableNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
       Update: infer U;
     }
     ? U
     : never
-  : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
-    ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
         Update: infer U;
       }
       ? U
@@ -1386,15 +974,36 @@ export type TablesUpdate<
     : never;
 
 export type Enums<
-  PublicEnumNameOrOptions extends
-    keyof PublicSchema["Enums"] | { schema: keyof Database },
-  EnumName extends (PublicEnumNameOrOptions extends { schema: keyof Database }
-    ? keyof Database[PublicEnumNameOrOptions["schema"]]["Enums"]
+  DefaultSchemaEnumNameOrOptions extends
+    keyof DefaultSchema["Enums"] | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
     : never) = never,
-> = PublicEnumNameOrOptions extends { schema: keyof Database }
-  ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
-  : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
-    ? PublicSchema["Enums"][PublicEnumNameOrOptions]
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never;
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals;
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never) = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals;
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
     : never;
 
 export const Constants = {

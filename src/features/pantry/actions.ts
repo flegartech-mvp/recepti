@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/authorization";
 import { createClient } from "@/lib/supabase/server";
 import { pantryItemSchema, type PantryItemInput } from "@/lib/validation";
+import { getIngredientDefinition } from "@/data/pantry-starters";
 
 export async function savePantryItemAction(
   input: PantryItemInput,
@@ -70,16 +71,20 @@ export async function adjustPantryQuantityAction(
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
   if (id.startsWith("starter:")) {
-    const ingredientId = id.slice("starter:".length);
-    if (!/^[0-9a-f-]{36}$/i.test(ingredientId) || delta <= 0)
+    const definition = getIngredientDefinition(id.slice("starter:".length));
+    if (!definition || delta <= 0)
       return { ok: false, message: "That pantry starter cannot be adjusted." };
-    const { error } = await client.from("pantry_items").insert({
-      ingredient_id: ingredientId,
-      quantity: delta,
-      unit: unit ?? null,
-      is_depleted: false,
+    const { error } = await client.rpc("upsert_pantry_item", {
+      p_item: {
+        ingredientName: definition.names.en,
+        quantity: delta,
+        unit: unit ?? definition.defaultUnit,
+        storageLocation: definition.storageLocation,
+        isDepleted: false,
+      },
     });
-    if (error) return { ok: false, message: "The pantry starter could not be added." };
+    if (error)
+      return { ok: false, message: "The pantry starter could not be added." };
     revalidatePath("/pantry");
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };

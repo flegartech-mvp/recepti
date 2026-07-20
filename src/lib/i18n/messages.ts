@@ -92,6 +92,7 @@ export const slMessages: Record<string, string> = {
   "Good afternoon": "Dober dan",
   "Good evening": "Dober večer",
   "{greeting}, Nana.": "{greeting}, Nana.",
+  "{greeting}, cook.": "{greeting}, kuhar.",
   "A favorite recipe is a small shortcut back home.":
     "Najljubši recept je majhna bližnjica domov.",
   "Check the pantry first. Dinner may already be waiting.":
@@ -817,6 +818,8 @@ export const slMessages: Record<string, string> = {
     "Želite zapustiti urejevalnik recepta? Neshranjene spremembe bodo ostale samo v osnutku tega brskalnika.",
   Products: "Izdelki",
   "Product catalogue": "Katalog izdelkov",
+  "300 verified cooking products from official Slovenian retailer pages. Prices are omitted because offers change frequently.":
+    "300 preverjenih izdelkov za kuhanje z uradnih strani slovenskih trgovcev. Cene so izpuščene, ker se ponudbe pogosto spreminjajo.",
   "Prices for the next family meal": "Cene za naslednji družinski obrok",
   "Compare fictional demo products now, then connect authorized Slovenian retailer feeds when access is available.":
     "Zdaj primerjajte izmišljene predstavitvene izdelke, po pridobitvi dostopa pa povežite pooblaščene vire slovenskih trgovcev.",
@@ -827,6 +830,10 @@ export const slMessages: Record<string, string> = {
   Retailers: "Trgovci",
   "All retailers": "Vsi trgovci",
   Search: "Išči",
+  "{visible} of {total} products": "{visible} od {total} izdelkov",
+  "Open details": "Odpri podrobnosti",
+  "No verified products match these filters.":
+    "Tem filtrom ne ustreza noben preverjen izdelek.",
   "Manage catalogue": "Upravljaj katalog",
   "Only products with special prices": "Samo izdelki s posebnimi cenami",
   "{count} products": "{count} izdelkov",
@@ -846,6 +853,14 @@ export const slMessages: Record<string, string> = {
   "Loyalty price": "Cena s kartico zvestobe",
   "View product": "Prikaži izdelek",
   "Back to products": "Nazaj na izdelke",
+  "Canonical ingredient": "Osnovna sestavina",
+  Package: "Pakiranje",
+  Price: "Cena",
+  "Not stored": "Ni shranjena",
+  "Source checked": "Vir preverjen",
+  "Open official product page": "Odpri uradno stran izdelka",
+  "This is a curated reference, not a live stock or price feed. Verify availability on the retailer page before shopping.":
+    "To je urejen referenčni katalog, ne vir zaloge ali cen v živo. Pred nakupom preverite razpoložljivost na strani trgovca.",
   "Inactive product": "Neaktiven izdelek",
   "Package size": "Velikost pakiranja",
   Uncategorized: "Nerazvrščeno",
@@ -858,6 +873,14 @@ export const slMessages: Record<string, string> = {
   "Unknown availability": "Razpoložljivost ni znana",
   "Open official source": "Odpri uradni vir",
   "Catalogue administration": "Upravljanje kataloga",
+  "The retailer catalogue is local, source-linked, and validated during every release.":
+    "Katalog trgovcev je lokalen, povezan z viri in preverjen ob vsaki izdaji.",
+  "Products are maintained by retailer in {path}. Every row links to an official public product page and a stable canonical ingredient.":
+    "Izdelki so po trgovcih vzdrževani v {path}. Vsaka vrstica je povezana z uradno javno stranjo izdelka in stabilno osnovno sestavino.",
+  "Run {command} after an update. It checks retailer and product IDs, package quantities and units, ingredient identities, source domains, verification dates, and suspicious duplicates.":
+    "Po posodobitvi zaženite {command}. Preveri identifikatorje trgovcev in izdelkov, količine in enote pakiranj, identitete sestavin, domene virov, datume preverjanja ter sumljive dvojnike.",
+  "Prices are intentionally omitted until a reliable refresh process exists. The app does not imply that a saved product is currently stocked or promoted.":
+    "Cene so namenoma izpuščene, dokler ne bo vzpostavljen zanesljiv postopek osveževanja. Aplikacija ne trdi, da je shranjen izdelek trenutno na zalogi ali v akciji.",
   "Review retailer feeds, validate imports, and keep uncertain matches under owner control.":
     "Preglejte vire trgovcev, preverite uvoze in ohranite nadzor lastnika nad negotovimi povezavami.",
   "Import products": "Uvozi izdelke",
@@ -895,6 +918,10 @@ export const slMessages: Record<string, string> = {
     "Predstavitvene cene in imena izdelkov so izmišljeni. Ne obravnavajte jih kot trenutne cene v trgovinah.",
   "Compare prices": "Primerjaj cene",
   "Compare products for {item}": "Primerjaj izdelke za {item}",
+  "Reference products from the catalogues you enabled.":
+    "Referenčni izdelki iz katalogov, ki ste jih omogočili.",
+  "Official source": "Uradni vir",
+  "No current price": "Brez trenutne cene",
   "Package estimates use only compatible mass, volume, or piece units.":
     "Ocene pakiranj uporabljajo samo združljive enote mase, prostornine ali kosov.",
   Promotion: "Akcija",
@@ -908,6 +935,7 @@ export const slMessages: Record<string, string> = {
   "Match confidence {value}%": "Zanesljivost povezave {value} %",
   Selected: "Izbrano",
   Choose: "Izberi",
+  Chosen: "Izbrano",
   Details: "Podrobnosti",
   "Product selection could not be saved":
     "Izbire izdelka ni bilo mogoče shraniti",
