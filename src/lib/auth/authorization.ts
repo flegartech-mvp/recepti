@@ -8,6 +8,7 @@ import { createClient } from "@/lib/supabase/server";
 export type AuthorizationState =
   | { status: "signed-out"; user: null; configured: boolean }
   | { status: "owner"; user: User; configured: true }
+  | { status: "guest"; user: User; configured: true }
   | { status: "denied"; user: User; configured: true };
 
 export function normalizeEmail(email: string): string {
@@ -49,7 +50,7 @@ export function isTestAuthenticationEnabled(): boolean {
   );
 }
 
-function testUser(role: "owner" | "denied"): User {
+function testUser(role: "owner" | "guest" | "denied"): User {
   const ownerEmail = process.env.OWNER_EMAIL ?? "owner@example.test";
   const email = role === "owner" ? ownerEmail : "visitor@example.test";
   return {
@@ -62,7 +63,7 @@ function testUser(role: "owner" | "denied"): User {
     email,
     app_metadata: { provider: "google", providers: ["google"] },
     user_metadata: {
-      full_name: role === "owner" ? "Nana's Recipes Owner" : "Private Visitor",
+      full_name: role === "owner" ? "Nana's Recipes Owner" : "Preview Guest",
     },
     identities: [],
     created_at: new Date(0).toISOString(),
@@ -72,9 +73,9 @@ function testUser(role: "owner" | "denied"): User {
 export async function getAuthorizationState(): Promise<AuthorizationState> {
   if (isTestAuthenticationEnabled()) {
     const role = (await cookies()).get("menta-e2e-role")?.value;
-    if (role === "owner" || role === "denied") {
+    if (role === "owner" || role === "guest" || role === "denied") {
       return {
-        status: role === "owner" ? "owner" : "denied",
+        status: role === "owner" ? "owner" : role,
         user: testUser(role),
         configured: true,
       };
@@ -100,9 +101,13 @@ export async function getAuthorizationState(): Promise<AuthorizationState> {
     return { status: "denied", user, configured: true };
   }
 
-  return isOwnerEmail(user.email, ownerEmail) && isGoogleIdentity(user)
+  if (!isGoogleIdentity(user)) {
+    return { status: "denied", user, configured: true };
+  }
+
+  return isOwnerEmail(user.email, ownerEmail)
     ? { status: "owner", user, configured: true }
-    : { status: "denied", user, configured: true };
+    : { status: "guest", user, configured: true };
 }
 
 export async function requireOwner(returnTo = "/dashboard"): Promise<User> {
@@ -110,6 +115,7 @@ export async function requireOwner(returnTo = "/dashboard"): Promise<User> {
   if (state.status === "signed-out") {
     redirect(`/?next=${encodeURIComponent(returnTo)}`);
   }
+  if (state.status === "guest") redirect("/preview");
   if (state.status === "denied") redirect("/private");
   return state.user;
 }

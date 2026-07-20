@@ -27,6 +27,7 @@ export default async function LandingPage({
     searchParams,
   ]);
   if (state.status === "owner") redirect("/dashboard");
+  if (state.status === "guest") redirect("/preview");
   if (state.status === "denied") redirect("/private");
   const nextPath = safeInternalPath(parameters.next);
   const { t } = await getServerI18n();
@@ -44,7 +45,7 @@ export default async function LandingPage({
           {" "}
           <span className="hidden text-sm font-medium text-muted-foreground sm:inline">
             {" "}
-            {t("Private by design")}{" "}
+            {t("Public preview")}{" "}
           </span>{" "}
           <LanguageSwitcher /> <ThemeToggle />{" "}
         </div>{" "}
@@ -76,6 +77,11 @@ export default async function LandingPage({
               <ArrowRight className="size-4" aria-hidden="true" />{" "}
             </Button>{" "}
           </form>{" "}
+          <p className="mt-3 text-sm text-muted-foreground">
+            {t(
+              "Any Google account can join the public preview. Cookbook data stays private.",
+            )}
+          </p>
           {!state.configured && (
             <Alert className="mt-6 max-w-lg border-notice bg-notice/40">
               {" "}

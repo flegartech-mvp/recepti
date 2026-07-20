@@ -18,7 +18,7 @@ import { Logo } from "@/components/brand/logo";
 import { useI18n } from "@/components/i18n-provider";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Sheet,
   SheetClose,
@@ -60,18 +60,16 @@ export function AppNavigation({ email }: { email: string }) {
       >
         {" "}
         <Logo className="px-2" />{" "}
-        <Button
-          asChild
-          variant="secondary"
-          className="mt-6 w-full justify-start"
+        <Link
+          href="/recipes/new"
+          className={buttonVariants({
+            variant: "secondary",
+            className: "mt-6 w-full justify-start",
+          })}
         >
-          {" "}
-          <Link href="/recipes/new">
-            {" "}
-            <Plus className="size-4" aria-hidden="true" />{" "}
-            {t("Add recipe")}{" "}
-          </Link>{" "}
-        </Button>{" "}
+          <Plus className="size-4" aria-hidden="true" />
+          {t("Add recipe")}
+        </Link>{" "}
         <nav className="mt-6 space-y-1" aria-label={t("Main navigation")}>
           {" "}
           {[...primaryItems, ...secondaryItems].map((item) => {
@@ -130,18 +128,15 @@ export function AppNavigation({ email }: { email: string }) {
           <LanguageSwitcher /> <ThemeToggle />{" "}
           <Sheet>
             {" "}
-            <SheetTrigger asChild>
-              {" "}
-              <Button
-                type="button"
-                variant="ghost"
-                size="icon"
-                className="size-11"
-                aria-label={t("Open more navigation")}
-              >
-                {" "}
-                <Menu className="size-5" aria-hidden="true" />{" "}
-              </Button>{" "}
+            <SheetTrigger
+              className={buttonVariants({
+                variant: "ghost",
+                size: "icon",
+                className: "size-11",
+              })}
+              aria-label={t("Open more navigation")}
+            >
+              <Menu className="size-5" aria-hidden="true" />
             </SheetTrigger>{" "}
             <SheetContent side="right" className="w-[min(22rem,88vw)]">
               {" "}
@@ -156,22 +151,16 @@ export function AppNavigation({ email }: { email: string }) {
                 </SheetDescription>{" "}
               </SheetHeader>{" "}
               <div className="px-4">
-                {" "}
-                <SheetClose asChild>
-                  {" "}
-                  <Button
-                    asChild
-                    variant="secondary"
-                    className="w-full justify-start"
-                  >
-                    {" "}
-                    <Link href="/recipes/new">
-                      {" "}
-                      <Plus className="size-4" aria-hidden="true" />{" "}
-                      {t("Add recipe")}{" "}
-                    </Link>{" "}
-                  </Button>{" "}
-                </SheetClose>{" "}
+                <Link
+                  href="/recipes/new"
+                  className={buttonVariants({
+                    variant: "secondary",
+                    className: "w-full justify-start",
+                  })}
+                >
+                  <Plus className="size-4" aria-hidden="true" />
+                  {t("Add recipe")}
+                </Link>
               </div>{" "}
               <nav className="space-y-2 px-4" aria-label={t("More navigation")}>
                 {" "}
@@ -179,7 +168,6 @@ export function AppNavigation({ email }: { email: string }) {
                   const active = isCurrent(pathname, item.href);
                   return (
                     <SheetClose asChild key={item.href}>
-                      {" "}
                       <Link
                         href={item.href}
                         aria-current={active ? "page" : undefined}

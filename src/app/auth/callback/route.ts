@@ -33,23 +33,12 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  if (
-    !user ||
-    !isOwnerEmail(user.email, ownerEmail) ||
-    !isGoogleIdentity(user)
-  ) {
+  if (!user || !isGoogleIdentity(user)) {
     return NextResponse.redirect(new URL("/private", request.url));
   }
 
-  const { data: ownerProfile, error: ownerProfileError } = await client
-    .from("profiles")
-    .select("id")
-    .eq("id", user.id)
-    .maybeSingle();
-  if (ownerProfileError || !ownerProfile) {
-    return NextResponse.redirect(
-      new URL("/auth/auth-code-error?reason=database-owner", request.url),
-    );
+  if (!isOwnerEmail(user.email, ownerEmail)) {
+    return NextResponse.redirect(new URL("/preview", request.url));
   }
 
   return NextResponse.redirect(new URL(nextPath, request.url));

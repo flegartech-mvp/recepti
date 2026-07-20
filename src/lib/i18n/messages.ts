@@ -28,6 +28,17 @@ export const slMessages: Record<string, string> = {
   English: "Angleščina",
   Slovenian: "Slovenščina",
   "Private by design": "Zasebno po zasnovi",
+  "Public preview": "Javni predogled",
+  "Any Google account can join the public preview. Cookbook data stays private.":
+    "Vsak Google račun se lahko pridruži javnemu predogledu. Podatki kuharice ostanejo zasebni.",
+  "Guest preview": "Predogled za goste",
+  "You are viewing sample recipes. Only the cookbook owner can see or change private data.":
+    "Ogledate si vzorčne recepte. Zasebne podatke lahko vidi ali spreminja le lastnik kuharice.",
+  "Sample recipes": "Vzorčni recepti",
+  "Preview only": "Samo predogled",
+  "Private cookbook data is never shown here.":
+    "Zasebni podatki kuharice tukaj niso nikoli prikazani.",
+  "Back to home": "Nazaj na domov",
   "A cookbook that knows what's at home.": "Kuharica, ki ve, kaj je doma.",
   "Save every favorite, keep the pantry close, and find dinner without the usual guesswork.":
     "Shranite najljubše recepte, imejte pregled nad shrambo in poiščite večerjo brez običajnega ugibanja.",

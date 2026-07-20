@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { PageContainer } from "@/components/layout/page-container";
 import { PageHeader } from "@/components/layout/page-header";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { MetricCard } from "@/features/dashboard/components/metric-card";
 import { RecipeCard } from "@/features/recipes/components/recipe-card";
 import { getDashboardData } from "@/lib/data/queries";
@@ -55,14 +55,10 @@ export default async function DashboardPage() {
         title={t("{greeting}, cook.", { greeting: t(greeting(locale)) })}
         description={t(message)}
         action={
-          <Button asChild>
-            {" "}
-            <Link href="/recipes/new">
-              {" "}
-              <Plus className="size-4" aria-hidden="true" />{" "}
-              {t("Add recipe")}{" "}
-            </Link>{" "}
-          </Button>
+          <Link href="/recipes/new" className={buttonVariants()}>
+            <Plus className="size-4" aria-hidden="true" />
+            {t("Add recipe")}
+          </Link>
         }
       />{" "}
       <section
@@ -113,59 +109,75 @@ export default async function DashboardPage() {
               "Compare every saved recipe with what is in the pantry, then see exactly what is missing.",
             )}{" "}
           </p>{" "}
-          <Button asChild variant="secondary" className="mt-7">
-            {" "}
-            <Link href="/cook-with-what-i-have">
-              {" "}
-              {t("Find a recipe")}{" "}
-              <ChefHat className="size-4" aria-hidden="true" />{" "}
-            </Link>{" "}
-          </Button>{" "}
+          <Link
+            href="/cook-with-what-i-have"
+            className={buttonVariants({
+              variant: "secondary",
+              className: "mt-7",
+            })}
+          >
+            {t("Find a recipe")}
+            <ChefHat className="size-4" aria-hidden="true" />
+          </Link>{" "}
         </div>{" "}
         <div className="rounded-2xl border border-border bg-card p-6 shadow-[0_10px_28px_var(--shadow)]">
           {" "}
           <h2 className="font-semibold">{t("Quick actions")}</h2>{" "}
           <div className="mt-5 grid gap-2">
             {" "}
-            <Button asChild variant="ghost" className="justify-start">
-              {" "}
-              <Link href="/pantry?add=1">
-                {" "}
-                <Refrigerator className="size-4" aria-hidden="true" />{" "}
-                {t("Add pantry ingredient")}{" "}
-              </Link>{" "}
-            </Button>{" "}
-            <Button asChild variant="ghost" className="justify-start">
-              {" "}
-              <Link href="/products">
-                {" "}
-                <Store className="size-4" aria-hidden="true" />{" "}
-                {t("Compare grocery prices")}{" "}
-              </Link>{" "}
-            </Button>{" "}
-            <Button asChild variant="ghost" className="justify-start">
-              {" "}
-              <Link href="/shopping-list">
-                {" "}
-                <Plus className="size-4" aria-hidden="true" />{" "}
-                {t("Open shopping list")}{" "}
-              </Link>{" "}
-            </Button>{" "}
-            <Button
-              asChild
-              variant="ghost"
-              className="justify-start"
-              disabled={!surprise}
+            <Link
+              href="/pantry?add=1"
+              className={buttonVariants({
+                variant: "ghost",
+                className: "justify-start",
+              })}
             >
-              {" "}
+              <Refrigerator className="size-4" aria-hidden="true" />
+              {t("Add pantry ingredient")}
+            </Link>{" "}
+            <Link
+              href="/products"
+              className={buttonVariants({
+                variant: "ghost",
+                className: "justify-start",
+              })}
+            >
+              <Store className="size-4" aria-hidden="true" />
+              {t("Compare grocery prices")}
+            </Link>{" "}
+            <Link
+              href="/shopping-list"
+              className={buttonVariants({
+                variant: "ghost",
+                className: "justify-start",
+              })}
+            >
+              <Plus className="size-4" aria-hidden="true" />
+              {t("Open shopping list")}
+            </Link>{" "}
+            {surprise ? (
               <Link
-                href={surprise ? `/recipes/${surprise.id}` : "/recipes/new"}
+                href={`/recipes/${surprise.id}`}
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "justify-start",
+                })}
               >
-                {" "}
-                <Shuffle className="size-4" aria-hidden="true" />{" "}
-                {t("Surprise me")}{" "}
-              </Link>{" "}
-            </Button>{" "}
+                <Shuffle className="size-4" aria-hidden="true" />
+                {t("Surprise me")}
+              </Link>
+            ) : (
+              <span
+                className={buttonVariants({
+                  variant: "ghost",
+                  className: "pointer-events-none justify-start opacity-50",
+                })}
+                aria-disabled="true"
+              >
+                <Shuffle className="size-4" aria-hidden="true" />
+                {t("Surprise me")}
+              </span>
+            )}{" "}
           </div>{" "}
         </div>{" "}
       </section>{" "}
@@ -178,10 +190,12 @@ export default async function DashboardPage() {
               {" "}
               {t("Recently added")}{" "}
             </h2>{" "}
-            <Button asChild variant="ghost" size="sm">
-              {" "}
-              <Link href="/recipes">{t("View all")}</Link>{" "}
-            </Button>{" "}
+            <Link
+              href="/recipes"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              {t("View all")}
+            </Link>{" "}
           </div>{" "}
           <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-4">
             {" "}
