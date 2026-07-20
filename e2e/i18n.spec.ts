@@ -168,4 +168,16 @@ test("renders every main owner page in Slovenian without horizontal overflow", a
       ),
     ).toBe(true);
   }
+
+  await page.goto("/shopping-list");
+  await expect(
+    page.getByText("Primerjava izdelkov", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("100 g Parmezan", { exact: true })).toBeVisible();
+  await expect(
+    page.getByRole("button", {
+      name: "Primerjaj Piščančje prsi",
+      exact: true,
+    }),
+  ).toBeVisible();
 });

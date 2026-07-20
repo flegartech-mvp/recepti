@@ -944,6 +944,13 @@ export const slMessages: Record<string, string> = {
   "Product selection could not be saved":
     "Izbire izdelka ni bilo mogoče shraniti",
   "Preferred product saved": "Prednostni izdelek je shranjen",
+  "Product comparison": "Primerjava izdelkov",
+  "Available catalogue matches are shown beside each shopping item.":
+    "Razpoložljiva ujemanja iz kataloga so prikazana ob vsakem izdelku na seznamu.",
+  Compare: "Primerjaj",
+  "Compare {name}": "Primerjaj {name}",
+  "Search ingredients or retailer products":
+    "Poiščite sestavine ali izdelke trgovcev",
   "Travel cost is not included. Availability is unknown unless a reliable store-level source is connected. Promotional conditions may apply.":
     "Potni stroški niso vključeni. Razpoložljivost ni znana brez zanesljivega vira za posamezno poslovalnico. Veljajo lahko dodatni pogoji akcije.",
   "Retailer and price preferences": "Nastavitve trgovcev in cen",

@@ -29,6 +29,10 @@ describe("English and Slovenian localization", () => {
     expect(translate("sl", "Add custom ingredient")).toBe(
       "Dodaj sestavino po meri",
     );
+    expect(translate("sl", "Product comparison")).toBe("Primerjava izdelkov");
+    expect(translate("sl", "Compare {name}", { name: "Mleko" })).toBe(
+      "Primerjaj Mleko",
+    );
   });
 
   it("formats Slovenian numbers, dates, lists, and four plural forms", () => {

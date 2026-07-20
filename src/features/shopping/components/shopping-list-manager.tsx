@@ -41,7 +41,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { IngredientAutocomplete } from "@/features/ingredients/components/ingredient-autocomplete";
-import type { IngredientSearchResult } from "@/lib/domain/ingredient-search";
+import {
+  localizedIngredientName,
+  type IngredientSearchResult,
+} from "@/lib/domain/ingredient-search";
 import {
   clearCompletedShoppingAction,
   deleteShoppingItemAction,
@@ -77,7 +80,7 @@ export function ShoppingListManager({
   retailerPreferences?: RetailerPreferences;
 }) {
   const router = useRouter();
-  const { t, formatNumber, plural } = useI18n();
+  const { locale, t, formatNumber, plural } = useI18n();
   const [pending, startTransition] = useTransition();
   const [items, setItems] = useState(initialItems);
   const [previousInitialItems, setPreviousInitialItems] =
@@ -95,13 +98,28 @@ export function ShoppingListManager({
     setItems(initialItems);
   }
 
+  const localizedItems = useMemo(
+    () =>
+      items.map((item) => {
+        const ingredient = catalog.find(
+          (candidate) => candidate.id === item.ingredientId,
+        );
+        return ingredient
+          ? {
+              ...item,
+              ingredientName: localizedIngredientName(ingredient, locale),
+            }
+          : item;
+      }),
+    [catalog, items, locale],
+  );
   const unchecked = useMemo(
-    () => items.filter((item) => !item.isCompleted),
-    [items],
+    () => localizedItems.filter((item) => !item.isCompleted),
+    [localizedItems],
   );
   const completed = useMemo(
-    () => items.filter((item) => item.isCompleted),
-    [items],
+    () => localizedItems.filter((item) => item.isCompleted),
+    [localizedItems],
   );
 
   const execute = (
