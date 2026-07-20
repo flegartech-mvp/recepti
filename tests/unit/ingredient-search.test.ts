@@ -52,6 +52,30 @@ describe("shared ingredient search", () => {
     ).toBe(true);
   });
 
+  it("ranks a direct localized prefix ahead of alias and product prefixes", () => {
+    const results = searchIngredients(catalog, "mle", {
+      locale: "sl",
+      products: [
+        {
+          id: "ground-cinnamon",
+          name: "Mleti cimet",
+          retailerSlug: "hofer-si",
+          retailerName: "HOFER",
+          ingredientIds: [],
+          ingredientSlugs: ["cinnamon"],
+          price: null,
+          currency: "EUR",
+          unitLabel: "40 g",
+          packageQuantity: 40,
+          packageUnit: "g",
+          isPromotional: false,
+          isLoyaltyPrice: false,
+        },
+      ],
+    });
+    expect(results[0]?.displayName).toBe("Mleko");
+  });
+
   it("deduplicates a database ingredient represented by a starter identity", () => {
     const egg = ingredientDefinitionToIngredient(
       pantryStarters.find((definition) => definition.slug === "eggs")!,

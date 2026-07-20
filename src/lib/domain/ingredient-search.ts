@@ -105,13 +105,15 @@ export function searchIngredients(
     const definition = findIngredientDefinition(ingredient);
     const ingredientSlug = definition?.slug ?? null;
     const localizedName = definition?.names[locale] ?? ingredient.displayName;
-    const names = [
+    const primaryNames = [
       ingredient.canonicalName,
       ingredient.displayName,
       ingredient.normalizedName,
-      ...ingredient.aliases,
       definition?.names.en ?? "",
       definition?.names.sl ?? "",
+    ].filter(Boolean);
+    const aliasNames = [
+      ...ingredient.aliases,
       ...(definition?.aliases ?? []),
     ].filter(Boolean);
     const matchingProducts = products.filter((product) =>
@@ -119,19 +121,30 @@ export function searchIngredients(
         ? product.ingredientSlugs.includes(ingredientSlug)
         : product.ingredientIds.includes(ingredient.id),
     );
-    const nameScore = Math.max(
+    const primaryNameScore = Math.max(
       0,
-      ...names.map((name) => textScore(query, normalizeIngredientSearch(name))),
+      ...primaryNames.map((name) =>
+        textScore(query, normalizeIngredientSearch(name)),
+      ),
+    );
+    const aliasScore = Math.max(
+      0,
+      ...aliasNames.map((name) => {
+        const score = textScore(query, normalizeIngredientSearch(name));
+        return score === 1_000 ? 950 : Math.max(0, score - 100);
+      }),
     );
     const retailerScore = Math.max(
       0,
       ...matchingProducts.flatMap((product) =>
         productText(product).map((text) =>
-          Math.max(0, textScore(query, normalizeIngredientSearch(text)) - 90),
+          Math.max(0, textScore(query, normalizeIngredientSearch(text)) - 180),
         ),
       ),
     );
-    const score = query ? Math.max(nameScore, retailerScore) : 1;
+    const score = query
+      ? Math.max(primaryNameScore, aliasScore, retailerScore)
+      : 1;
     if (score <= 0) continue;
 
     const otherNames = [
