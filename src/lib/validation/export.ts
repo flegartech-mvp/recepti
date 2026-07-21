@@ -167,7 +167,7 @@ const cookingHistoryEntrySchema = z
   .strict();
 
 /** Versioned and strict so an import can be rejected before any database write. */
-export const cookbookExportSchema = z
+const cookbookExportBaseSchema = z
   .object({
     schemaVersion: z.union([z.literal(1), z.literal(2)]),
     product: z.literal("Nana's Recipes"),
@@ -310,6 +310,61 @@ export const cookbookExportSchema = z
       }
     });
   });
+
+const V2_REQUIRED_SETTINGS_KEYS = [
+  "theme",
+  "defaultServings",
+  "measurementPreference",
+  "stapleIngredientIds",
+  "additionalStapleNames",
+  "reduceMotion",
+  "enabledRetailers",
+  "preferredRetailer",
+  "allowLoyaltyPrices",
+  "allowSplitBasket",
+  "preferPromotions",
+  "preferredBrands",
+  "excludedBrands",
+] as const;
+
+/**
+ * Version 1 remains backward-compatible and may use safe defaults.
+ * Version 2 must contain a complete settings snapshot so an export cannot
+ * silently lose newly introduced preferences.
+ */
+export const cookbookExportSchema = z.preprocess((input, context) => {
+  if (typeof input !== "object" || input === null || Array.isArray(input)) {
+    return input;
+  }
+
+  const envelope = input as Record<string, unknown>;
+
+  if (envelope.schemaVersion !== 2) {
+    return input;
+  }
+
+  const settings = envelope.settings;
+
+  if (
+    typeof settings !== "object" ||
+    settings === null ||
+    Array.isArray(settings)
+  ) {
+    return input;
+  }
+
+  for (const key of V2_REQUIRED_SETTINGS_KEYS) {
+    if (!Object.prototype.hasOwnProperty.call(settings, key)) {
+      context.addIssue({
+        code: "custom",
+        message: `Version 2 exports must include settings.${key}.`,
+        path: ["settings", key],
+      });
+    }
+  }
+
+  return input;
+}, cookbookExportBaseSchema);
 
 export const exportSchema = cookbookExportSchema;
 export type CookbookExport = z.output<typeof cookbookExportSchema>;

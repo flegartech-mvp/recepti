@@ -162,8 +162,25 @@ describe("settings and versioned export validation", () => {
         .success,
     ).toBe(false);
     expect(
-      cookbookExportSchema.safeParse({ ...exportEnvelope, schemaVersion: 2 })
-        .success,
+      cookbookExportSchema.safeParse({
+        ...exportEnvelope,
+        schemaVersion: 2,
+        settings: {
+          theme: "system",
+          defaultServings: 2,
+          measurementPreference: "original",
+          stapleIngredientIds: [],
+          additionalStapleNames: [],
+          reduceMotion: false,
+          enabledRetailers: ["spar-si", "hofer-si", "lidl-si"],
+          preferredRetailer: null,
+          allowLoyaltyPrices: false,
+          allowSplitBasket: true,
+          preferPromotions: true,
+          preferredBrands: [],
+          excludedBrands: [],
+        },
+      }).success,
     ).toBe(true);
     expect(
       cookbookExportSchema.safeParse({ ...exportEnvelope, unexpected: "data" })

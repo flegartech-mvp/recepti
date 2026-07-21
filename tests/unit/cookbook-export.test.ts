@@ -143,3 +143,29 @@ describe("database cookbook export adapter", () => {
     expect(cookbookExportSchema.safeParse(payload).success).toBe(false);
   });
 });
+
+describe("cookbook export version 2 contract", () => {
+  it("rejects a version 2 export that omits retailer preferences", () => {
+    const result = cookbookExportSchema.safeParse({
+      schemaVersion: 2,
+      product: "Nana's Recipes",
+      exportedAt: timestamp,
+      ingredients: [],
+      tags: [],
+      recipes: [],
+      pantryItems: [],
+      shoppingListItems: [],
+      cookingHistory: [],
+      settings: {
+        theme: "system",
+        defaultServings: 2,
+        measurementPreference: "original",
+        stapleIngredientIds: [],
+        additionalStapleNames: [],
+        reduceMotion: false,
+      },
+    });
+
+    expect(result.success).toBe(false);
+  });
+});
