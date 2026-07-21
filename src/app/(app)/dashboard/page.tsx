@@ -143,7 +143,7 @@ export default async function DashboardPage() {
               })}
             >
               <Store className="size-4" aria-hidden="true" />
-              {t("Compare grocery prices")}
+              {t("Find grocery products")}
             </Link>{" "}
             <Link
               href="/shopping-list"

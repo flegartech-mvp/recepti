@@ -210,7 +210,7 @@ Preview verification:
 - cover upload, signed/private display, replacement, and deletion work;
 - pantry matching, shopping transfer, settings, and JSON export work;
 - `/api/export` returns `Cache-Control: private, no-store` and a validated
-  `schemaVersion: 1` Nana's Recipes envelope.
+  `schemaVersion: 2` Nana's Recipes envelope.
 
 By default, a Preview configured with the production Supabase project can
 mutate production owner data. Prefer a separate staging project or Supabase

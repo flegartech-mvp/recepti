@@ -299,7 +299,7 @@ export function SettingsPanel({
           <CardHeader>
             <Store className="size-6 text-primary" aria-hidden="true" />
             <CardTitle>
-              <h2>{t("Retailer and price preferences")}</h2>
+              <h2>{t("Retailer preferences")}</h2>
             </CardTitle>
             <CardDescription>
               {t(

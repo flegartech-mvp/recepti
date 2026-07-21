@@ -378,11 +378,11 @@ weaken the production boundary.
 ## Export and import status
 
 `GET /api/export` is owner-protected, uncached, and validates the database
-result against a strict camelCase `schemaVersion: 1`, `product: "Nana's Recipes"`
+result against a strict camelCase `schemaVersion: 2`, `product: "Nana's Recipes"`
 envelope before download. It contains ingredients, tags, nested recipes,
-pantry, shopping, cooking history, and settings without Auth secrets or owner
-IDs. Private image paths are metadata; image binaries require a separate
-Storage backup.
+pantry, shopping, cooking history, and the complete settings snapshot,
+including retailer preferences, without Auth secrets or owner IDs. Private
+image paths are metadata; image binaries require a separate Storage backup.
 
 Import is intentionally absent from the production UI. The database retains a
 transactional current/legacy compatibility adapter, but no user-facing import

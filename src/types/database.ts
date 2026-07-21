@@ -761,6 +761,10 @@ export type Database = {
         Returns: number;
       };
       bulk_upsert_pantry_items: { Args: { p_items: Json }; Returns: string[] };
+      adjust_pantry_quantity: {
+        Args: { p_delta: number; p_pantry_item_id: string };
+        Returns: number;
+      };
       create_recipe: { Args: { p_recipe: Json }; Returns: string };
       create_recipe_with_details: {
         Args: {
@@ -836,6 +840,10 @@ export type Database = {
           total_minutes: number;
           updated_at: string;
         }[];
+      };
+      toggle_recipe_favorite: {
+        Args: { p_recipe_id: string };
+        Returns: boolean;
       };
       update_recipe: {
         Args: { p_recipe: Json; p_recipe_id: string };

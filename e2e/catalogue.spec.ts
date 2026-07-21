@@ -54,11 +54,10 @@ test("compares only matching shopping products without mutating the item", async
   const dialog = page.getByRole("dialog");
   await expect(
     dialog.getByRole("heading", {
-      name: "Compare products for Chicken breast",
+      name: "Catalogue options for Chicken breast",
     }),
   ).toBeVisible();
   await expect(dialog.getByText(/Piščanč/).first()).toBeVisible();
-  await expect(dialog.getByText("No current price").first()).toBeVisible();
   await expect(
     dialog.getByRole("link", { name: "Official source" }).first(),
   ).toHaveAttribute(

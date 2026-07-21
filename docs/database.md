@@ -17,6 +17,7 @@ The SQL migrations are authoritative:
 | `202607150006_shopping_rpc.sql`                 | Owner-derived shopping-item create/edit and exact-unit duplicate merging             |
 | `202607150007_settings_and_export_contract.sql` | Typed settings plus the versioned camelCase export/import contract                   |
 | `202607150008_strict_owner_gate.sql`            | Database owner allowlist, staple sync, and transactional recipe/image deletion       |
+| `20260721130000_export_cookbook_v2.sql`         | Complete retailer-preference export/import schema version 2                          |
 
 [`src/types/database.ts`](../src/types/database.ts) mirrors this contract in the
 generated Supabase `Database` format.
@@ -472,7 +473,7 @@ present, even when empty; nullable values remain JSON `null`.
 
 ```json
 {
-  "schemaVersion": 1,
+  "schemaVersion": 2,
   "product": "Nana's Recipes",
   "exportedAt": "2026-07-15T12:00:00Z",
   "ingredients": [
@@ -591,7 +592,14 @@ present, even when empty; nullable values remain JSON `null`.
     "measurementPreference": "original",
     "stapleIngredientIds": [],
     "additionalStapleNames": [],
-    "reduceMotion": false
+    "reduceMotion": false,
+    "enabledRetailers": ["spar-si", "hofer-si", "lidl-si"],
+    "preferredRetailer": null,
+    "allowLoyaltyPrices": false,
+    "allowSplitBasket": true,
+    "preferPromotions": true,
+    "preferredBrands": [],
+    "excludedBrands": []
   }
 }
 ```
@@ -607,9 +615,10 @@ secrets, signed URLs, and private Storage object bytes are never exported.
 (p_payload jsonb, p_mode text = 'merge') -> jsonb
 ```
 
-The public adapter accepts either the current `schemaVersion: 1`,
-`product: "Nana's Recipes"` envelope or the legacy relational `schema_version: 1`
-backup shape. Current envelopes must include JSON arrays for `ingredients`,
+The public adapter accepts current `schemaVersion: 2` exports, older
+`schemaVersion: 1` Nana's Recipes envelopes, and the legacy relational
+`schema_version: 1` backup shape. Version 2 requires the complete settings
+snapshot, including retailer preferences. Current envelopes must include JSON arrays for `ingredients`,
 `tags`, `recipes`, `pantryItems`, `shoppingListItems`, and `cookingHistory`;
 recipe ingredients, steps, and tag IDs are nested within each recipe. Modes are
 `merge` and `replace`.
@@ -624,9 +633,9 @@ same transaction.
 Image metadata and binaries are not restored: imported recipe cover and step
 paths are stripped, and the result reports `images_skipped`. The current
 envelope has no share or substitution collections, and those relationships are
-not recreated from it. The profile remains Auth-owned; supported settings are
-updated when provided, and staple IDs are re-derived from imported ingredient
-flags.
+not recreated from it. The profile remains Auth-owned; settings, including
+retailer preferences in version 2, are restored transactionally, and staple IDs
+are re-derived from imported ingredient flags.
 
 Application code should validate the same strict shape with Zod before calling
 the RPC so users receive friendly errors. Never implement import as a client

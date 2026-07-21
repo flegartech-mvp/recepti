@@ -89,21 +89,10 @@ export async function adjustPantryQuantityAction(
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   }
-  const { data: item, error: readError } = await client
-    .from("pantry_items")
-    .select("quantity")
-    .eq("id", id)
-    .single();
-  if (readError || !item || item.quantity === null)
-    return {
-      ok: false,
-      message: "Add a known quantity before using quick adjustment.",
-    };
-  const quantity = Math.max(0, Number(item.quantity) + delta);
-  const { error } = await client
-    .from("pantry_items")
-    .update({ quantity, is_depleted: quantity === 0 })
-    .eq("id", id);
+  const { error } = await client.rpc("adjust_pantry_quantity", {
+    p_pantry_item_id: id,
+    p_delta: delta,
+  });
   if (error)
     return { ok: false, message: "The pantry quantity could not be adjusted." };
   revalidatePath("/pantry");

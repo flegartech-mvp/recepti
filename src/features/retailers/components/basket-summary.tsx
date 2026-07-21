@@ -24,10 +24,9 @@ export function BasketSummary({
   ).length;
   return (
     <aside className="rounded-xl border border-border bg-surface-secondary p-4 text-sm">
-      <p className="font-semibold">{t("Product comparison")}</p>
+      <p className="font-semibold">{t("Catalogue options")}</p>
       <p className="mt-1 text-muted-foreground">
-        {t("Available catalogue matches are shown beside each shopping item.")}{" "}
-        {matchedItems}/{items.length}
+        {t("Available catalogue matches are shown beside each shopping item.")} {matchedItems}/{items.length}
       </p>
     </aside>
   );

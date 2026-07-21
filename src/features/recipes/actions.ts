@@ -130,19 +130,10 @@ export async function toggleFavoriteAction(
   if (isTestAuthenticationEnabled())
     return { ok: true, data: { favorite: true } };
   const client = await createClient();
-  const { data: recipe, error: readError } = await client
-    .from("recipes")
-    .select("is_favorite")
-    .eq("id", id)
-    .single();
-  if (readError || !recipe)
-    return { ok: false, message: "Favorite status could not be read." };
-  const favorite = !Boolean(recipe.is_favorite);
-  const { error } = await client
-    .from("recipes")
-    .update({ is_favorite: favorite })
-    .eq("id", id);
-  if (error)
+  const { data: favorite, error } = await client.rpc("toggle_recipe_favorite", {
+    p_recipe_id: id,
+  });
+  if (error || typeof favorite !== "boolean")
     return { ok: false, message: "Favorite status could not be changed." };
   revalidatePath(`/recipes/${id}`);
   revalidatePath("/recipes");

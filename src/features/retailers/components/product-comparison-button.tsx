@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -29,11 +28,10 @@ export function ProductComparisonButton({
   products: RetailerProduct[];
   preferences: RetailerPreferences;
 }) {
-  const { t, formatNumber } = useI18n();
+  const { t } = useI18n();
   const [chosenId, setChosenId] = useState<string | null>(null);
   const visibleProducts = rankRetailerProducts(products, preferences, item);
   if (visibleProducts.length === 0) return null;
-  const best = visibleProducts.find((product) => product.price !== null);
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -43,18 +41,13 @@ export function ProductComparisonButton({
           size="sm"
           aria-label={t("Compare {name}", { name: item.ingredientName })}
         >
-          {t("Compare")}
-          {best?.price !== null && best?.price !== undefined && (
-            <Badge variant="secondary">
-              {formatNumber(best.price)} {best.currency}
-            </Badge>
-          )}
+          {t("Find in catalogues")}
         </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>
-            {t("Compare products for {item}", { item: item.ingredientName })}
+            {t("Catalogue options for {item}", { item: item.ingredientName })}
           </DialogTitle>
           <DialogDescription>
             {t("Reference products from the catalogues you enabled.")}
@@ -87,11 +80,6 @@ export function ProductComparisonButton({
                 )}
               </div>
               <div className="shrink-0 text-right">
-                <p className="font-semibold">
-                  {product.price === null
-                    ? t("No current price")
-                    : `€${product.price.toFixed(2)}`}
-                </p>
                 <Button
                   size="sm"
                   variant={chosenId === product.id ? "secondary" : "outline"}

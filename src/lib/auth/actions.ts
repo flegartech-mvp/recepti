@@ -21,7 +21,6 @@ export async function signInWithGoogle(formData: FormData) {
     provider: "google",
     options: {
       redirectTo: callbackUrl.toString(),
-      queryParams: { access_type: "offline", prompt: "consent" },
     },
   });
 

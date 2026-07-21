@@ -920,12 +920,11 @@ export const slMessages: Record<string, string> = {
     "Brez namigovanja na partnerstvo s trgovci",
   "Demo prices and product names are fictional. Do not treat them as current shop prices.":
     "Predstavitvene cene in imena izdelkov so izmišljeni. Ne obravnavajte jih kot trenutne cene v trgovinah.",
-  "Compare prices": "Primerjaj cene",
-  "Compare products for {item}": "Primerjaj izdelke za {item}",
+  "Find in catalogues": "Poišči v katalogih",
+  "Catalogue options for {item}": "Možnosti v katalogih za {item}",
   "Reference products from the catalogues you enabled.":
     "Referenčni izdelki iz katalogov, ki ste jih omogočili.",
   "Official source": "Uradni vir",
-  "No current price": "Brez trenutne cene",
   "Package estimates use only compatible mass, volume, or piece units.":
     "Ocene pakiranj uporabljajo samo združljive enote mase, prostornine ali kosov.",
   Promotion: "Akcija",
@@ -944,7 +943,7 @@ export const slMessages: Record<string, string> = {
   "Product selection could not be saved":
     "Izbire izdelka ni bilo mogoče shraniti",
   "Preferred product saved": "Prednostni izdelek je shranjen",
-  "Product comparison": "Primerjava izdelkov",
+  "Catalogue options": "Možnosti v katalogih",
   "Available catalogue matches are shown beside each shopping item.":
     "Razpoložljiva ujemanja iz kataloga so prikazana ob vsakem izdelku na seznamu.",
   Compare: "Primerjaj",
@@ -953,7 +952,7 @@ export const slMessages: Record<string, string> = {
     "Poiščite sestavine ali izdelke trgovcev",
   "Travel cost is not included. Availability is unknown unless a reliable store-level source is connected. Promotional conditions may apply.":
     "Potni stroški niso vključeni. Razpoložljivost ni znana brez zanesljivega vira za posamezno poslovalnico. Veljajo lahko dodatni pogoji akcije.",
-  "Retailer and price preferences": "Nastavitve trgovcev in cen",
+  "Retailer preferences": "Nastavitve trgovcev",
   "Choose which catalogues participate in shopping comparisons. Loyalty prices are excluded unless you opt in.":
     "Izberite kataloge za primerjavo nakupov. Cene s kartico zvestobe so izključene, dokler jih ne omogočite.",
   "Enabled retailers": "Omogočeni trgovci",
@@ -973,6 +972,6 @@ export const slMessages: Record<string, string> = {
   "Prefer promotional prices": "Daj prednost akcijskim cenam",
   "Allow split-store baskets": "Dovoli košarico iz več trgovin",
   "Save retailer preferences": "Shrani nastavitve trgovcev",
-  "Compare grocery prices": "Primerjaj cene živil",
+  "Find grocery products": "Poišči izdelke v trgovinah",
   "Cucina con amore": "Cucina con amore",
 };

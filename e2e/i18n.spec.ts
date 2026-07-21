@@ -171,7 +171,7 @@ test("renders every main owner page in Slovenian without horizontal overflow", a
 
   await page.goto("/shopping-list");
   await expect(
-    page.getByText("Primerjava izdelkov", { exact: true }),
+    page.getByText("Možnosti v katalogih", { exact: true }),
   ).toBeVisible();
   await expect(page.getByText("100 g Parmezan", { exact: true })).toBeVisible();
   await expect(
