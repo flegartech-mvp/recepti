@@ -44,8 +44,5 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 
-.vercel
-.env*
-
 # Generated test artifacts
 output/
