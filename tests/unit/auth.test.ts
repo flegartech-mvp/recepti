@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   isGoogleIdentity,
+  isMissingAuthSessionError,
   isOwnerEmail,
   isTestAuthenticationEnabled,
   normalizeEmail,
@@ -60,6 +61,21 @@ describe("Google identity authorization", () => {
     ).toBe(false);
     expect(isGoogleIdentity({ app_metadata: {} })).toBe(false);
     expect(isGoogleIdentity(null)).toBe(false);
+  });
+});
+
+describe("signed-out Supabase sessions", () => {
+  it("recognizes the normal missing-session response", () => {
+    expect(isMissingAuthSessionError({ name: "AuthSessionMissingError" })).toBe(
+      true,
+    );
+  });
+
+  it("does not hide real authentication failures", () => {
+    expect(isMissingAuthSessionError({ name: "AuthApiError" })).toBe(false);
+    expect(isMissingAuthSessionError(new Error("Network unavailable"))).toBe(
+      false,
+    );
   });
 });
 

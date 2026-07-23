@@ -51,6 +51,15 @@ export function isTestAuthenticationEnabled(): boolean {
   );
 }
 
+export function isMissingAuthSessionError(error: unknown): boolean {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "AuthSessionMissingError"
+  );
+}
+
 function testUser(role: "owner" | "guest" | "denied"): User {
   const ownerEmail = process.env.OWNER_EMAIL ?? "owner@example.test";
   const email = role === "owner" ? ownerEmail : "visitor@example.test";
@@ -95,6 +104,10 @@ export async function getAuthorizationState(): Promise<AuthorizationState> {
   } = await client.auth.getUser();
 
   if (error) {
+    if (isMissingAuthSessionError(error)) {
+      return { status: "signed-out", user: null, configured: true };
+    }
+
     console.error("[Nana's Recipes auth lookup failure]", {
       operation: "load authenticated user",
       category: "AUTH_UNAVAILABLE",
