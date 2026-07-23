@@ -12,6 +12,10 @@
 
 # testing
 /coverage
+/.playwright-cli/
+/output/*.log
+/output/playwright/report/
+/output/playwright/test-results/
 
 # next.js
 /.next/
@@ -32,13 +36,16 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
 
 # typescript
 *.tsbuildinfo
-next-env.d.ts
 
-# local nested copy kept for safety during flatten
-/recepti/
+.vercel
+.env*
+
+# Generated test artifacts
+output/

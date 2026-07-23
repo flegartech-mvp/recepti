@@ -1,48 +1,76 @@
-// Site constants — Serbian market
+import type {
+  Difficulty,
+  IngredientCategory,
+  MealCategory,
+  StorageLocation,
+} from "@/types/domain";
 
-export const SITE_NAME = "Recepti";
+export const PRODUCT_NAME = "Nana's Recipes";
 
-// Stock image placeholders for recipes without images (Unsplash - free to use)
-export const PLACEHOLDER_IMAGES = {
-  generic:
-    "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&q=80",
-  mainDish:
-    "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
-  soup: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=800&q=80",
-  salad: "https://images.unsplash.com/photo-1512621776951-a57141f2eefd?w=800&q=80",
-  dessert: "https://images.unsplash.com/photo-1606787366850-de6330128bfc?w=800&q=80",
-  default:
-    "https://images.unsplash.com/photo-1495521821757-a1efb6729352?w=800&q=80",
-} as const;
-export const SITE_DESCRIPTION =
-  "Vodič kroz recepte za domaće kuvare. Pronađite proverene recepte, sačuvajte omiljene i delite sa zajednicom.";
-
-export const TRUST_BADGE = "Pouzdan vodič kroz recepte za domaće kuvare";
-
-// Social proof stats (placeholder - can be wired to DB counts)
-export const STATS = {
-  recipes: "Recepti",
-  ratings: "Ocena",
-  cooks: "Domaćih kuvara",
-};
-
-// Popular searches for homepage (Serbian cuisine)
-export const POPULAR_SEARCHES = [
-  { label: "Čorba", slug: "corba" },
-  { label: "Piletina", slug: "piletina" },
-  { label: "Gibanica", slug: "gibanica" },
-  { label: "Karadjordjeva", slug: "karadjordjeva" },
-  { label: "Sarma", slug: "sarma" },
-  { label: "Punjene paprike", slug: "punjene-paprike" },
-  { label: "Palačinke", slug: "palacinke" },
-  { label: "Kolači", slug: "kolaci" },
-  { label: "Salate", slug: "salate" },
-  { label: "Kuvana jela", slug: "kuvana-jela" },
+export const UNITS = [
+  "g",
+  "kg",
+  "ml",
+  "l",
+  "tsp",
+  "tbsp",
+  "cup",
+  "piece",
+  "clove",
+  "pinch",
+  "slice",
+  "can",
+  "packet",
+  "bunch",
+  "handful",
+  "to taste",
 ] as const;
 
-export const DEFAULT_META = {
-  title: `${SITE_NAME} | Recepti, saveti i više`,
-  description: SITE_DESCRIPTION,
-  locale: "sr_RS" as const,
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://recepti.rs",
-};
+export const MEAL_CATEGORIES: { value: MealCategory; label: string }[] = [
+  { value: "breakfast", label: "Breakfast" },
+  { value: "lunch", label: "Lunch" },
+  { value: "dinner", label: "Dinner" },
+  { value: "snack", label: "Snack" },
+  { value: "dessert", label: "Dessert" },
+  { value: "side", label: "Side" },
+  { value: "drink", label: "Drink" },
+  { value: "other", label: "Other" },
+];
+
+export const DIFFICULTIES: { value: Difficulty; label: string }[] = [
+  { value: "easy", label: "Easy" },
+  { value: "medium", label: "Medium" },
+  { value: "challenging", label: "Challenging" },
+];
+
+export const INGREDIENT_CATEGORIES: {
+  value: IngredientCategory;
+  label: string;
+}[] = [
+  { value: "produce", label: "Produce" },
+  { value: "meat", label: "Meat" },
+  { value: "seafood", label: "Seafood" },
+  { value: "dairy", label: "Dairy" },
+  { value: "eggs", label: "Eggs" },
+  { value: "grains", label: "Grains" },
+  { value: "pasta", label: "Pasta" },
+  { value: "baking", label: "Baking" },
+  { value: "spices", label: "Spices" },
+  { value: "herbs", label: "Herbs" },
+  { value: "condiments", label: "Condiments" },
+  { value: "oils", label: "Oils" },
+  { value: "canned_goods", label: "Canned goods" },
+  { value: "frozen", label: "Frozen" },
+  { value: "beverages", label: "Beverages" },
+  { value: "other", label: "Other" },
+];
+
+export const STORAGE_LOCATIONS: { value: StorageLocation; label: string }[] = [
+  { value: "fridge", label: "Fridge" },
+  { value: "freezer", label: "Freezer" },
+  { value: "pantry", label: "Pantry" },
+  { value: "counter", label: "Counter" },
+  { value: "other", label: "Other" },
+];
+
+export const DEFAULT_STAPLES = ["salt", "black pepper", "water", "cooking oil"];

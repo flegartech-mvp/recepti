@@ -1,30 +1,37 @@
-import type { Metadata } from "next";
-import { DynaPuff, Playpen_Sans } from "next/font/google";
+import type { Metadata, Viewport } from "next";
+
+import { AppProviders } from "@/components/providers";
+import { getServerI18n, getServerLocaleState } from "@/lib/i18n/server";
+
 import "./globals.css";
-import { Header } from "@/components/Header";
-import { Footer } from "@/components/Footer";
-import { DEFAULT_META } from "@/lib/constants";
-import { getFilterCategories, getDistinctIngredients } from "@/lib/queries/recipes";
 
-const dynaPuff = DynaPuff({
-  variable: "--font-dynapuff",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
+export async function generateMetadata(): Promise<Metadata> {
+  const { t } = await getServerI18n();
+  return {
+    metadataBase: new URL(
+      process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
+    ),
+    title: {
+      default: t("Nana's Recipes | Your private cookbook"),
+      template: `%s | ${t("Nana's Recipes")}`,
+    },
+    description: t(
+      "A calm private cookbook for recipes, pantry planning, and everyday cooking.",
+    ),
+    applicationName: t("Nana's Recipes"),
+    robots: { index: false, follow: false },
+    manifest: "/manifest.webmanifest",
+  };
+}
 
-const playpenSans = Playpen_Sans({
-  variable: "--font-playpen-sans",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-export const metadata: Metadata = {
-  title: DEFAULT_META.title,
-  description: DEFAULT_META.description,
-  metadataBase: new URL(DEFAULT_META.url),
-  openGraph: {
-    locale: DEFAULT_META.locale,
-  },
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f8fbf8" },
+    { media: "(prefers-color-scheme: dark)", color: "#111713" },
+  ],
 };
 
 export default async function RootLayout({
@@ -32,19 +39,21 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const [categories, ingredients] = await Promise.all([
-    getFilterCategories(),
-    getDistinctIngredients(),
-  ]);
-
+  const { locale, hasPreference } = await getServerLocaleState();
   return (
-    <html lang="sr">
-      <body className={`${dynaPuff.variable} ${playpenSans.variable} ${playpenSans.className} font-sans antialiased bg-white`}>
-        <div className="flex min-h-screen flex-col bg-white">
-          <Header categories={categories} ingredients={ingredients} />
-          <main className="flex-1 bg-white">{children}</main>
-          <Footer />
-        </div>
+    <html
+      lang={locale}
+      suppressHydrationWarning
+      data-scroll-behavior="smooth"
+      className="h-full antialiased"
+    >
+      <body className="flex min-h-full flex-col">
+        <AppProviders
+          initialLocale={locale}
+          hasLocalePreference={hasPreference}
+        >
+          {children}
+        </AppProviders>
       </body>
     </html>
   );
