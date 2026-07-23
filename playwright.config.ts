@@ -52,6 +52,8 @@ export default defineConfig({
       E2E_TEST_MODE: "1",
       OWNER_EMAIL: "owner@example.test",
       NEXT_PUBLIC_SITE_URL: baseURL,
+      NEXT_PUBLIC_SUPABASE_URL: "",
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "",
     },
   },
 });

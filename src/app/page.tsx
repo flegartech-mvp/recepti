@@ -1,19 +1,13 @@
 import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import {
-  ArrowRight,
-  BookOpenText,
-  LogIn,
-  Refrigerator,
-  Sparkles,
-} from "lucide-react";
+import { ArrowRight, BookOpenText, Refrigerator, Sparkles } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { signInWithGoogle } from "@/lib/auth/actions";
+import { OwnerSignInForm } from "@/components/auth/owner-sign-in-form";
 import { getAuthorizationState } from "@/lib/auth/authorization";
 import { safeInternalPath } from "@/lib/auth/redirects";
 import { getServerI18n } from "@/lib/i18n/server";
@@ -21,16 +15,27 @@ export const dynamic = "force-dynamic";
 export default async function LandingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ next?: string }>;
+  searchParams: Promise<{ code?: string; error?: string; next?: string }>;
 }) {
-  const [state, parameters] = await Promise.all([
-    getAuthorizationState(),
-    searchParams,
-  ]);
+  const parameters = await searchParams;
+  const nextPath = safeInternalPath(parameters.next);
+
+  // Supabase falls back to the configured Site URL when a redirect allow-list
+  // entry is stale. Recover the PKCE code instead of leaving the user signed out
+  // on the landing page.
+  if (parameters.code) {
+    const callbackParameters = new URLSearchParams({
+      code: parameters.code,
+      next: nextPath,
+    });
+    redirect(`/auth/callback?${callbackParameters.toString()}`);
+  }
+  if (parameters.error) redirect("/auth/auth-code-error?reason=oauth");
+
+  const state = await getAuthorizationState();
   if (state.status === "owner") redirect("/dashboard");
   if (state.status === "guest") redirect("/preview");
   if (state.status === "denied") redirect("/private");
-  const nextPath = safeInternalPath(parameters.next);
   const { t } = await getServerI18n();
   return (
     <main className="min-h-[100dvh] overflow-hidden">
@@ -77,17 +82,11 @@ export default async function LandingPage({
                 <ArrowRight className="size-4" aria-hidden="true" />
               </Link>
             </Button>
-            <form action={signInWithGoogle}>
-              <input type="hidden" name="next" value={nextPath} />
-              <Button
-                size="lg"
-                variant="outline"
-                className="h-13 w-full min-w-48 px-6 text-base"
-              >
-                <LogIn className="size-5" aria-hidden="true" />
-                {t("Owner sign in")}
-              </Button>
-            </form>
+            <OwnerSignInForm
+              nextPath={nextPath}
+              label={t("Owner sign in")}
+              loadingLabel={t("Opening Google sign-in…")}
+            />
           </div>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground">
             {t(

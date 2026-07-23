@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { getOwnerEmail, getRetailerEnvironment, getSiteUrl } from "@/lib/env";
+import {
+  getOwnerEmail,
+  getPublicEnvironment,
+  getRetailerEnvironment,
+  getSiteUrl,
+  hasSupabaseEnvironment,
+} from "@/lib/env";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -23,6 +29,17 @@ describe("environment validation", () => {
 
     vi.stubEnv("NEXT_PUBLIC_SITE_URL", "https://recipes.example/private");
     expect(() => getSiteUrl()).toThrow(/without a path/);
+  });
+
+  it("fails closed when either public Supabase OAuth variable is missing", () => {
+    vi.stubEnv(
+      "NEXT_PUBLIC_SUPABASE_URL",
+      "https://lfrwpxkbsnqabmhymjaa.supabase.co",
+    );
+    vi.stubEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY", undefined);
+
+    expect(hasSupabaseEnvironment()).toBe(false);
+    expect(() => getPublicEnvironment()).toThrow(/Supabase configuration/);
   });
 
   it("requires a server secret before retailer imports can be enabled", () => {

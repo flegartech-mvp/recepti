@@ -31,6 +31,7 @@ export const slMessages: Record<string, string> = {
   "Public preview": "Javni predogled",
   "View demo": "Oglej si predstavitev",
   "Owner sign in": "Prijava lastnika",
+  "Opening Google sign-in…": "Odpiranje prijave Google …",
   "One household's private cookbook, shared as a preview.":
     "Zasebna kuharica enega gospodinjstva, prikazana v javnem predogledu.",
   "Explore a read-only sample, or sign in as the owner to manage recipes, pantry, shopping, and cooking sessions.":
@@ -847,6 +848,8 @@ export const slMessages: Record<string, string> = {
     "E-poštni naslov lastnika strežnika je veljaven, vendar ustrezna zaščita lastnika v podatkovni zbirki ni nastavljena. Izvedite dokumentirano nastavitev lastnika Supabase in poskusite znova.",
   "Supabase could not exchange the one-time Google code. Confirm the callback URLs and try again.":
     "Supabase ni mogel zamenjati enkratne Googlove kode. Potrdite povratne naslove in poskusite znova.",
+  "Google sign-in completed, but the authenticated session could not be verified. Please start the sign-in flow again.":
+    "Prijava Google je bila končana, vendar overjene seje ni bilo mogoče preveriti. Znova začnite prijavo.",
   "Google returned without a usable one-time sign-in code. Start the sign-in flow again.":
     "Google se je vrnil brez uporabne enkratne prijavne kode. Znova začnite prijavo.",
   "Google sign-in could not be started. Confirm that the provider is enabled in Supabase.":

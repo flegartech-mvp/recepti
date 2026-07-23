@@ -4,8 +4,16 @@ import { resolve } from "node:path";
 const workerPath = resolve(process.cwd(), "public", "sw.js");
 const source = readFileSync(workerPath, "utf8");
 
-if (!source.includes('CACHE_NAME = "nanas-recipes-static-v2"'))
+if (!source.includes('CACHE_NAME = "nanas-recipes-static-v3"'))
   throw new Error("The service-worker cache version was not updated.");
+if (
+  !source.includes('url.pathname.startsWith("/auth/")') ||
+  source.indexOf('url.pathname.startsWith("/auth/")') >
+    source.indexOf('request.mode === "navigate"')
+)
+  throw new Error(
+    "The service worker must bypass authentication routes before navigation handling.",
+  );
 if (/menta/iu.test(source))
   throw new Error("The service worker still contains legacy Menta branding.");
 if (

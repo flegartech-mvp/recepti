@@ -20,6 +20,8 @@ const explanations: Record<string, string> = {
     "The server owner email is valid, but the matching database owner gate is not configured. Run the documented Supabase owner setup, then try again.",
   exchange:
     "Supabase could not exchange the one-time Google code. Confirm the callback URLs and try again.",
+  session:
+    "Google sign-in completed, but the authenticated session could not be verified. Please start the sign-in flow again.",
   "missing-code":
     "Google returned without a usable one-time sign-in code. Start the sign-in flow again.",
   oauth:

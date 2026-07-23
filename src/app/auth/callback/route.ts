@@ -22,7 +22,12 @@ export async function GET(request: NextRequest) {
 
   const {
     data: { user },
+    error: userError,
   } = await client.auth.getUser();
+  if (userError)
+    return NextResponse.redirect(
+      new URL("/auth/auth-code-error?reason=session", request.url),
+    );
 
   let ownerEmail: string;
   try {

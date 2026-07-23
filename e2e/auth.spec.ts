@@ -30,6 +30,24 @@ test.describe("private cookbook authorization", () => {
     await expect(page.getByText(/create account/i)).toHaveCount(0);
   });
 
+  test("starts a top-level owner login and shows initialization errors", async ({
+    context,
+    page,
+    baseURL,
+  }) => {
+    await authenticateAs(context, baseURL, "signed-out");
+    await page.goto("/");
+
+    await page.getByRole("button", { name: "Owner sign in" }).click();
+
+    await expect(page).toHaveURL(
+      /\/auth\/auth-code-error\?reason=configuration$/,
+    );
+    await expect(
+      page.getByRole("heading", { name: "Sign-in did not finish" }),
+    ).toBeVisible();
+  });
+
   test("offers a public read-only preview without authentication", async ({
     context,
     page,

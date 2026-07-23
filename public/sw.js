@@ -1,4 +1,4 @@
-const CACHE_NAME = "nanas-recipes-static-v2";
+const CACHE_NAME = "nanas-recipes-static-v3";
 const STATIC_ASSETS = ["/offline", "/images/nanas-recipes-hero.png"];
 
 self.addEventListener("install", (event) => {
@@ -27,12 +27,15 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
 
+  const url = new URL(request.url);
+  if (url.origin === self.location.origin && url.pathname.startsWith("/auth/"))
+    return;
+
   if (request.mode === "navigate") {
     event.respondWith(fetch(request).catch(() => caches.match("/offline")));
     return;
   }
 
-  const url = new URL(request.url);
   const isVersionedFrameworkAsset =
     url.origin === self.location.origin &&
     url.pathname.startsWith("/_next/static/");
