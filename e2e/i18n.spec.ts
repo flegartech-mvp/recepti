@@ -59,7 +59,12 @@ test("keeps Slovenian usable in both themes at narrow mobile widths", async ({
     .getByRole("button", { name: "Switch language to Slovenian" })
     .click();
 
-  await expect(page.getByText("Kaj lahko skuham danes?")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Hi, Nana", exact: true }),
+  ).toBeVisible();
+  await expect(
+    page.getByText("Kaj kuhamo danes?", { exact: true }),
+  ).toBeVisible();
   expect(
     await page.evaluate(
       () =>
@@ -140,7 +145,7 @@ test("renders every main owner page in Slovenian without horizontal overflow", a
     .click();
 
   const routes = [
-    ["/dashboard", "Kaj lahko skuham danes?", "heading"],
+    ["/dashboard", "Hi, Nana", "heading"],
     ["/recipes", "Knjižnica receptov", "heading"],
     ["/recipes/new", "Dodaj recept", "heading"],
     ["/favorites", "Priljubljeni recepti", "heading"],

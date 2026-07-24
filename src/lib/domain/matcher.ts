@@ -150,6 +150,10 @@ interface AggregatedQuantity {
   comparison: QuantityComparison | null;
 }
 
+interface AvailableIngredientIndex {
+  byToken: ReadonlyMap<string, readonly AvailableIngredient[]>;
+}
+
 const DEFAULT_STAPLES = ["salt", "black pepper", "water", "cooking oil"];
 
 function optionTokens(
@@ -215,18 +219,6 @@ function requiredLines(group: RequirementGroup): MatchRecipeIngredient[] {
   return group.lines.filter((line) => !line.isOptional && !line.isGarnish);
 }
 
-function candidatesFor(
-  ingredient: MatchRecipeIngredient | MatchSubstitution,
-  available: readonly AvailableIngredient[],
-): AvailableIngredient[] {
-  return available.filter(
-    (candidate) =>
-      !candidate.isDepleted &&
-      (candidate.quantity == null || candidate.quantity > 0) &&
-      ingredientsShareIdentity(ingredient, availableIdentity(candidate)),
-  );
-}
-
 function availableIdentity(candidate: AvailableIngredient): IngredientIdentity {
   if (!candidate.ingredient) {
     return candidate;
@@ -239,6 +231,53 @@ function availableIdentity(candidate: AvailableIngredient): IngredientIdentity {
       candidate.ingredient.ingredientId ??
       candidate.ingredient.id,
   };
+}
+
+function indexAvailableIngredients(
+  available: readonly AvailableIngredient[],
+): AvailableIngredientIndex {
+  const byToken = new Map<string, AvailableIngredient[]>();
+
+  for (const candidate of available) {
+    if (
+      candidate.isDepleted ||
+      (candidate.quantity != null && candidate.quantity <= 0)
+    ) {
+      continue;
+    }
+
+    for (const token of ingredientIdentityTokens(
+      availableIdentity(candidate),
+    )) {
+      const matches = byToken.get(token);
+      if (matches) {
+        matches.push(candidate);
+      } else {
+        byToken.set(token, [candidate]);
+      }
+    }
+  }
+
+  return { byToken };
+}
+
+function candidatesFor(
+  ingredient: MatchRecipeIngredient | MatchSubstitution,
+  index: AvailableIngredientIndex,
+): AvailableIngredient[] {
+  const candidates = new Set<AvailableIngredient>();
+
+  for (const token of ingredientIdentityTokens(ingredient)) {
+    for (const candidate of index.byToken.get(token) ?? []) {
+      candidates.add(candidate);
+    }
+  }
+
+  // Token lookup is the fast path. This final check preserves the rule that two
+  // explicit catalog IDs never match solely because their display names agree.
+  return [...candidates].filter((candidate) =>
+    ingredientsShareIdentity(ingredient, availableIdentity(candidate)),
+  );
 }
 
 function aggregateComparison(
@@ -429,12 +468,12 @@ function detailForDirectMatch(
 
 function findSubstitution(
   group: RequirementGroup,
-  available: readonly AvailableIngredient[],
+  availableIndex: AvailableIngredientIndex,
 ): IngredientMatchDetail | null {
   const substitutions = group.lines.flatMap((line) => line.substitutions ?? []);
 
   for (const substitution of substitutions) {
-    const candidates = candidatesFor(substitution, available);
+    const candidates = candidatesFor(substitution, availableIndex);
     if (candidates.length === 0) {
       continue;
     }
@@ -662,6 +701,18 @@ export function matchRecipe(
   availableIngredients: readonly AvailableIngredient[],
   options: MatcherOptions = {},
 ): RecipeMatchResult {
+  return matchRecipeWithIndex(
+    recipe,
+    indexAvailableIngredients(availableIngredients),
+    options,
+  );
+}
+
+function matchRecipeWithIndex(
+  recipe: MatchableRecipe,
+  availableIndex: AvailableIngredientIndex,
+  options: MatcherOptions,
+): RecipeMatchResult {
   const excludedTokens = optionTokens(options.excludedIngredients);
   const stapleTokens = optionTokens([
     ...DEFAULT_STAPLES,
@@ -725,16 +776,13 @@ export function matchRecipe(
       continue;
     }
 
-    const candidates = candidatesFor(
-      group.representative,
-      availableIngredients,
-    );
+    const candidates = candidatesFor(group.representative, availableIndex);
     if (candidates.length > 0) {
       details.push(detailForDirectMatch(group, candidates));
       continue;
     }
 
-    const substitution = findSubstitution(group, availableIngredients);
+    const substitution = findSubstitution(group, availableIndex);
     if (substitution) {
       details.push(substitution);
       continue;
@@ -842,6 +890,7 @@ export function rankRecipes(
   availableIngredients: readonly AvailableIngredient[],
   options: MatcherOptions = {},
 ): RecipeMatchResult[] {
+  const availableIndex = indexAvailableIngredients(availableIngredients);
   const collator = new Intl.Collator("en", {
     sensitivity: "base",
     numeric: true,
@@ -850,7 +899,7 @@ export function rankRecipes(
     .filter((recipe) => matchesFilters(recipe, options.filters))
     .map((recipe, originalIndex) => ({
       originalIndex,
-      result: matchRecipe(recipe, availableIngredients, options),
+      result: matchRecipeWithIndex(recipe, availableIndex, options),
     }));
 
   results.sort((left, right) => {

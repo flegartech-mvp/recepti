@@ -4,14 +4,14 @@ Nana's Recipes uses Google OAuth through Supabase Auth, the current `@supabase/s
 cookie pattern, a server-only owner allowlist, and PostgreSQL row-level security.
 These are complementary controls:
 
-- `OWNER_EMAIL` decides which Google address may enter this private deployment.
+- `OWNER_EMAILS` decides which Google addresses may enter this private deployment.
 - Server Components, Server Actions, and Route Handlers re-check the verified
   user and its signed Google provider metadata before protected work.
 - Restrictive RLS requires the same allowlisted email and Google claim, then
   ensures the identity can access only rows whose `user_id` equals `auth.uid()`.
 
 The browser receives the Supabase project URL and publishable/anon key. It never
-receives `OWNER_EMAIL`, a database password, or a Supabase secret/service-role
+receives `OWNER_EMAILS`, a database password, or a Supabase secret/service-role
 key.
 
 ## Request flow
@@ -31,7 +31,7 @@ sequenceDiagram
   Browser->>Nana: GET /auth/callback?code=...
   Nana->>Supabase: exchangeCodeForSession(code)
   Supabase-->>Nana: cookie-backed session and verified user
-  Nana->>Nana: require Google provider; normalize email and compare OWNER_EMAIL
+  Nana->>Nana: require Google provider; normalize email and compare OWNER_EMAILS
   alt owner
     Nana-->>Browser: redirect to safe internal destination
   else different account
@@ -53,12 +53,14 @@ back to `/dashboard`.
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-publishable-or-anon-client-key
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-OWNER_EMAIL=owner@example.com
+OWNER_EMAILS=owner@example.com,second-owner@example.com
 ```
 
-`OWNER_EMAIL` comparison uses Unicode NFKC normalization, trimming, and
-locale-stable lowercasing. Configure the same address the intended Google
-account returns. Do not prefix it with `NEXT_PUBLIC_`.
+`OWNER_EMAILS` is a comma-separated allowlist. Comparison uses Unicode NFKC
+normalization, trimming, locale-stable lowercasing, validation, and
+deduplication. Configure the same addresses the intended Google accounts
+return. The legacy `OWNER_EMAIL` variable remains an optional single-address
+fallback. Do not prefix either variable with `NEXT_PUBLIC_`.
 
 `NEXT_PUBLIC_SITE_URL` must be an origin without a path. A trailing slash is
 removed by the application. In Vercel Preview, omit a static production value
@@ -207,12 +209,14 @@ same `http://localhost:3000` origin configured above. Never expose the local
 Supabase stack to a public network.
 
 After signing in once through the configured local Google provider, run the
-strict owner configuration from Studio's SQL editor using the same email as
-local `OWNER_EMAIL`. A user created with Studio's Email form is intentionally
+strict owner configuration from Studio's SQL editor using the same emails as
+local `OWNER_EMAILS`. A user created with Studio's Email form is intentionally
 ineligible and will not receive a Nana's Recipes profile:
 
 ```sql
-select private.configure_owner_email('owner@example.test');
+select private.configure_owner_emails(
+  array['owner@example.test', 'second-owner@example.test']
+);
 ```
 
 `pnpm test:db` performs this step automatically for its isolated test identity.
@@ -228,27 +232,29 @@ select private.configure_owner_email('owner@example.test');
 
 ## Authorization states
 
-| State                                                   | Result                                                                     |
-| ------------------------------------------------------- | -------------------------------------------------------------------------- |
-| No valid session                                        | Public landing page; protected routes redirect to `/?next=...`             |
-| Verified Google session and email matches `OWNER_EMAIL` | Owner routes and mutations are available                                   |
-| Non-Google session or a different email                 | `/private` explains the cookbook is private and offers sign-out            |
-| Supabase public environment missing                     | Landing page shows setup guidance; sign-in routes to a configuration error |
-| `OWNER_EMAIL` missing after sign-in                     | The authenticated account is denied rather than implicitly trusted         |
+| State                                                  | Result                                                                     |
+| ------------------------------------------------------ | -------------------------------------------------------------------------- |
+| No valid session                                       | Public landing page; protected routes redirect to `/?next=...`             |
+| Verified Google session and email is in `OWNER_EMAILS` | Owner routes and mutations are available                                   |
+| Non-Google session or a different email                | `/private` explains the cookbook is private and offers sign-out            |
+| Supabase public environment missing                    | Landing page shows setup guidance; sign-in routes to a configuration error |
+| `OWNER_EMAILS` missing after sign-in                   | The authenticated account is denied rather than implicitly trusted         |
 
 The database cannot read a Vercel environment variable directly. After applying
 the migrations, configure the same address once from the Supabase SQL editor:
 
 ```sql
-select private.configure_owner_email('owner@example.com');
+select private.configure_owner_emails(
+  array['owner@example.com', 'second-owner@example.com']
+);
 ```
 
 Migration 008 combines that private JWT-email allowlist, the signed Google
 provider claim, and per-identity row ownership. A non-owner or non-Google
 authenticated session therefore cannot read the owner's rows, create its own
 Nana's Recipes rows, execute owner workflows, or upload into the private recipe bucket.
-If the SQL value and `OWNER_EMAIL` drift, access fails closed until they are
-made identical.
+If the SQL allowlist and `OWNER_EMAILS` drift, access fails closed for any
+address absent from either layer.
 
 The owner can verify both layers without revealing either configured value at
 `/settings/diagnostics`. The page also checks the Google provider, required
@@ -276,7 +282,7 @@ safeguard. The test path does not alter production Google OAuth or RLS.
 - Use only the Supabase publishable/anon client key in
   `NEXT_PUBLIC_SUPABASE_ANON_KEY`.
 - Do not add a service-role key for ordinary CRUD, seeding, or deployment.
-- Keep `private.configure_owner_email(...)` identical to `OWNER_EMAIL`.
+- Keep `private.configure_owner_emails(...)` aligned with `OWNER_EMAILS`.
 - Keep RLS enabled and apply every migration before deploying application code.
 - Keep production and preview redirect allowlists narrower than `https://**`.
 - Leave recipe visibility/share metadata owner-only until recipient RLS and UI
@@ -307,7 +313,7 @@ deployment.
 
 ### The correct Google account sees “This cookbook is private”
 
-Check `OWNER_EMAIL` in the environment that built the deployment. Remove hidden
+Check `OWNER_EMAILS` in the environment that built the deployment. Remove hidden
 whitespace, confirm the Google account exposes an email, confirm its signed
 Supabase `app_metadata` contains the Google provider, and redeploy after an
 environment change.

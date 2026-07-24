@@ -71,7 +71,7 @@ export function dataAccessError(
   error: unknown,
 ): ApplicationError {
   const code = classifySupabaseError(error);
-  console.error("[Nana's Recipes data access failure]", {
+  logServerError("database_operation_failed", error, {
     operation,
     category: code,
     supabaseCode: errorMetadata(error).code,
@@ -92,7 +92,7 @@ export function corruptDataError(
   operation: string,
   cause?: unknown,
 ): ApplicationError {
-  console.error("[Nana's Recipes invalid persisted data]", {
+  logServerError("persisted_data_invalid", cause, {
     operation,
     category: "DATA_CORRUPT",
   });
@@ -103,3 +103,4 @@ export function corruptDataError(
     cause,
   );
 }
+import { logServerError } from "@/lib/observability";

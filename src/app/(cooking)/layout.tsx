@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DecorativeBackground } from "@/components/layout/decorative-background";
 import { getServerI18n } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,9 +21,10 @@ export default function CookingLayout({
   return (
     <div
       data-cooking-layout
-      className="min-h-dvh w-full flex-1 overflow-x-clip bg-background text-foreground"
+      className="relative isolate min-h-dvh w-full flex-1 overflow-hidden bg-background text-foreground"
     >
-      {children}
+      <DecorativeBackground />
+      <div className="relative z-[1]">{children}</div>
     </div>
   );
 }

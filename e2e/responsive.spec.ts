@@ -27,7 +27,7 @@ test.describe("responsive owner experience", () => {
 
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), cook\./,
+        name: "Hi, Nana",
       }),
     ).toBeVisible();
     expect(

@@ -1,12 +1,13 @@
 import { z } from "zod";
 
 import { RETAILER_SLUGS } from "@/lib/retailers/types";
+import { APP_THEMES } from "@/lib/theme";
 
 import { normalizedUniqueStringArray, uuidSchema } from "./common";
 
 export const settingsSchema = z
   .object({
-    theme: z.enum(["light", "dark", "system"]).default("system"),
+    theme: z.enum(APP_THEMES).default("system"),
     defaultServings: z.number().int().positive().max(100).default(2),
     measurementPreference: z
       .enum(["metric", "imperial", "original"])

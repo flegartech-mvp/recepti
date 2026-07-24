@@ -23,6 +23,8 @@ const allowedSupabaseOrigins = [
   .join(" ");
 const developmentScriptPolicy =
   process.env.NODE_ENV === "development" ? " 'unsafe-eval'" : "";
+const buildVersion =
+  process.env.VERCEL_GIT_COMMIT_SHA?.slice(0, 12) ?? "development";
 
 const contentSecurityPolicy = [
   "default-src 'self'",
@@ -85,6 +87,7 @@ const nextConfig: NextConfig = {
             key: "Permissions-Policy",
             value: "camera=(), microphone=(), geolocation=(), payment=()",
           },
+          { key: "X-Nanas-Recipes-Version", value: buildVersion },
         ],
       },
     ];

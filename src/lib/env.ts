@@ -5,9 +5,12 @@ const publicEnvironmentSchema = z.object({
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20),
 });
 
-const ownerEnvironmentSchema = z.object({
-  OWNER_EMAIL: z.string().trim().pipe(z.email()),
-});
+const ownerEmailSchema = z
+  .string()
+  .transform((value) =>
+    value.normalize("NFKC").trim().toLocaleLowerCase("en-US"),
+  )
+  .pipe(z.email());
 
 const siteUrlSchema = z.url().refine((value) => {
   const url = new URL(value);
@@ -79,14 +82,51 @@ export function getPublicEnvironment(): PublicEnvironment {
   return parsed.data;
 }
 
-export function getOwnerEmail(): string {
-  const parsed = ownerEnvironmentSchema.safeParse({
-    OWNER_EMAIL: process.env.OWNER_EMAIL,
-  });
-  if (!parsed.success) {
-    throw new Error("OWNER_EMAIL is required for owner-only authorization.");
+export function parseOwnerEmails({
+  ownerEmails,
+  legacyOwnerEmail,
+}: {
+  ownerEmails?: string;
+  legacyOwnerEmail?: string;
+}): readonly string[] {
+  const supplied = ownerEmails === undefined ? [] : ownerEmails.split(",");
+  if (ownerEmails !== undefined && supplied.some((email) => !email.trim())) {
+    throw new Error(
+      "OWNER_EMAILS must contain only non-empty comma-separated email addresses.",
+    );
   }
-  return parsed.data.OWNER_EMAIL;
+
+  if (legacyOwnerEmail?.trim()) supplied.push(legacyOwnerEmail);
+  if (supplied.length === 0) {
+    throw new Error(
+      "OWNER_EMAILS is required for owner-only authorization. OWNER_EMAIL is supported only as a legacy fallback.",
+    );
+  }
+
+  const parsed = z.array(ownerEmailSchema).min(1).max(20).safeParse(supplied);
+  if (!parsed.success) {
+    throw new Error(
+      "OWNER_EMAILS contains an invalid owner email configuration.",
+    );
+  }
+
+  return [...new Set(parsed.data)];
+}
+
+export function getOwnerEmails(): readonly string[] {
+  return parseOwnerEmails({
+    ownerEmails: process.env.OWNER_EMAILS,
+    legacyOwnerEmail: process.env.OWNER_EMAIL,
+  });
+}
+
+/** Backward-compatible helper for diagnostics that only need one safe value. */
+export function getOwnerEmail(): string {
+  const [ownerEmail] = getOwnerEmails();
+  if (!ownerEmail) {
+    throw new Error("OWNER_EMAILS is required for owner-only authorization.");
+  }
+  return ownerEmail;
 }
 
 export function getSiteUrl(): string {

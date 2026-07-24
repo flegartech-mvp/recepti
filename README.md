@@ -6,13 +6,14 @@ See [Retailer catalogue and package matching](docs/retailer-catalogue.md) for th
 
 Nana's Recipes is a private digital cookbook for saving recipes, keeping a real pantry,
 and deciding what to cook from ingredients already at home. Its interface uses
-a calm neutral-and-mint visual system with persistent light and dark themes,
+a warm herb-and-blush visual system with persistent light, dark, pink, and
+pink-dark themes,
 responsive navigation, a focused cooking mode, and deliberately conservative
 ingredient/quantity logic.
 
 The current release is owner-only: Google handles identity through Supabase
 Auth, the server requires a signed Google provider claim plus the normalized
-email in `OWNER_EMAIL`, and PostgreSQL RLS repeats that deployment gate before
+email in server-only `OWNER_EMAILS`, and PostgreSQL RLS repeats that deployment gate before
 isolating every user's rows. The data model remains multi-user so sharing can
 be added later without weakening today's private boundary.
 
@@ -41,9 +42,9 @@ be added later without weakening today's private boundary.
   atomic move-to-pantry workflow.
 - Owner-managed ingredient catalog with aliases, accent-preserving identity,
   categories, staples, safe deletion constraints, and transactional merging.
-- Settings for Google profile, theme, reduced motion, servings, measurement
-  preference, staples, versioned JSON export, sign-out, and strongly confirmed
-  cookbook deletion.
+- Settings for Google profile, four visual themes, reduced motion, servings,
+  measurement preference, staples, versioned JSON export, previewed merge-only
+  import, sign-out, and strongly confirmed cookbook deletion.
 - Installable PWA metadata and a safe offline fallback that caches only public
   static assets—not authenticated HTML, private APIs, or recipe images.
 
@@ -146,8 +147,9 @@ to their parent rows. Core aggregates include:
 The ordered migrations create the schema, indexes, triggers, RLS policies,
 private Storage bucket, recipe/search workflows, pantry/catalog workflows,
 shopping upsert, settings/export, the strict owner gate, retailer preferences,
-atomic quick actions, and the owner health contract. The current head is
-`20260723172548_owner_health_invoker_storage_policy.sql`. See
+atomic quick actions, the owner health contract, multi-owner administration,
+and pink themes. The current head is
+`20260724085818_multi_owner_pink_theme.sql`. See
 [Database architecture](docs/database.md) for the full ER model, RPC semantics,
 delete behavior, export envelope, and migration workflow.
 
@@ -158,7 +160,7 @@ The protection layers have different jobs:
 1. Google OAuth proves the account identity through Supabase Auth.
 2. The callback and every protected server boundary require Google in signed
    provider metadata and compare the normalized verified email with server-only
-   `OWNER_EMAIL`.
+   `OWNER_EMAILS` allowlist.
 3. Supabase SSR refreshes cookie-backed claims.
 4. PostgreSQL RLS requires the same Google claim, the configured database owner
    email, and `auth.uid()` ownership on every row/object.
@@ -208,7 +210,7 @@ the values printed by `pnpm dlx supabase status`:
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<local-publishable-or-anon-key>
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-OWNER_EMAIL=owner@example.com
+OWNER_EMAILS=owner@example.com,second-owner@example.com
 E2E_TEST_MODE=0
 ```
 
@@ -246,7 +248,9 @@ For realistic data under a local user:
    profile trigger for the existing Google-backed Auth user:
 
    ```sql
-   select private.configure_owner_email('owner@example.test');
+   select private.configure_owner_emails(
+     array['owner@example.test', 'second-owner@example.test']
+   );
    ```
 
 4. Run the seed for the oldest local profile, or select a UUID explicitly:
@@ -295,15 +299,18 @@ test-only identity and deterministic demo records.
 
 3. Do **not** pass `--include-seed`; development recipes must not be seeded into
    production.
-4. In the Supabase SQL editor, configure the same normalized address used for
-   `OWNER_EMAIL`:
+4. In the Supabase SQL editor, add the same normalized addresses used for
+   `OWNER_EMAILS`:
 
    ```sql
-   select private.configure_owner_email('owner@example.com');
+   select private.configure_owner_emails(
+     array['owner@example.com', 'second-owner@example.com']
+   );
    ```
 
    This admin-only function also backfills profile/preferences if that Auth
-   user already exists. Rerun it deliberately when changing the owner.
+   user already exists. It is additive by default; use the documented
+   `p_replace => true` only for a deliberate allowlist replacement.
 
 5. Verify that migration 002 created a **private** `recipe-images` bucket and
    owner-only object policies. Do not replace it with a public bucket.
@@ -325,7 +332,8 @@ these migrations. Add a forward-only migration, reset/test locally, then run
 | `NEXT_PUBLIC_SUPABASE_URL`      | Browser-safe        | URL of the same Supabase project as the key                                                                              |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-safe        | Publishable/anon key; security depends on the checked-in RLS policies                                                    |
 | `NEXT_PUBLIC_SITE_URL`          | Browser-safe origin | `http://localhost:3000` locally; exact canonical HTTPS origin in production; usually omitted for dynamic Vercel Previews |
-| `OWNER_EMAIL`                   | Server-only         | Exact Google email allowed into this deployment; must match `private.configure_owner_email(...)`                         |
+| `OWNER_EMAILS`                  | Server-only         | Comma-separated Google email allowlist; must match `private.configure_owner_emails(...)`                                 |
+| `OWNER_EMAIL`                   | Server-only         | Optional legacy single-owner fallback; prefer `OWNER_EMAILS`                                                             |
 | `E2E_TEST_MODE`                 | Local tests only    | Keep `0`/unset normally and never configure it in any Vercel environment                                                 |
 
 `NEXT_PUBLIC_SITE_URL` contains an origin only, without `/auth/callback`. Nana's Recipes
@@ -403,11 +411,13 @@ pantry, shopping, cooking history, and the complete settings snapshot,
 including retailer preferences, without Auth secrets or owner IDs. Private
 image paths are metadata; image binaries require a separate Storage backup.
 
-Import is intentionally absent from the production UI. The database retains a
-transactional current/legacy compatibility adapter, but no user-facing import
-control is exposed until the complete flow has been validated against a hosted
-Supabase project. Nana's Recipes never performs a partial client-side import. See the
-exact envelope and limitations in [database.md](docs/database.md).
+Settings exposes a preview-first import for valid Nana's Recipes backups.
+Imports are merge-only, block duplicate recipe titles case-insensitively,
+require the exact `IMPORT NANA'S RECIPES` confirmation, and execute through one
+transactional database RPC. Existing rows are never overwritten or deleted.
+Private image references are reported and skipped because the JSON backup does
+not contain image bytes. See the exact envelope and limitations in
+[database.md](docs/database.md).
 
 ## Vercel deployment
 
@@ -431,14 +441,14 @@ troubleshooting are in [Deployment guide](docs/deployment.md).
 
 - [ ] Every release-gate command passes from the deploy commit.
 - [ ] Hosted migration history includes every checked-in migration through
-      `20260723172548_owner_health_invoker_storage_policy`.
-- [ ] `private.configure_owner_email(...)` matches Vercel `OWNER_EMAIL`.
+      `20260724085818_multi_owner_pink_theme`.
+- [ ] `private.configure_owner_emails(...)` matches Vercel `OWNER_EMAILS`.
 - [ ] `recipe-images` is private and all table/Storage RLS policies are active.
 - [ ] Supabase Site URL and production callback are exact HTTPS URLs.
 - [ ] Google has the exact application origin and Supabase Auth callback.
 - [ ] Supabase Google Auth is enabled and Email/phone/anonymous providers are
       disabled.
-- [ ] `OWNER_EMAIL` is server-only and matches the intended Google account.
+- [ ] `OWNER_EMAILS` is server-only and matches every intended Google account.
 - [ ] URL/key pairs target the intended Supabase project in each environment.
 - [ ] `E2E_TEST_MODE`, service-role keys, Google secrets, and DB passwords are
       absent from Vercel application variables and Git.
@@ -446,7 +456,8 @@ troubleshooting are in [Deployment guide](docs/deployment.md).
 - [ ] Private image upload/read/replace/delete and JSON export work.
 - [ ] Preview testing cannot accidentally damage production owner data.
 - [ ] Vercel logs contain no tokens, cookies, OAuth codes, or raw DB errors.
-- [ ] Production import UI remains unavailable.
+- [ ] Import preview, duplicate blocking, exact confirmation, and atomic merge
+      have been exercised with a disposable backup.
 
 ## Security notes
 
@@ -479,7 +490,7 @@ Supabase projects if several are detected.
 ### `pnpm db:seed` says no profile exists
 
 Complete a local Google sign-in first, then configure its email with
-`private.configure_owner_email(...)`. Do not create an Email-provider user in
+`private.configure_owner_emails(...)`. Do not create an Email-provider user in
 Studio because Nana's Recipes' signed-provider gate will correctly refuse it. Then
 retry, optionally with `--user <uuid>`. Resetting the database deletes local
 users and therefore requires another local Google sign-in.
@@ -492,7 +503,7 @@ Google needs the Supabase Auth callback, while Supabase needs Nana's Recipes'
 
 ### The owner sees “This cookbook is private”
 
-Check the environment-specific `OWNER_EMAIL`, hidden whitespace, the email
+Check the environment-specific `OWNER_EMAILS`, hidden whitespace, the email
 Google returned, and whether the session's signed provider metadata contains
 Google. Vercel environment changes require a new deployment.
 
@@ -500,7 +511,7 @@ Google. Vercel environment changes require a new deployment.
 
 Run `pnpm exec supabase migration list` for the linked project and apply every
 checked-in migration through
-`20260723172548_owner_health_invoker_storage_policy` before deploying the
+`20260724085818_multi_owner_pink_theme` before deploying the
 corresponding code. Then open `/settings/diagnostics` as the owner and confirm
 every check passes.
 
@@ -513,7 +524,7 @@ no larger than 6 MiB whose extension matches its MIME type and file signature.
 
 - The product is intentionally owner-only. Sharing and public visibility have
   schema foundations but no recipient policies or UI.
-- Import is not exposed in production pending hosted end-to-end validation.
+- Import supports safe merge only; it does not provide replace/overwrite mode.
 - JSON export does not contain private image bytes, Auth/profile data, share
   grants, or ingredient-substitution relationships.
 - Offline support is a safe fallback and installable shell, not offline access
@@ -526,7 +537,7 @@ no larger than 6 MiB whose extension matches its MIME type and file signature.
 ## Future enhancements
 
 - Deliberate recipient RLS and private recipe sharing.
-- A hosted-verified transactional import experience with dry-run reporting.
+- Optional duplicate-resolution and explicitly confirmed replace-import tools.
 - A combined structured-data and private-image backup archive.
 - Household pantry collaboration with explicit membership roles.
 - A first-class directional substitution editor and safety notes.

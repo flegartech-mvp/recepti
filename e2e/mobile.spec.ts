@@ -163,7 +163,7 @@ test("keeps the app shell mobile-native from 320px through tablet layouts", asyn
 
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), cook\./,
+        name: "Hi, Nana",
       }),
     ).toBeVisible({ timeout: 15_000 });
     await expectNoHorizontalOverflow(page, `dashboard at ${viewport.width}px`);

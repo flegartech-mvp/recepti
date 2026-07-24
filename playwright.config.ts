@@ -50,7 +50,7 @@ export default defineConfig({
     env: {
       ...serverEnvironment,
       E2E_TEST_MODE: "1",
-      OWNER_EMAIL: "owner@example.test",
+      OWNER_EMAILS: "owner@example.test,second-owner@example.test",
       NEXT_PUBLIC_SITE_URL: baseURL,
       NEXT_PUBLIC_SUPABASE_URL: "",
       NEXT_PUBLIC_SUPABASE_ANON_KEY: "",

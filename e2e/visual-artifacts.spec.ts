@@ -25,6 +25,16 @@ const captures = [
     theme: "dark",
     viewport: { width: 390, height: 844 },
   },
+  {
+    name: "desktop-blush",
+    theme: "pink",
+    viewport: { width: 1440, height: 1000 },
+  },
+  {
+    name: "phone-berry-dusk",
+    theme: "pink-dark",
+    viewport: { width: 390, height: 844 },
+  },
 ] as const;
 
 test("captures the nonna dashboard in both themes and viewports", async ({
@@ -33,7 +43,7 @@ test("captures the nonna dashboard in both themes and viewports", async ({
 }) => {
   for (const capture of captures) {
     const context = await browser.newContext({
-      colorScheme: capture.theme,
+      colorScheme: capture.theme.includes("dark") ? "dark" : "light",
       reducedMotion: "reduce",
       viewport: capture.viewport,
     });
@@ -51,9 +61,10 @@ test("captures the nonna dashboard in both themes and viewports", async ({
     await page.goto("/dashboard");
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), cook\./,
+        name: "Hi, Nana",
       }),
     ).toBeVisible();
+    await expect(page.locator("[data-swirly-background]")).toBeVisible();
     await expect(page.locator("html")).toHaveClass(new RegExp(capture.theme));
     expect(
       await page.evaluate(

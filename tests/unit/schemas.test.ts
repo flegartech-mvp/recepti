@@ -142,6 +142,13 @@ describe("settings and versioned export validation", () => {
     ).toBe(false);
   });
 
+  it.each(["pink", "pink-dark"] as const)(
+    "accepts the complete %s theme preference",
+    (theme) => {
+      expect(settingsSchema.parse({ theme }).theme).toBe(theme);
+    },
+  );
+
   it("accepts a complete empty export envelope and rejects unknown versions", () => {
     const exportEnvelope = {
       schemaVersion: 1,

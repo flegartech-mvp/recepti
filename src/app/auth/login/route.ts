@@ -2,6 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { safeInternalPath } from "@/lib/auth/redirects";
 import { hasSupabaseEnvironment } from "@/lib/env";
+import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
@@ -24,6 +25,10 @@ export async function GET(request: NextRequest) {
   });
 
   if (error || !data.url) {
+    logServerError(
+      "auth_oauth_start_failed",
+      error ?? new Error("No OAuth URL"),
+    );
     return NextResponse.redirect(
       new URL("/auth/auth-code-error?reason=oauth", request.url),
     );

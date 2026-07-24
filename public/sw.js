@@ -1,9 +1,29 @@
-const CACHE_NAME = "nanas-recipes-static-v3";
+const CACHE_NAME = "nanas-recipes-static-v4";
 const STATIC_ASSETS = ["/offline", "/images/nanas-recipes-hero.png"];
+
+async function reportFailure(event, error) {
+  console.error("[nanas-recipes:service-worker-error]", {
+    event,
+    errorName: error instanceof Error ? error.name : typeof error,
+  });
+  const clients = await self.clients.matchAll({
+    type: "window",
+    includeUncontrolled: true,
+  });
+  for (const client of clients) {
+    client.postMessage({ type: "nanas-recipes:sw-error", event });
+  }
+}
 
 self.addEventListener("install", (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS)),
+    caches
+      .open(CACHE_NAME)
+      .then((cache) => cache.addAll(STATIC_ASSETS))
+      .catch(async (error) => {
+        await reportFailure("install", error);
+        throw error;
+      }),
   );
   self.skipWaiting();
 });
@@ -32,7 +52,12 @@ self.addEventListener("fetch", (event) => {
     return;
 
   if (request.mode === "navigate") {
-    event.respondWith(fetch(request).catch(() => caches.match("/offline")));
+    event.respondWith(
+      fetch(request).catch(async (error) => {
+        await reportFailure("navigation", error);
+        return caches.match("/offline");
+      }),
+    );
     return;
   }
 

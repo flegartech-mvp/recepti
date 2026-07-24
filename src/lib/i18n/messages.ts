@@ -22,6 +22,24 @@ export const slMessages: Record<string, string> = {
   "Switch to light mode": "Preklopi na svetli način",
   "Switch to dark mode": "Preklopi na temni način",
   "Switch color theme": "Preklopi barvno temo",
+  "Color theme": "Barvna tema",
+  "Choose a calm garden palette or Nana's rose-inspired palette.":
+    "Izberite mirno vrtno paleto ali Nanino paleto v rožnatih odtenkih.",
+  "Garden light": "Svetli vrt",
+  "Warm ivory, sage, and fresh herb green.":
+    "Topla slonovina, žajbelj in sveža zeliščna zelena.",
+  "Garden dusk": "Vrtni somrak",
+  "Deep forest, moss, and warm cream.":
+    "Globok gozd, mah in topla kremna barva.",
+  Blush: "Nežna rožnata",
+  "Warm cream, dusty rose, and plum.":
+    "Topla kremna, starinska rožnata in slivova.",
+  "Berry dusk": "Jagodni somrak",
+  "Aubergine, muted berry, and pale rose.":
+    "Jajčevec, umirjeni jagodni in bledo rožnati odtenki.",
+  "Follow device": "Sledi napravi",
+  "Use the light or dark garden theme from this device.":
+    "Uporabi svetlo ali temno vrtno temo te naprave.",
   "Language selection": "Izbira jezika",
   "Switch language to English": "Preklopi jezik na angleščino",
   "Switch language to Slovenian": "Preklopi jezik na slovenščino",
@@ -51,8 +69,8 @@ export const slMessages: Record<string, string> = {
     "Shranite najljubše recepte, imejte pregled nad shrambo in poiščite večerjo brez običajnega ugibanja.",
   "Continue with Google": "Nadaljuj z Googlom",
   "Finish Google sign-in setup": "Dokončajte nastavitev prijave z Googlom",
-  "This copy has no Supabase connection yet. Add NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and OWNER_EMAIL in .env.local, then enable Google in Supabase Auth.":
-    "Ta različica še nima povezave s Supabase. V datoteko .env.local dodajte NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY in OWNER_EMAIL, nato v Supabase Auth omogočite Google.",
+  "This copy has no Supabase connection yet. Add NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and OWNER_EMAILS in .env.local, then enable Google in Supabase Auth.":
+    "Ta različica še nima povezave s Supabase. V datoteko .env.local dodajte NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY in OWNER_EMAILS, nato v Supabase Auth omogočite Google.",
   "Fresh herb pasta beside a mint ceramic bowl, basil, and a recipe notebook":
     "Testenine s svežimi zelišči ob metini skledi, baziliki in zvezku z recepti",
   "Dinner, made simpler": "Preprostejša večerja",
@@ -69,8 +87,8 @@ export const slMessages: Record<string, string> = {
   "See complete matches first, then honest missing-ingredient details.":
     "Najprej si oglejte popolna ujemanja, nato pa natančen seznam manjkajočih sestavin.",
   "This cookbook is private": "Ta kuharica je zasebna",
-  "Nana's Recipes belongs to one cook for now. The Google account {email} is not on the owner list.":
-    "Nanini recepti so za zdaj namenjeni enemu kuharju. Google račun {email} ni na seznamu lastnikov.",
+  "This private cookbook is shared only with its configured owners. The Google account {email} is not on the owner list.":
+    "Ta zasebna kuharica je na voljo le nastavljenim lastnikom. Google račun {email} ni na seznamu lastnikov.",
   "Sign out and use another account": "Odjavi se in uporabi drug račun",
   "Sign-in did not finish": "Prijava ni bila dokončana",
   "Back to Nana's Recipes": "Nazaj na Nanine recepte",
@@ -112,8 +130,8 @@ export const slMessages: Record<string, string> = {
     "Morda je bila premaknjena ali pa je bil recept izbrisan.",
   "Return to dashboard": "Nazaj na nadzorno ploščo",
   "Nana's Recipes is offline": "Nanini recepti so brez povezave",
-  "Reconnect before loading private cookbook data or saving changes.":
-    "Pred nalaganjem zasebnih podatkov kuharice ali shranjevanjem sprememb znova vzpostavite povezavo.",
+  "Private pages and signed recipe images are never cached automatically. If a cooking session was already open, return to that tab to keep using its checklist and timers, then reconnect before saving.":
+    "Zasebne strani in podpisane slike receptov se nikoli ne shranjujejo samodejno. Če je bil način kuhanja že odprt, se vrnite na tisti zavihek in še naprej uporabljajte seznam ter časovnike, nato pa pred shranjevanjem znova vzpostavite povezavo.",
   "Loading Nana's Recipes": "Nalaganje Naninih receptov",
   Close: "Zapri",
   Cancel: "Prekliči",
@@ -138,6 +156,8 @@ export const slMessages: Record<string, string> = {
   "Simple ingredients are allowed to be the whole idea.":
     "Preproste sestavine so lahko celotna zamisel.",
   Dashboard: "Nadzorna plošča",
+  "Nana's private kitchen": "Nanina zasebna kuhinja",
+  "What are we cooking today?": "Kaj kuhamo danes?",
   "Cookbook overview": "Pregled kuharice",
   "Saved in your cookbook": "Shranjeno v vaši kuharici",
   "The ones worth repeating": "Tisti, ki jih je vredno ponoviti",
@@ -146,6 +166,7 @@ export const slMessages: Record<string, string> = {
   "Ready now": "Pripravljeno zdaj",
   "Complete pantry matches": "Popolna ujemanja s shrambo",
   "What can I cook today?": "Kaj lahko skuham danes?",
+  "Cook with what is already home": "Skuhajte iz tega, kar je že doma",
   "Compare every saved recipe with what is in the pantry, then see exactly what is missing.":
     "Primerjajte vsak shranjen recept z vsebino shrambe in natančno preverite, kaj manjka.",
   "Find a recipe": "Poišči recept",
@@ -154,6 +175,9 @@ export const slMessages: Record<string, string> = {
   "Open shopping list": "Odpri nakupovalni seznam",
   "Surprise me": "Preseneti me",
   "Recently added": "Nedavno dodano",
+  "Your recipe shelf is ready": "Vaša polica za recepte je pripravljena",
+  "Add the first trusted recipe and it will appear here for Nana.":
+    "Dodajte prvi preverjeni recept in tukaj se bo prikazal za Nano.",
   "View all": "Prikaži vse",
   "Cooked lately": "Nedavno kuhano",
   Recipe: "Recept",
@@ -312,6 +336,9 @@ export const slMessages: Record<string, string> = {
   "Cooked with Nana's Recipes": "Skuhano z Naninimi recepti",
   "Cooking history was not updated": "Zgodovina kuhanja ni bila posodobljena",
   "Cooking mode": "Način kuhanja",
+  "Cooking offline": "Kuhanje brez povezave",
+  "This open recipe, checklist, and timers remain usable. Reconnect before finishing so cooking history can be saved.":
+    "Odprti recept, seznam in časovniki ostanejo uporabni. Pred zaključkom znova vzpostavite povezavo, da se zgodovina kuhanja lahko shrani.",
   "Cooking step controls": "Upravljanje korakov kuhanja",
   "Cooking tools": "Kuharska orodja",
   "Cover image": "Naslovna slika",
@@ -347,6 +374,32 @@ export const slMessages: Record<string, string> = {
   "Download all owned recipes, ingredients, relationships, pantry, shopping, history, and settings as versioned JSON. Secrets and signed image URLs are excluded.":
     "Prenesite vse svoje recepte, sestavine, povezave, shrambo, nakupe, zgodovino in nastavitve kot različico JSON. Skrivnosti in podpisani naslovi slik niso vključeni.",
   "Download JSON export": "Prenesi izvoz JSON",
+  "Backup and restore": "Varnostno kopiranje in obnovitev",
+  "Export a versioned JSON backup or validate and merge a trusted Nana's Recipes backup.":
+    "Izvozite različico varnostne kopije JSON ali preverite in združite zaupanja vredno kopijo Naninih receptov.",
+  "Restore cookbook": "Obnovi kuharico",
+  "Cookbook backup file": "Datoteka varnostne kopije kuharice",
+  "The file is validated before any database write. Imports merge safely and never replace existing recipes.":
+    "Datoteka se preveri pred vsakim zapisom v podatkovno zbirko. Uvoz varno združuje in nikoli ne zamenja obstoječih receptov.",
+  "Cookbook backups must be 10 MB or smaller.":
+    "Varnostne kopije kuharice morajo biti velike največ 10 MB.",
+  "Checking backup…": "Preverjanje varnostne kopije …",
+  "Choose a valid JSON cookbook backup.":
+    "Izberite veljavno varnostno kopijo kuharice JSON.",
+  "Import stopped safely": "Uvoz je bil varno ustavljen",
+  "Import preview": "Predogled uvoza",
+  "Schema version": "Različica sheme",
+  "Matching recipes detected": "Zaznani so ujemajoči se recepti",
+  "Import is blocked to prevent duplicate or accidental replacement: {titles}":
+    "Uvoz je blokiran, da se prepreči podvajanje ali nenamerna zamenjava: {titles}",
+  "Private images stay separate": "Zasebne slike ostanejo ločene",
+  "{count} image references will be skipped because JSON backups do not contain private image binaries.":
+    "{count} povezav do slik bo preskočenih, ker varnostne kopije JSON ne vsebujejo zasebnih slikovnih datotek.",
+  "Type IMPORT NANA'S RECIPES": "Vnesite IMPORT NANA'S RECIPES",
+  "Import cookbook backup": "Uvozi varnostno kopijo kuharice",
+  "Cookbook backup imported": "Varnostna kopija kuharice je uvožena",
+  "The cookbook backup could not be imported.":
+    "Varnostne kopije kuharice ni bilo mogoče uvoziti.",
   "Duplicate recipe": "Podvoji recept",
   "e.g. ripe tomatoes": "npr. zreli paradižniki",
   "Edit {name}": "Uredi {name}",
@@ -600,8 +653,8 @@ export const slMessages: Record<string, string> = {
     "Te nastavitve ostanejo povezane z vašim zasebnim profilom.",
   "This deletes checked items without adding them to the pantry.":
     "S tem izbrišete označene izdelke, ne da bi jih dodali v shrambo.",
-  "This identity is verified by Supabase Auth and compared with OWNER_EMAIL on every protected request.":
-    "Identiteto preveri Supabase Auth in jo pri vsaki zaščiteni zahtevi primerja z OWNER_EMAIL.",
+  "This identity is verified by Supabase Auth and compared with the server-only OWNER_EMAILS allowlist on every protected request.":
+    "Identiteto preveri Supabase Auth in jo pri vsaki zaščiteni zahtevi primerja s strežniškim seznamom OWNER_EMAILS.",
   "This ingredient is already listed.": "Ta sestavina je že na seznamu.",
   "This keeps the Google profile but permanently removes all cookbook records and private recipe images.":
     "Google profil ostane, vsi zapisi kuharice in zasebne slike receptov pa se trajno odstranijo.",

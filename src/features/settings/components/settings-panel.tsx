@@ -2,9 +2,8 @@
 
 import { useEffect, useState, useTransition } from "react";
 import { useTheme } from "next-themes";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Download, LoaderCircle, Save, Store, Trash2 } from "lucide-react";
+import { LoaderCircle, Save, Store } from "lucide-react";
 import { toast } from "sonner";
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -28,16 +27,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-  deleteAllCookbookDataAction,
-  saveSettingsAction,
-} from "@/features/settings/actions";
-import {
-  clearLocalCookbookData,
-  REDUCE_MOTION_STORAGE_KEY,
-} from "@/features/settings/local-data";
+import { saveSettingsAction } from "@/features/settings/actions";
+import { CookbookDataPanel } from "@/features/settings/components/cookbook-data-panel";
+import { REDUCE_MOTION_STORAGE_KEY } from "@/features/settings/local-data";
+import { ThemeSelector } from "@/features/settings/components/theme-selector";
 import { signOut } from "@/lib/auth/actions";
 import type { SettingsValues } from "@/lib/validation";
 import type { Ingredient } from "@/types/domain";
@@ -55,11 +49,8 @@ export function SettingsPanel({
 }) {
   const { setTheme } = useTheme();
   const { t } = useI18n();
-  const router = useRouter();
   const [pending, startTransition] = useTransition();
   const [settings, setSettings] = useState(initialSettings);
-  const [confirmation, setConfirmation] = useState("");
-  const [storageCleanupPending, setStorageCleanupPending] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(
@@ -125,7 +116,7 @@ export function SettingsPanel({
             </CardTitle>
             <CardDescription>
               {t(
-                "This identity is verified by Supabase Auth and compared with OWNER_EMAIL on every protected request.",
+                "This identity is verified by Supabase Auth and compared with the server-only OWNER_EMAILS allowlist on every protected request.",
               )}
             </CardDescription>
           </CardHeader>
@@ -177,24 +168,10 @@ export function SettingsPanel({
             </CardDescription>
           </CardHeader>
           <CardContent className="grid gap-6 sm:grid-cols-2">
-            <div className="space-y-2">
-              <Label>{t("Theme")}</Label>
-              <Select
-                value={settings.theme}
-                onValueChange={(theme: SettingsValues["theme"]) =>
-                  setSettings({ ...settings, theme })
-                }
-              >
-                <SelectTrigger className="w-full" aria-label={t("Theme")}>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="light">{t("Light")}</SelectItem>
-                  <SelectItem value="dark">{t("Dark")}</SelectItem>
-                  <SelectItem value="system">{t("System")}</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+            <ThemeSelector
+              value={settings.theme}
+              onChange={(theme) => setSettings({ ...settings, theme })}
+            />
             <div className="space-y-2">
               <Label htmlFor="default-servings">{t("Default servings")}</Label>
               <Input
@@ -450,128 +427,7 @@ export function SettingsPanel({
         </Card>
       </TabsContent>
 
-      <TabsContent value="data" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>
-              <h2>{t("Export cookbook")}</h2>
-            </CardTitle>
-            <CardDescription>
-              {t(
-                "Download all owned recipes, ingredients, relationships, pantry, shopping, history, and settings as versioned JSON. Secrets and signed image URLs are excluded.",
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Button asChild>
-              <a href="/api/export" download>
-                <Download className="size-4" />
-                {t("Download JSON export")}
-              </a>
-            </Button>
-            <Alert>
-              <AlertTitle>
-                {t("Import is intentionally not enabled")}
-              </AlertTitle>
-              <AlertDescription>
-                {t(
-                  "Export validation is complete, but production import remains disabled until the migration transaction can be tested against a live Supabase project. No partial import control is shown.",
-                )}
-              </AlertDescription>
-            </Alert>
-          </CardContent>
-        </Card>
-
-        <Card className="border-destructive/35">
-          <CardHeader>
-            <CardTitle className="text-destructive">
-              <h2>{t("Delete all cookbook data")}</h2>
-            </CardTitle>
-            <CardDescription>
-              {t(
-                "This keeps the Google profile but permanently removes all cookbook records and private recipe images.",
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {storageCleanupPending && (
-              <Alert variant="destructive" role="alert">
-                <AlertTitle>
-                  {t("Cookbook deleted; image cleanup pending")}
-                </AlertTitle>
-                <AlertDescription>
-                  {t(
-                    "All database records were removed, but some private files still need manual removal from the recipe-images bucket in Supabase Storage.",
-                  )}
-                </AlertDescription>
-              </Alert>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="delete-confirmation">
-                {t("Type DELETE NANA'S RECIPES")}
-              </Label>
-              <Input
-                id="delete-confirmation"
-                value={confirmation}
-                onChange={(event) => setConfirmation(event.target.value)}
-                autoComplete="off"
-              />
-            </div>
-            <Button
-              variant="destructive"
-              disabled={confirmation !== "DELETE NANA'S RECIPES" || pending}
-              onClick={() =>
-                startTransition(async () => {
-                  const result =
-                    await deleteAllCookbookDataAction(confirmation);
-                  if (result.ok) {
-                    clearLocalCookbookData(localStorage);
-                    const resetSettings: SettingsValues = {
-                      theme: "system",
-                      defaultServings: 2,
-                      measurementPreference: "original",
-                      stapleIngredientIds: [],
-                      additionalStapleNames: [],
-                      reduceMotion: false,
-                      enabledRetailers: ["spar-si", "hofer-si", "lidl-si"],
-                      preferredRetailer: null,
-                      allowLoyaltyPrices: false,
-                      allowSplitBasket: false,
-                      preferPromotions: false,
-                      preferredBrands: [],
-                      excludedBrands: [],
-                    };
-                    setSettings(resetSettings);
-                    setTheme("system");
-                    localStorage.setItem(REDUCE_MOTION_STORAGE_KEY, "false");
-                    document.documentElement.dataset.reduceMotion = "false";
-                    setStorageCleanupPending(result.data.storageCleanupPending);
-                    if (result.data.storageCleanupPending) {
-                      toast.warning(
-                        t("Cookbook records deleted; cleanup pending"),
-                      );
-                    } else {
-                      toast.success(t("Cookbook data deleted"));
-                    }
-                    setConfirmation("");
-                    router.refresh();
-                  } else toast.error(t(result.message));
-                })
-              }
-            >
-              <Trash2 className="size-4" />
-              {t("Delete all data")}
-            </Button>
-          </CardContent>
-        </Card>
-
-        <Separator />
-        <p className="text-sm leading-relaxed text-muted-foreground">
-          {t(
-            "Dietary tags are organizational labels, not medical guarantees. Always check ingredient details independently for allergies and dietary safety.",
-          )}
-        </p>
-      </TabsContent>
+      <CookbookDataPanel />
     </Tabs>
   );
 }

@@ -2,10 +2,12 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
   getOwnerEmail,
+  getOwnerEmails,
   getPublicEnvironment,
   getRetailerEnvironment,
   getSiteUrl,
   hasSupabaseEnvironment,
+  parseOwnerEmails,
 } from "@/lib/env";
 
 afterEach(() => {
@@ -13,14 +15,35 @@ afterEach(() => {
 });
 
 describe("environment validation", () => {
-  it("normalizes a valid server-only owner email", () => {
-    vi.stubEnv("OWNER_EMAIL", " owner@example.test ");
-    expect(getOwnerEmail()).toBe("owner@example.test");
+  it("normalizes, lowercases, and deduplicates the server-only owner list", () => {
+    vi.stubEnv(
+      "OWNER_EMAILS",
+      " tini.flegar@gmail.com, FLEGARTECH@GMAIL.COM, vukovic.nadia7@gmail.com, tini.flegar@gmail.com ",
+    );
+    vi.stubEnv("OWNER_EMAIL", undefined);
+
+    expect(getOwnerEmails()).toEqual([
+      "tini.flegar@gmail.com",
+      "flegartech@gmail.com",
+      "vukovic.nadia7@gmail.com",
+    ]);
+    expect(getOwnerEmail()).toBe("tini.flegar@gmail.com");
   });
 
-  it("rejects an invalid owner value", () => {
-    vi.stubEnv("OWNER_EMAIL", "not-an-email");
-    expect(() => getOwnerEmail()).toThrow(/OWNER_EMAIL/);
+  it("keeps the legacy single-owner variable as a secure fallback", () => {
+    vi.stubEnv("OWNER_EMAILS", undefined);
+    vi.stubEnv("OWNER_EMAIL", " owner@example.test ");
+    expect(getOwnerEmails()).toEqual(["owner@example.test"]);
+  });
+
+  it.each([
+    { ownerEmails: undefined, legacyOwnerEmail: undefined },
+    { ownerEmails: "" },
+    { ownerEmails: "owner@example.test," },
+    { ownerEmails: "owner@example.test,,other@example.test" },
+    { ownerEmails: "not-an-email" },
+  ])("fails closed for missing or malformed allowlists: %j", (input) => {
+    expect(() => parseOwnerEmails(input)).toThrow(/OWNER_EMAILS/);
   });
 
   it("accepts an origin and rejects paths for the public site URL", () => {

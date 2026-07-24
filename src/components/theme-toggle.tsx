@@ -19,7 +19,7 @@ const getServerSnapshot = () => false;
 
 export function ThemeToggle({ className }: { className?: string }) {
   const { t } = useI18n();
-  const { resolvedTheme, setTheme } = useTheme();
+  const { theme, resolvedTheme, setTheme } = useTheme();
   const mounted = useSyncExternalStore(
     subscribeToHydration,
     getClientSnapshot,
@@ -27,10 +27,19 @@ export function ThemeToggle({ className }: { className?: string }) {
   );
 
   const label = mounted
-    ? resolvedTheme === "dark"
+    ? resolvedTheme === "dark" || resolvedTheme === "pink-dark"
       ? t("Switch to light mode")
       : t("Switch to dark mode")
     : t("Switch color theme");
+  const isDark = resolvedTheme === "dark" || resolvedTheme === "pink-dark";
+  const nextTheme =
+    theme === "pink" || theme === "pink-dark"
+      ? isDark
+        ? "pink"
+        : "pink-dark"
+      : isDark
+        ? "light"
+        : "dark";
 
   return (
     <Tooltip>
@@ -44,7 +53,7 @@ export function ThemeToggle({ className }: { className?: string }) {
             className,
           )}
           aria-label={label}
-          onClick={() => setTheme(resolvedTheme === "dark" ? "light" : "dark")}
+          onClick={() => setTheme(nextTheme)}
         >
           <Sun
             aria-hidden="true"

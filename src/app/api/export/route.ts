@@ -5,6 +5,7 @@ import {
   isTestAuthenticationEnabled,
 } from "@/lib/auth/authorization";
 import { shapeCookbookExport } from "@/lib/data/cookbook-export";
+import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 import { cookbookExportSchema } from "@/lib/validation";
 
@@ -44,20 +45,24 @@ export async function GET() {
   } else {
     const client = await createClient();
     const { data, error } = await client.rpc("export_cookbook_data");
-    if (error)
+    if (error) {
+      logServerError("cookbook_export_rpc_failed", error);
       return NextResponse.json(
         { error: "Cookbook export could not be created." },
         { status: 500 },
       );
+    }
     payload = shapeCookbookExport(data);
   }
 
   const parsed = cookbookExportSchema.safeParse(payload);
-  if (!parsed.success)
+  if (!parsed.success) {
+    logServerError("cookbook_export_validation_failed", parsed.error);
     return NextResponse.json(
       { error: "Cookbook export failed schema validation." },
       { status: 500 },
     );
+  }
 
   const filename = `nanas-recipes-export-${new Date().toISOString().slice(0, 10)}.json`;
   return new NextResponse(JSON.stringify(parsed.data, null, 2), {

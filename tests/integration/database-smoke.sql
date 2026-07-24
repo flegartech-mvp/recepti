@@ -151,6 +151,61 @@ begin
 end;
 $test$;
 
+-- Administrative multi-owner configuration normalizes and deduplicates input
+-- without revoking the existing owner. The runtime gate remains Google-only.
+reset role;
+
+select private.configure_owner_emails(
+  array[
+    ' SECOND-OWNER@EXAMPLE.TEST ',
+    'second-owner@example.test',
+    'third-owner@example.test'
+  ],
+  false
+);
+
+do $test$
+begin
+  if (
+    select count(*)
+    from private.owner_allowlist
+    where email in (
+      'owner@example.test',
+      'second-owner@example.test',
+      'third-owner@example.test'
+    )
+  ) <> 3 then
+    raise exception 'Multi-owner allowlist did not normalize or preserve owners.';
+  end if;
+
+  begin
+    perform private.configure_owner_emails(
+      array['owner@example.test', ''],
+      false
+    );
+    raise exception 'Malformed owner allowlist was accepted.';
+  exception
+    when invalid_parameter_value then
+      null;
+  end;
+end;
+$test$;
+
+set local role authenticated;
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"00000000-0000-4000-8000-000000000002","role":"authenticated","email":"SECOND-OWNER@EXAMPLE.TEST","app_metadata":{"provider":"google","providers":["google"]}}',
+  true
+);
+
+do $test$
+begin
+  if private.is_app_owner() is not true then
+    raise exception 'A configured secondary Google owner was denied.';
+  end if;
+end;
+$test$;
+
 -- A signed email/password session using the allowlisted address must not pass
 -- the deployment gate. This protects the cookbook even if a hosted Auth
 -- setting later drifts and enables the Email provider.
@@ -207,7 +262,7 @@ select set_config(
 
 select public.save_user_settings(
   jsonb_build_object(
-    'theme', 'dark',
+    'theme', 'pink-dark',
     'defaultServings', 3,
     'measurementPreference', 'original',
     'stapleIngredientIds',
@@ -274,6 +329,7 @@ begin
   export_payload := public.export_cookbook_data();
 
   if (export_payload ->> 'schemaVersion')::integer is distinct from 2
+    or export_payload #>> '{settings,theme}' is distinct from 'pink-dark'
     or coalesce(
       jsonb_array_length(
         export_payload #> '{settings,enabledRetailers}'

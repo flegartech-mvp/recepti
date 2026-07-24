@@ -9,14 +9,14 @@ const auth = vi.hoisted(() => ({
 
 const environment = vi.hoisted(() => ({
   configured: vi.fn(() => true),
-  ownerEmail: vi.fn(() => "owner@example.test"),
+  ownerEmails: vi.fn(() => ["owner@example.test", "second-owner@example.test"]),
 }));
 
 vi.mock("@/lib/env", async (importOriginal) => {
   const original = await importOriginal<typeof import("@/lib/env")>();
   return {
     ...original,
-    getOwnerEmail: environment.ownerEmail,
+    getOwnerEmails: environment.ownerEmails,
     hasSupabaseEnvironment: environment.configured,
   };
 });
@@ -30,7 +30,10 @@ import { GET as startOAuth } from "@/app/auth/login/route";
 
 beforeEach(() => {
   environment.configured.mockReturnValue(true);
-  environment.ownerEmail.mockReturnValue("owner@example.test");
+  environment.ownerEmails.mockReturnValue([
+    "owner@example.test",
+    "second-owner@example.test",
+  ]);
   auth.exchangeCodeForSession.mockResolvedValue({ error: null });
   auth.getUser.mockResolvedValue({
     data: {
@@ -112,6 +115,28 @@ describe("Google OAuth callback", () => {
 
     expect(auth.exchangeCodeForSession).toHaveBeenCalledWith("one-time-code");
     expect(auth.getUser).toHaveBeenCalled();
+    expect(response.headers.get("location")).toBe(
+      "https://recepti-rho.vercel.app/dashboard",
+    );
+  });
+
+  it("accepts another normalized email from the server-only allowlist", async () => {
+    auth.getUser.mockResolvedValueOnce({
+      data: {
+        user: {
+          email: " SECOND-OWNER@EXAMPLE.TEST ",
+          app_metadata: { provider: "google", providers: ["google"] },
+        },
+      },
+      error: null,
+    });
+
+    const response = await finishOAuth(
+      new NextRequest(
+        "https://recepti-rho.vercel.app/auth/callback?code=one-time-code",
+      ),
+    );
+
     expect(response.headers.get("location")).toBe(
       "https://recepti-rho.vercel.app/dashboard",
     );

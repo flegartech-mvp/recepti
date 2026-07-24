@@ -2,8 +2,9 @@ import type { User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { getOwnerEmail, hasSupabaseEnvironment } from "@/lib/env";
+import { getOwnerEmails, hasSupabaseEnvironment } from "@/lib/env";
 import { ApplicationError } from "@/lib/errors/application-error";
+import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
 export type AuthorizationState =
@@ -18,10 +19,14 @@ export function normalizeEmail(email: string): string {
 
 export function isOwnerEmail(
   email: string | null | undefined,
-  ownerEmail: string,
+  ownerEmails: string | readonly string[],
 ): boolean {
-  return (
-    Boolean(email) && normalizeEmail(email!) === normalizeEmail(ownerEmail)
+  if (!email) return false;
+  const normalizedEmail = normalizeEmail(email);
+  const allowlist =
+    typeof ownerEmails === "string" ? [ownerEmails] : ownerEmails;
+  return allowlist.some(
+    (ownerEmail) => normalizedEmail === normalizeEmail(ownerEmail),
   );
 }
 
@@ -61,7 +66,10 @@ export function isMissingAuthSessionError(error: unknown): boolean {
 }
 
 function testUser(role: "owner" | "guest" | "denied"): User {
-  const ownerEmail = process.env.OWNER_EMAIL ?? "owner@example.test";
+  const ownerEmail =
+    process.env.OWNER_EMAILS?.split(",")[0]?.trim() ??
+    process.env.OWNER_EMAIL ??
+    "owner@example.test";
   const email = role === "owner" ? ownerEmail : "visitor@example.test";
   return {
     id:
@@ -108,7 +116,7 @@ export async function getAuthorizationState(): Promise<AuthorizationState> {
       return { status: "signed-out", user: null, configured: true };
     }
 
-    console.error("[Nana's Recipes auth lookup failure]", {
+    logServerError("auth_user_lookup_failed", error, {
       operation: "load authenticated user",
       category: "AUTH_UNAVAILABLE",
       status: error.status ?? null,
@@ -123,9 +131,9 @@ export async function getAuthorizationState(): Promise<AuthorizationState> {
 
   if (!user) return { status: "signed-out", user: null, configured: true };
 
-  let ownerEmail: string;
+  let ownerEmails: readonly string[];
   try {
-    ownerEmail = getOwnerEmail();
+    ownerEmails = getOwnerEmails();
   } catch {
     return { status: "denied", user, configured: true };
   }
@@ -134,7 +142,7 @@ export async function getAuthorizationState(): Promise<AuthorizationState> {
     return { status: "denied", user, configured: true };
   }
 
-  return isOwnerEmail(user.email, ownerEmail)
+  return isOwnerEmail(user.email, ownerEmails)
     ? { status: "owner", user, configured: true }
     : { status: "guest", user, configured: true };
 }

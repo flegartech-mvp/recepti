@@ -31,7 +31,7 @@ export default async function OfflinePage() {
           </h1>
           <p className="text-muted-foreground">
             {t(
-              "Reconnect before loading private cookbook data or saving changes.",
+              "Private pages and signed recipe images are never cached automatically. If a cooking session was already open, return to that tab to keep using its checklist and timers, then reconnect before saving.",
             )}
           </p>
         </div>

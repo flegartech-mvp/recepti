@@ -8,6 +8,7 @@ import {
   ChevronRight,
   CircleCheckBig,
   Clock3,
+  CloudOff,
   ListChecks,
   MonitorUp,
   Timer as TimerIcon,
@@ -29,6 +30,7 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { markRecipeCookedAction } from "@/features/recipes/actions";
+import { useOnlineStatus } from "@/lib/pwa/use-online-status";
 import type { Recipe } from "@/types/domain";
 
 import { formatTimer } from "./cooking-format";
@@ -71,6 +73,7 @@ function wakeLockCopy(status: WakeLockStatus): {
 
 export function CookingMode({ recipe }: CookingModeProps) {
   const { t, formatNumber, plural } = useI18n();
+  const isOnline = useOnlineStatus();
   const {
     currentStepIndex,
     checkedIngredientIds,
@@ -295,6 +298,17 @@ export function CookingMode({ recipe }: CookingModeProps) {
       </header>
 
       <main className="mobile-cooking-content safe-inline mx-auto w-full max-w-7xl pt-6 sm:pt-8">
+        {!isOnline ? (
+          <Alert className="mb-5 border-warning bg-warning/85 text-warning-foreground">
+            <CloudOff className="size-4" aria-hidden="true" />
+            <AlertTitle>{t("Cooking offline")}</AlertTitle>
+            <AlertDescription>
+              {t(
+                "This open recipe, checklist, and timers remain usable. Reconnect before finishing so cooking history can be saved.",
+              )}
+            </AlertDescription>
+          </Alert>
+        ) : null}
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] xl:gap-8">
           <div className="min-w-0 space-y-5">
             <section aria-labelledby="cooking-progress-title" className="px-1">

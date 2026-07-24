@@ -890,7 +890,7 @@ export type Database = {
       share_permission: "view" | "edit";
       storage_location: "fridge" | "freezer" | "pantry" | "counter" | "other";
       tag_type: "dietary" | "custom";
-      theme_preference: "light" | "dark" | "system";
+      theme_preference: "light" | "dark" | "pink" | "pink-dark" | "system";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1044,7 +1044,7 @@ export const Constants = {
       share_permission: ["view", "edit"],
       storage_location: ["fridge", "freezer", "pantry", "counter", "other"],
       tag_type: ["dietary", "custom"],
-      theme_preference: ["light", "dark", "system"],
+      theme_preference: ["light", "dark", "pink", "pink-dark", "system"],
     },
   },
 } as const;

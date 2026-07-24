@@ -356,4 +356,34 @@ describe("deterministic recipe matcher", () => {
     expect(result.quantityIssues).toHaveLength(0);
     expect(result.matchPercentage).toBe(0);
   });
+
+  it("ranks hundreds of recipes and ingredients deterministically", () => {
+    const pantry = Array.from({ length: 600 }, (_, index) =>
+      pantryIngredient(`ingredient ${index}`, {
+        quantity: 1_000,
+        unit: "g",
+      }),
+    );
+    const recipes = Array.from({ length: 500 }, (_, index) =>
+      recipe(
+        Array.from({ length: 30 }, (__, ingredientIndex) =>
+          ingredient(`ingredient ${(index + ingredientIndex) % 600}`, {
+            quantity: 10,
+            unit: "g",
+          }),
+        ),
+        {
+          id: `recipe-${String(index).padStart(3, "0")}`,
+          title: `Recipe ${index}`,
+        },
+      ),
+    );
+
+    const ranked = rankRecipes(recipes, pantry);
+
+    expect(ranked).toHaveLength(500);
+    expect(ranked.every((result) => result.matchPercentage === 100)).toBe(true);
+    expect(ranked[0]?.recipe.id).toBe("recipe-000");
+    expect(ranked.at(-1)?.recipe.id).toBe("recipe-499");
+  });
 });

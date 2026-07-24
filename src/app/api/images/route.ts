@@ -5,6 +5,7 @@ import {
   isTestAuthenticationEnabled,
 } from "@/lib/auth/authorization";
 import { matchesImageSignature } from "@/lib/images/validation";
+import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
 const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
@@ -64,11 +65,16 @@ export async function POST(request: NextRequest) {
       cacheControl: "3600",
       upsert: false,
     });
-  if (error)
+  if (error) {
+    logServerError("image_upload_failed", error, {
+      mimeType: file.type,
+      bytes: file.size,
+    });
     return NextResponse.json(
       { error: "The image could not be uploaded." },
       { status: 500 },
     );
+  }
   return NextResponse.json({ path });
 }
 
@@ -105,6 +111,10 @@ export async function DELETE(request: NextRequest) {
       .eq("storage_path", path),
   ]);
   if (references.some((reference) => reference.error)) {
+    logServerError(
+      "image_reference_check_failed",
+      references.find((reference) => reference.error)?.error,
+    );
     return NextResponse.json(
       { error: "Image references could not be verified." },
       { status: 500 },
@@ -118,10 +128,12 @@ export async function DELETE(request: NextRequest) {
   }
 
   const { error } = await client.storage.from("recipe-images").remove([path]);
-  if (error)
+  if (error) {
+    logServerError("image_delete_failed", error);
     return NextResponse.json(
       { error: "The image could not be removed." },
       { status: 500 },
     );
+  }
   return NextResponse.json({ ok: true });
 }

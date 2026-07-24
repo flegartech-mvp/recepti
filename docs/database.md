@@ -2,8 +2,8 @@
 
 The cookbook uses Supabase PostgreSQL for structured data and a private
 Supabase Storage bucket for recipe images. The schema is multi-user at the data
-layer, while the application currently admits only the Google account matching
-the server-only `OWNER_EMAIL` environment variable.
+layer, while the application currently admits only Google accounts in the
+server-only `OWNER_EMAILS` environment allowlist.
 
 The SQL migrations are authoritative:
 
@@ -24,6 +24,7 @@ The SQL migrations are authoritative:
 | `20260723172200_atomic_mutations.sql`                         | Race-safe pantry quantity and recipe favorite quick actions                          |
 | `20260723172227_owner_diagnostics_and_security_hardening.sql` | Owner diagnostics, privilege fixes, honest defaults, and covering indexes            |
 | `20260723172548_owner_health_invoker_storage_policy.sql`      | Owner-only bucket metadata policy and caller-privilege health RPC                    |
+| `20260724085818_multi_owner_pink_theme.sql`                   | Additive multi-owner administration and pink preference enum values                  |
 
 [`src/types/database.ts`](../src/types/database.ts) mirrors this contract in the
 generated Supabase `Database` format.
@@ -249,12 +250,14 @@ Composite foreign keys independently reject cross-owner relationships.
 `WITH CHECK` mirrors ownership rules for inserts and updates, so a caller cannot
 reassign a row to another identity.
 
-PostgreSQL cannot read Vercel's `OWNER_EMAIL`, so the project administrator runs
-`select private.configure_owner_email('owner@example.com');` once after the
-migrations. The private table is inaccessible to `anon` and `authenticated`;
-its boolean policy helper compares the signed JWT email. This value must match
-the server-only environment variable, and the JWT must identify Google as a
-provider. Never expose `OWNER_EMAIL` or a service-role key through a
+PostgreSQL cannot read Vercel's `OWNER_EMAILS`, so the project administrator
+runs `private.configure_owner_emails(text[])` after the migrations. The
+function normalizes, validates, deduplicates, and adds addresses by default;
+`p_replace => true` is reserved for a deliberate replacement. The private table
+is inaccessible to `anon` and `authenticated`; its boolean policy helper
+compares the signed JWT email. The values must match the server-only environment
+allowlist, and the JWT must identify Google as a provider. Never expose
+`OWNER_EMAILS` or a service-role key through a
 `NEXT_PUBLIC_*` variable.
 
 ## RPC security model
@@ -273,8 +276,9 @@ A small set of internal Auth/statistics/cover/staple trigger functions is
 `SECURITY DEFINER` because triggers must maintain derived data. Those functions
 use a fixed empty `search_path`; execute is revoked from `PUBLIC`, `anon`, and
 `authenticated`, so they are not app-facing mutation APIs.
-Migration 008's `configure_owner_email` is a separate administrator-only
-function; execute permission is revoked from application roles.
+Migration 015's `configure_owner_emails` and compatibility
+`configure_owner_email` wrapper are administrator-only functions; execute
+permission is revoked from application roles.
 
 `public.owner_health_check()` is a stable, owner-gated `SECURITY INVOKER` RPC
 with an empty fixed `search_path`. A separate RLS policy lets only the
@@ -653,8 +657,10 @@ retailer preferences in version 2, are restored transactionally, and staple IDs
 are re-derived from imported ingredient flags.
 
 Application code should validate the same strict shape with Zod before calling
-the RPC so users receive friendly errors. Never implement import as a client
-loop of unrelated inserts.
+the RPC so users receive friendly errors. The production UI previews counts,
+blocks duplicate recipe titles case-insensitively, requires the exact
+`IMPORT NANA'S RECIPES` confirmation, and invokes merge mode only. Never
+implement import as a client loop of unrelated inserts.
 
 ### `delete_all_cookbook_data`
 

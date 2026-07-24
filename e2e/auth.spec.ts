@@ -107,15 +107,41 @@ test.describe("private cookbook authorization", () => {
     await expect(page).toHaveURL(/\/dashboard$/);
     await expect(
       page.getByRole("heading", {
-        name: /Good (morning|afternoon|evening), cook\./,
+        name: "Hi, Nana",
       }),
     ).toBeVisible();
+    await expect(page.getByText("What are we cooking today?")).toBeVisible();
+    await expect(page.locator("[data-swirly-background]")).toBeVisible();
     await expect(
       page.getByRole("region", { name: "Cookbook overview" }),
     ).toBeVisible();
     await expect(
       page.getByText("Recipes", { exact: true }).first(),
     ).toBeVisible();
+  });
+
+  test("persists the pink theme without a hydration flash", async ({
+    context,
+    page,
+    baseURL,
+  }) => {
+    await authenticateAs(context, baseURL, "owner");
+    await page.goto("/settings");
+
+    await page.getByRole("tab", { name: "Preferences" }).click();
+    const blushTheme = page.getByRole("button", { name: /^Blush/ });
+    await blushTheme.click();
+    await expect(blushTheme).toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "Save preferences" }).click();
+    await expect(page.locator("html")).toHaveClass(/pink/);
+
+    await page.reload();
+    await expect(page.locator("html")).toHaveClass(/pink/);
+
+    await page.goto("/dashboard");
+    const background = page.locator("[data-swirly-background]");
+    await expect(background).toBeVisible();
+    await expect(background).toHaveCSS("pointer-events", "none");
   });
 
   test("allows only the owner to view configuration diagnostics", async ({

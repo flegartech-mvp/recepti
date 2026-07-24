@@ -100,7 +100,7 @@ export default async function LandingPage({
               <AlertDescription>
                 {" "}
                 {t(
-                  "This copy has no Supabase connection yet. Add NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and OWNER_EMAIL in .env.local, then enable Google in Supabase Auth.",
+                  "This copy has no Supabase connection yet. Add NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY, and OWNER_EMAILS in .env.local, then enable Google in Supabase Auth.",
                 )}{" "}
               </AlertDescription>{" "}
             </Alert>

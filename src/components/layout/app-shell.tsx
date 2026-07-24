@@ -1,5 +1,6 @@
 "use client";
 import { AppNavigation } from "@/components/layout/app-navigation";
+import { DecorativeBackground } from "@/components/layout/decorative-background";
 import { useI18n } from "@/components/i18n-provider";
 export function AppShell({
   children,
@@ -22,10 +23,10 @@ export function AppShell({
       <AppNavigation email={email} />{" "}
       <main
         id="main-content"
-        className="mobile-content-safe min-h-[100dvh] bg-background lg:ml-64"
+        className="mobile-content-safe relative isolate min-h-[100dvh] overflow-hidden bg-background lg:ml-64"
       >
-        {" "}
-        {children}{" "}
+        <DecorativeBackground />
+        <div className="relative z-[1]">{children}</div>
       </main>{" "}
     </div>
   );

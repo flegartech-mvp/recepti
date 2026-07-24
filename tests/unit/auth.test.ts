@@ -24,15 +24,19 @@ describe("owner email authorization", () => {
     );
   });
 
-  it("matches only the normalized owner email", () => {
-    expect(isOwnerEmail(" Owner@Example.Test ", "owner@example.test")).toBe(
-      true,
-    );
-    expect(isOwnerEmail("visitor@example.test", "owner@example.test")).toBe(
-      false,
-    );
-    expect(isOwnerEmail(null, "owner@example.test")).toBe(false);
-    expect(isOwnerEmail(undefined, "owner@example.test")).toBe(false);
+  it("accepts every configured owner and denies an unlisted account", () => {
+    const owners = [
+      "tini.flegar@gmail.com",
+      "flegartech@gmail.com",
+      "vukovic.nadia7@gmail.com",
+    ];
+
+    expect(isOwnerEmail(" TINI.FLEGAR@GMAIL.COM ", owners)).toBe(true);
+    expect(isOwnerEmail("flegartech@gmail.com", owners)).toBe(true);
+    expect(isOwnerEmail("vukovic.nadia7@gmail.com", owners)).toBe(true);
+    expect(isOwnerEmail("visitor@example.test", owners)).toBe(false);
+    expect(isOwnerEmail(null, owners)).toBe(false);
+    expect(isOwnerEmail(undefined, owners)).toBe(false);
   });
 });
 

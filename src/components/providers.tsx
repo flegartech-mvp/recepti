@@ -11,6 +11,8 @@ import {
   REDUCE_MOTION_STORAGE_KEY,
 } from "@/features/settings/local-data";
 import type { Locale } from "@/lib/i18n/config";
+import { reportClientError } from "@/lib/observability";
+import { APP_THEMES } from "@/lib/theme";
 
 export function AppProviders({
   children,
@@ -28,7 +30,31 @@ export function AppProviders({
     document.documentElement.dataset.reduceMotion = String(reduceMotion);
 
     if ("serviceWorker" in navigator && process.env.NODE_ENV === "production") {
-      void navigator.serviceWorker.register("/sw.js");
+      void navigator.serviceWorker
+        .register("/sw.js")
+        .catch((error: unknown) =>
+          reportClientError("service_worker_registration_failed", error),
+        );
+
+      const reportServiceWorkerFailure = (event: MessageEvent<unknown>) => {
+        if (
+          typeof event.data === "object" &&
+          event.data !== null &&
+          "type" in event.data &&
+          event.data.type === "nanas-recipes:sw-error"
+        ) {
+          reportClientError("service_worker_runtime_failed", event.data);
+        }
+      };
+      navigator.serviceWorker.addEventListener(
+        "message",
+        reportServiceWorkerFailure,
+      );
+      return () =>
+        navigator.serviceWorker.removeEventListener(
+          "message",
+          reportServiceWorkerFailure,
+        );
     }
   }, []);
 
@@ -42,6 +68,7 @@ export function AppProviders({
         defaultTheme="system"
         enableSystem
         enableColorScheme
+        themes={[...APP_THEMES]}
       >
         <TooltipProvider delayDuration={300}>
           {children}

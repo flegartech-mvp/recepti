@@ -94,15 +94,17 @@ pnpm exec supabase migration list
 
 The ordered migrations under `supabase/migrations/` are authoritative. Apply
 them in timestamp order through
-`20260723172548_owner_health_invoker_storage_policy.sql`. Do not reproduce them manually
+`20260724085818_multi_owner_pink_theme.sql`. Do not reproduce them manually
 in the Dashboard, and do not use `db push --include-seed`: `supabase/seed.sql`
 is realistic development data and must not populate production.
 
 Configure the strict database gate from the Supabase SQL editor using the same
-address that will be assigned to Vercel `OWNER_EMAIL`:
+addresses that will be assigned to Vercel `OWNER_EMAILS`:
 
 ```sql
-select private.configure_owner_email('owner@example.com');
+select private.configure_owner_emails(
+  array['owner@example.com', 'second-owner@example.com']
+);
 ```
 
 This is deliberately an administrator-only function. Without this step, RLS
@@ -174,7 +176,8 @@ Set these in Project Settings -> Environment Variables:
 | ------------------------------- | ------------------------------ | ---------------------------------------------------- | ---------------------------- | ------------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Hosted or local URL            | Hosted/staging URL                                   | Hosted production URL        | Public project endpoint                           |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Matching publishable/anon key  | Matching key                                         | Matching production key      | Safe for the browser only because RLS is enforced |
-| `OWNER_EMAIL`                   | Owner Google email             | Owner/test-owner email                               | Exact owner Google email     | Server-only; never rename with `NEXT_PUBLIC_`     |
+| `OWNER_EMAILS`                  | Owner Google emails            | Owner/test-owner emails                              | Exact owner Google allowlist | Server-only; never rename with `NEXT_PUBLIC_`     |
+| `OWNER_EMAIL`                   | Optional legacy fallback       | Optional legacy fallback                             | Prefer unset                 | Supported for single-owner compatibility          |
 | `NEXT_PUBLIC_SITE_URL`          | `http://localhost:3000`        | Usually omit, or use one exact stable preview origin | Exact canonical HTTPS origin | No path; Nana's Recipes appends `/auth/callback`  |
 | `E2E_TEST_MODE`                 | Playwright sets it temporarily | **Do not set**                                       | **Do not set**               | Local automated tests only                        |
 
@@ -243,7 +246,7 @@ pnpm dlx vercel logs <production-url>
 
 Test the canonical custom domain, not only the generated Vercel URL. Confirm
 that OAuth returns to the canonical domain and that the owner allowlist reads
-the Production value of `OWNER_EMAIL`.
+the Production value of `OWNER_EMAILS`.
 
 Vercel CLI commands are documented in
 [Vercel CLI](https://vercel.com/docs/cli) and
@@ -256,8 +259,8 @@ Vercel CLI commands are documented in
       from the release commit.
 - [ ] Local `db reset --local` and `pnpm test:db` pass.
 - [ ] Hosted migration history contains every checked-in migration through
-      `20260723172548_owner_health_invoker_storage_policy`.
-- [ ] The database owner allowlist matches Production `OWNER_EMAIL`.
+      `20260724085818_multi_owner_pink_theme`.
+- [ ] The database owner allowlist matches Production `OWNER_EMAILS`.
 - [ ] `/settings/diagnostics` passes as the owner and redirects logged-out and
       non-owner identities.
 - [ ] Google Auth is enabled; Email, phone, and anonymous providers are
@@ -276,7 +279,8 @@ Vercel CLI commands are documented in
 - [ ] Cross-user RLS isolation has been checked with `pnpm test:db`.
 - [ ] Image upload, replacement, deletion, export, and destructive reset have
       been exercised with disposable data.
-- [ ] Import remains absent from the production UI.
+- [ ] Import preview, duplicate blocking, confirmation, and atomic merge have
+      been tested with disposable data.
 - [ ] Vercel runtime logs contain no token, cookie, authorization-code, or raw
       database-error logging.
 
@@ -314,7 +318,7 @@ them.
 
 Run `pnpm exec supabase migration list` against the linked project. Apply every
 checked-in migration through
-`20260723172548_owner_health_invoker_storage_policy` before deploying the
+`20260724085818_multi_owner_pink_theme` before deploying the
 matching application.
 
 ### OAuth fails or returns to the wrong hostname
@@ -326,7 +330,7 @@ login back to production.
 
 ### The owner reaches “This cookbook is private”
 
-Check the Production/Preview-specific `OWNER_EMAIL`, remove surrounding
+Check the Production/Preview-specific `OWNER_EMAILS`, remove surrounding
 whitespace, confirm it matches the email Google returns, and confirm Supabase's
 signed session metadata includes Google as a provider. Redeploy after an
 environment change.

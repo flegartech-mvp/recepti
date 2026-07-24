@@ -2,7 +2,8 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { isGoogleIdentity, isOwnerEmail } from "@/lib/auth/authorization";
 import { safeInternalPath } from "@/lib/auth/redirects";
-import { getOwnerEmail } from "@/lib/env";
+import { getOwnerEmails } from "@/lib/env";
+import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
@@ -15,24 +16,29 @@ export async function GET(request: NextRequest) {
 
   const client = await createClient();
   const { error } = await client.auth.exchangeCodeForSession(code);
-  if (error)
+  if (error) {
+    logServerError("auth_callback_exchange_failed", error);
     return NextResponse.redirect(
       new URL("/auth/auth-code-error?reason=exchange", request.url),
     );
+  }
 
   const {
     data: { user },
     error: userError,
   } = await client.auth.getUser();
-  if (userError)
+  if (userError) {
+    logServerError("auth_callback_session_failed", userError);
     return NextResponse.redirect(
       new URL("/auth/auth-code-error?reason=session", request.url),
     );
+  }
 
-  let ownerEmail: string;
+  let ownerEmails: readonly string[];
   try {
-    ownerEmail = getOwnerEmail();
-  } catch {
+    ownerEmails = getOwnerEmails();
+  } catch (error) {
+    logServerError("auth_callback_owner_configuration_invalid", error);
     return NextResponse.redirect(
       new URL("/auth/auth-code-error?reason=configuration", request.url),
     );
@@ -42,7 +48,7 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(new URL("/private", request.url));
   }
 
-  if (!isOwnerEmail(user.email, ownerEmail)) {
+  if (!isOwnerEmail(user.email, ownerEmails)) {
     return NextResponse.redirect(new URL("/preview", request.url));
   }
 

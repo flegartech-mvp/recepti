@@ -7,7 +7,7 @@ import {
   requireOwner,
 } from "@/lib/auth/authorization";
 import { dataAccessError } from "@/lib/errors/application-error";
-import { getOwnerEmail } from "@/lib/env";
+import { getOwnerEmails } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 export interface DiagnosticCheck {
@@ -31,15 +31,15 @@ const remediation = {
   provider:
     "Use Google OAuth; password and other identity providers are not accepted.",
   ownerEnv:
-    "Set the server-only OWNER_EMAIL variable for this environment and redeploy.",
+    "Set the server-only OWNER_EMAILS variable for this environment and redeploy.",
   databaseOwner:
-    "Run private.configure_owner_email(...) as a database administrator with the same normalized address as OWNER_EMAIL.",
+    "Run private.configure_owner_emails(...) as a database administrator with the same normalized addresses as OWNER_EMAILS.",
   schema:
     "Apply the reviewed Supabase migrations in order, then rerun diagnostics.",
   storage:
     "Apply the storage migration and verify the private recipe-images bucket and owner-scoped policies.",
   agreement:
-    "Make OWNER_EMAIL, the signed Google identity, and the PostgreSQL owner allowlist agree.",
+    "Make OWNER_EMAILS, the signed Google identity, and the PostgreSQL owner allowlist agree.",
 } as const;
 
 function check(
@@ -54,19 +54,19 @@ function check(
 export async function getOwnerDiagnostics(): Promise<DiagnosticCheck[]> {
   const user = await requireOwner("/settings/diagnostics");
 
-  let ownerEmail: string | null = null;
+  let ownerEmails: readonly string[] = [];
   try {
-    ownerEmail = getOwnerEmail();
+    ownerEmails = getOwnerEmails();
   } catch {
-    ownerEmail = null;
+    ownerEmails = [];
   }
 
   const appChecks = {
     userAvailable: Boolean(user.id),
     providerPermitted: isGoogleIdentity(user),
-    ownerEnvironmentConfigured: Boolean(ownerEmail),
+    ownerEnvironmentConfigured: ownerEmails.length > 0,
     ownerEmailMatches: Boolean(
-      ownerEmail && isOwnerEmail(user.email, ownerEmail),
+      ownerEmails.length > 0 && isOwnerEmail(user.email, ownerEmails),
     ),
   };
 

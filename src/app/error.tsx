@@ -1,19 +1,25 @@
 "use client";
 
+import { useEffect } from "react";
 import { AlertTriangle, RotateCcw } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { LanguageSwitcher } from "@/components/language-switcher";
 import { useI18n } from "@/components/i18n-provider";
+import { reportClientError } from "@/lib/observability";
 
 export default function ErrorPage({
+  error,
   reset,
 }: {
   error: Error & { digest?: string };
   reset: () => void;
 }) {
   const { t } = useI18n();
+  useEffect(() => {
+    reportClientError("unexpected_react_error", error);
+  }, [error]);
   return (
     <main className="safe-inline grid min-h-[60dvh] place-items-center py-12">
       <div className="safe-top-control fixed z-20 flex items-center gap-2">
