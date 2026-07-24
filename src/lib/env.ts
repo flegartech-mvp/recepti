@@ -82,13 +82,7 @@ export function getPublicEnvironment(): PublicEnvironment {
   return parsed.data;
 }
 
-export function parseOwnerEmails({
-  ownerEmails,
-  legacyOwnerEmail,
-}: {
-  ownerEmails?: string;
-  legacyOwnerEmail?: string;
-}): readonly string[] {
+export function parseOwnerEmails(ownerEmails?: string): readonly string[] {
   const supplied = ownerEmails === undefined ? [] : ownerEmails.split(",");
   if (ownerEmails !== undefined && supplied.some((email) => !email.trim())) {
     throw new Error(
@@ -96,11 +90,8 @@ export function parseOwnerEmails({
     );
   }
 
-  if (legacyOwnerEmail?.trim()) supplied.push(legacyOwnerEmail);
   if (supplied.length === 0) {
-    throw new Error(
-      "OWNER_EMAILS is required for owner-only authorization. OWNER_EMAIL is supported only as a legacy fallback.",
-    );
+    throw new Error("OWNER_EMAILS is required for owner-only authorization.");
   }
 
   const parsed = z.array(ownerEmailSchema).min(1).max(20).safeParse(supplied);
@@ -114,19 +105,7 @@ export function parseOwnerEmails({
 }
 
 export function getOwnerEmails(): readonly string[] {
-  return parseOwnerEmails({
-    ownerEmails: process.env.OWNER_EMAILS,
-    legacyOwnerEmail: process.env.OWNER_EMAIL,
-  });
-}
-
-/** Backward-compatible helper for diagnostics that only need one safe value. */
-export function getOwnerEmail(): string {
-  const [ownerEmail] = getOwnerEmails();
-  if (!ownerEmail) {
-    throw new Error("OWNER_EMAILS is required for owner-only authorization.");
-  }
-  return ownerEmail;
+  return parseOwnerEmails(process.env.OWNER_EMAILS);
 }
 
 export function getSiteUrl(): string {

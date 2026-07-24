@@ -149,7 +149,7 @@ private Storage bucket, recipe/search workflows, pantry/catalog workflows,
 shopping upsert, settings/export, the strict owner gate, retailer preferences,
 atomic quick actions, the owner health contract, multi-owner administration,
 and pink themes. The current head is
-`20260724085818_multi_owner_pink_theme.sql`. See
+`20260724095616_enforce_multi_owner_configuration.sql`. See
 [Database architecture](docs/database.md) for the full ER model, RPC semantics,
 delete behavior, export envelope, and migration workflow.
 
@@ -333,7 +333,6 @@ these migrations. Add a forward-only migration, reset/test locally, then run
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Browser-safe        | Publishable/anon key; security depends on the checked-in RLS policies                                                    |
 | `NEXT_PUBLIC_SITE_URL`          | Browser-safe origin | `http://localhost:3000` locally; exact canonical HTTPS origin in production; usually omitted for dynamic Vercel Previews |
 | `OWNER_EMAILS`                  | Server-only         | Comma-separated Google email allowlist; must match `private.configure_owner_emails(...)`                                 |
-| `OWNER_EMAIL`                   | Server-only         | Optional legacy single-owner fallback; prefer `OWNER_EMAILS`                                                             |
 | `E2E_TEST_MODE`                 | Local tests only    | Keep `0`/unset normally and never configure it in any Vercel environment                                                 |
 
 `NEXT_PUBLIC_SITE_URL` contains an origin only, without `/auth/callback`. Nana's Recipes
@@ -441,7 +440,7 @@ troubleshooting are in [Deployment guide](docs/deployment.md).
 
 - [ ] Every release-gate command passes from the deploy commit.
 - [ ] Hosted migration history includes every checked-in migration through
-      `20260724085818_multi_owner_pink_theme`.
+      `20260724095616_enforce_multi_owner_configuration`.
 - [ ] `private.configure_owner_emails(...)` matches Vercel `OWNER_EMAILS`.
 - [ ] `recipe-images` is private and all table/Storage RLS policies are active.
 - [ ] Supabase Site URL and production callback are exact HTTPS URLs.
@@ -511,7 +510,7 @@ Google. Vercel environment changes require a new deployment.
 
 Run `pnpm exec supabase migration list` for the linked project and apply every
 checked-in migration through
-`20260724085818_multi_owner_pink_theme` before deploying the
+`20260724095616_enforce_multi_owner_configuration` before deploying the
 corresponding code. Then open `/settings/diagnostics` as the owner and confirm
 every check passes.
 

@@ -59,8 +59,8 @@ OWNER_EMAILS=owner@example.com,second-owner@example.com
 `OWNER_EMAILS` is a comma-separated allowlist. Comparison uses Unicode NFKC
 normalization, trimming, locale-stable lowercasing, validation, and
 deduplication. Configure the same addresses the intended Google accounts
-return. The legacy `OWNER_EMAIL` variable remains an optional single-address
-fallback. Do not prefix either variable with `NEXT_PUBLIC_`.
+return. There is intentionally no single-owner fallback. Do not prefix
+`OWNER_EMAILS` with `NEXT_PUBLIC_`.
 
 `NEXT_PUBLIC_SITE_URL` must be an origin without a path. A trailing slash is
 removed by the application. In Vercel Preview, omit a static production value

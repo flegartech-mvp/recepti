@@ -29,6 +29,7 @@ import { GET as finishOAuth } from "@/app/auth/callback/route";
 import { GET as startOAuth } from "@/app/auth/login/route";
 
 beforeEach(() => {
+  vi.clearAllMocks();
   environment.configured.mockReturnValue(true);
   environment.ownerEmails.mockReturnValue([
     "owner@example.test",
@@ -102,6 +103,21 @@ describe("Google OAuth initiation", () => {
     expect(response.headers.get("location")).toBe(
       "https://recepti-rho.vercel.app/auth/auth-code-error?reason=oauth",
     );
+  });
+
+  it("fails before OAuth when the multi-owner configuration is missing", async () => {
+    environment.ownerEmails.mockImplementationOnce(() => {
+      throw new Error("OWNER_EMAILS is missing");
+    });
+
+    const response = await startOAuth(
+      new NextRequest("https://recepti-rho.vercel.app/auth/login"),
+    );
+
+    expect(response.headers.get("location")).toBe(
+      "https://recepti-rho.vercel.app/auth/auth-code-error?reason=configuration",
+    );
+    expect(auth.signInWithOAuth).not.toHaveBeenCalled();
   });
 });
 

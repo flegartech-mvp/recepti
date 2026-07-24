@@ -77,7 +77,7 @@ insert into auth.users (
   '{"full_name":"Private Visitor"}'::jsonb,
   now(), now()
 ) on conflict (id) do nothing;
-select private.configure_owner_email('owner@example.test');
+select private.configure_owner_emails(array['owner@example.test'], true);
 set app.seed_user_id = '00000000-0000-4000-8000-000000000001';
 ${readFileSync(seedPath, "utf8")}
 ${readFileSync(testPath, "utf8")}

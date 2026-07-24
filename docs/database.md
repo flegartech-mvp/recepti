@@ -25,6 +25,7 @@ The SQL migrations are authoritative:
 | `20260723172227_owner_diagnostics_and_security_hardening.sql` | Owner diagnostics, privilege fixes, honest defaults, and covering indexes            |
 | `20260723172548_owner_health_invoker_storage_policy.sql`      | Owner-only bucket metadata policy and caller-privilege health RPC                    |
 | `20260724085818_multi_owner_pink_theme.sql`                   | Additive multi-owner administration and pink preference enum values                  |
+| `20260724095616_enforce_multi_owner_configuration.sql`        | Removes the obsolete single-owner configuration entry point                          |
 
 [`src/types/database.ts`](../src/types/database.ts) mirrors this contract in the
 generated Supabase `Database` format.
@@ -83,7 +84,7 @@ relationships use composite foreign keys such as
 | `storage_location`       | `fridge`, `freezer`, `pantry`, `counter`, `other`                                                                                                                   |
 | `tag_type`               | `dietary`, `custom`                                                                                                                                                 |
 | `image_kind`             | `cover`, `gallery`                                                                                                                                                  |
-| `theme_preference`       | `light`, `dark`, `system`                                                                                                                                           |
+| `theme_preference`       | `light`, `dark`, `system`, `pink`, `pink-dark`                                                                                                                      |
 | `measurement_preference` | `metric`, `imperial`, `original`                                                                                                                                    |
 | `share_permission`       | `view`, `edit`                                                                                                                                                      |
 

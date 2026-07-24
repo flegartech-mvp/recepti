@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
 import {
-  getOwnerEmail,
   getOwnerEmails,
   getPublicEnvironment,
   getRetailerEnvironment,
@@ -20,28 +19,19 @@ describe("environment validation", () => {
       "OWNER_EMAILS",
       " tini.flegar@gmail.com, FLEGARTECH@GMAIL.COM, vukovic.nadia7@gmail.com, tini.flegar@gmail.com ",
     );
-    vi.stubEnv("OWNER_EMAIL", undefined);
-
     expect(getOwnerEmails()).toEqual([
       "tini.flegar@gmail.com",
       "flegartech@gmail.com",
       "vukovic.nadia7@gmail.com",
     ]);
-    expect(getOwnerEmail()).toBe("tini.flegar@gmail.com");
-  });
-
-  it("keeps the legacy single-owner variable as a secure fallback", () => {
-    vi.stubEnv("OWNER_EMAILS", undefined);
-    vi.stubEnv("OWNER_EMAIL", " owner@example.test ");
-    expect(getOwnerEmails()).toEqual(["owner@example.test"]);
   });
 
   it.each([
-    { ownerEmails: undefined, legacyOwnerEmail: undefined },
-    { ownerEmails: "" },
-    { ownerEmails: "owner@example.test," },
-    { ownerEmails: "owner@example.test,,other@example.test" },
-    { ownerEmails: "not-an-email" },
+    undefined,
+    "",
+    "owner@example.test,",
+    "owner@example.test,,other@example.test",
+    "not-an-email",
   ])("fails closed for missing or malformed allowlists: %j", (input) => {
     expect(() => parseOwnerEmails(input)).toThrow(/OWNER_EMAILS/);
   });

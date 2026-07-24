@@ -67,9 +67,7 @@ export function isMissingAuthSessionError(error: unknown): boolean {
 
 function testUser(role: "owner" | "guest" | "denied"): User {
   const ownerEmail =
-    process.env.OWNER_EMAILS?.split(",")[0]?.trim() ??
-    process.env.OWNER_EMAIL ??
-    "owner@example.test";
+    process.env.OWNER_EMAILS?.split(",")[0]?.trim() ?? "owner@example.test";
   const email = role === "owner" ? ownerEmail : "visitor@example.test";
   return {
     id:

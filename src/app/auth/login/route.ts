@@ -1,12 +1,21 @@
 import { NextResponse, type NextRequest } from "next/server";
 
 import { safeInternalPath } from "@/lib/auth/redirects";
-import { hasSupabaseEnvironment } from "@/lib/env";
+import { getOwnerEmails, hasSupabaseEnvironment } from "@/lib/env";
 import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
   if (!hasSupabaseEnvironment()) {
+    return NextResponse.redirect(
+      new URL("/auth/auth-code-error?reason=configuration", request.url),
+    );
+  }
+
+  try {
+    getOwnerEmails();
+  } catch (error) {
+    logServerError("auth_owner_configuration_invalid", error);
     return NextResponse.redirect(
       new URL("/auth/auth-code-error?reason=configuration", request.url),
     );
