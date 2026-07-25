@@ -262,5 +262,10 @@ if (
   process.argv[1] &&
   import.meta.url === pathToFileURL(resolve(process.argv[1])).href
 ) {
-  await main();
+  void main().catch((error: unknown) => {
+    console.error(
+      error instanceof Error ? error.message : "Recipe cover import failed.",
+    );
+    process.exitCode = 1;
+  });
 }
