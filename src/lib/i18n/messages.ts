@@ -400,23 +400,6 @@ export const slMessages: Record<string, string> = {
   "Cookbook backup imported": "Varnostna kopija kuharice je uvožena",
   "The cookbook backup could not be imported.":
     "Varnostne kopije kuharice ni bilo mogoče uvoziti.",
-  "Family notebook recipes": "Recepti iz družinskega zvezka",
-  "Preview 15 family notebook recipes":
-    "Predogled 15 receptov iz družinskega zvezka",
-  "This reviewed bundle adds only missing recipe titles and their ingredients. It never changes pantry, shopping, history, or settings.":
-    "Ta pregledani paket doda samo manjkajoče naslove receptov in njihove sestavine. Nikoli ne spremeni shrambe, nakupov, zgodovine ali nastavitev.",
-  "Family notebook import preview": "Predogled uvoza iz družinskega zvezka",
-  "Ready to import": "Pripravljeno za uvoz",
-  "Already present and safely skipped": "Že prisotno in varno preskočeno",
-  "All 15 recipes are already present": "Vseh 15 receptov je že prisotnih",
-  "The import action is disabled because no bundled recipe is missing.":
-    "Uvoz je onemogočen, ker ne manjka noben recept iz paketa.",
-  "Import missing family notebook recipes":
-    "Uvozi manjkajoče recepte iz družinskega zvezka",
-  "The family notebook import could not be read.":
-    "Uvoza iz družinskega zvezka ni bilo mogoče prebrati.",
-  "The family notebook import could not be imported.":
-    "Receptov iz družinskega zvezka ni bilo mogoče uvoziti.",
   "Duplicate recipe": "Podvoji recept",
   "e.g. ripe tomatoes": "npr. zreli paradižniki",
   "Edit {name}": "Uredi {name}",
@@ -726,10 +709,6 @@ export const slMessages: Record<string, string> = {
     "{count} shranjene zamenjave omogočajo ta recept.",
   "{count} saved substitutions make this recipe possible.":
     "{count} shranjenih zamenjav omogoča ta recept.",
-  "{count} family notebook recipes imported":
-    "Uvoženih receptov iz družinskega zvezka: {count}",
-  "{missing} missing, {skipped} already present":
-    "Manjka: {missing}, že prisotno: {skipped}",
   "{count} missing ingredient": "manjka {count} sestavina",
   "{count} missing ingredients-two": "manjkata {count} sestavini",
   "{count} missing ingredients-few": "manjkajo {count} sestavine",
