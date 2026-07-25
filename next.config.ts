@@ -15,8 +15,8 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["localhost", "127.0.0.1"],
   outputFileTracingIncludes: {
     "/api/images": [
-      "./node_modules/@img/sharp-linux-x64/**/*",
-      "./node_modules/@img/sharp-libvips-linux-x64/**/*",
+      "./node_modules/.pnpm/@img+sharp-linux-x64@0.35.2/node_modules/@img/sharp-linux-x64/**/*",
+      "./node_modules/.pnpm/@img+sharp-libvips-linux-x64@1.3.1/node_modules/@img/sharp-libvips-linux-x64/**/*",
     ],
   },
   images: {
