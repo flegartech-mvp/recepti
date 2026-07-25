@@ -1,5 +1,5 @@
-const CACHE_NAME = "nanas-recipes-static-v4";
-const STATIC_ASSETS = ["/offline", "/images/nanas-recipes-hero.png"];
+const CACHE_NAME = "nanas-recipes-static-v5";
+const STATIC_ASSETS = ["/offline"];
 
 async function reportFailure(event, error) {
   console.error("[nanas-recipes:service-worker-error]", {
@@ -66,7 +66,7 @@ self.addEventListener("fetch", (event) => {
     url.pathname.startsWith("/_next/static/");
   const isExplicitPublicAsset =
     url.origin === self.location.origin &&
-    ["/images/nanas-recipes-hero.png", "/icon", "/apple-icon"].includes(
+    ["/images/nanas-recipes-hero.webp", "/icon", "/apple-icon"].includes(
       url.pathname,
     );
 

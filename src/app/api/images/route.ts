@@ -4,20 +4,35 @@ import {
   getAuthorizationState,
   isTestAuthenticationEnabled,
 } from "@/lib/auth/authorization";
-import { matchesImageSignature } from "@/lib/images/validation";
+import {
+  MAX_IMAGE_UPLOAD_BYTES,
+  RECIPE_IMAGE_BUCKET,
+  RECIPE_IMAGE_CACHE_SECONDS,
+  SUPPORTED_IMAGE_MIME_TYPES,
+  type SupportedImageMimeType,
+} from "@/lib/images/constants";
+import { InvalidImageError, processRecipeCover } from "@/lib/images/validation";
 import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
-const MAX_IMAGE_BYTES = 6 * 1024 * 1024;
-const mimeToExtension = new Map([
-  ["image/jpeg", "jpg"],
-  ["image/png", "png"],
-  ["image/webp", "webp"],
+const mimeToExtensions = new Map<SupportedImageMimeType, readonly string[]>([
+  ["image/jpeg", ["jpg", "jpeg"]],
+  ["image/png", ["png"]],
+  ["image/webp", ["webp"]],
 ]);
 
-function isMatchingExtension(filename: string, extension: string) {
+function isMatchingExtension(
+  filename: string,
+  mimeType: SupportedImageMimeType,
+) {
   const supplied = filename.toLocaleLowerCase("en-US").split(".").pop();
-  return supplied === extension || (extension === "jpg" && supplied === "jpeg");
+  return Boolean(
+    supplied && mimeToExtensions.get(mimeType)?.includes(supplied),
+  );
+}
+
+function isSupportedMimeType(value: string): value is SupportedImageMimeType {
+  return SUPPORTED_IMAGE_MIME_TYPES.some((mimeType) => mimeType === value);
 }
 
 export async function POST(request: NextRequest) {
@@ -32,43 +47,58 @@ export async function POST(request: NextRequest) {
       { error: "Choose an image to upload." },
       { status: 400 },
     );
-  const extension = mimeToExtension.get(file.type);
-  if (!extension || !isMatchingExtension(file.name, extension)) {
+  if (
+    !isSupportedMimeType(file.type) ||
+    !isMatchingExtension(file.name, file.type)
+  ) {
     return NextResponse.json(
       { error: "Use a JPEG, PNG, or WebP image with a matching extension." },
       { status: 415 },
     );
   }
-  if (file.size <= 0 || file.size > MAX_IMAGE_BYTES) {
+  if (file.size <= 0 || file.size > MAX_IMAGE_UPLOAD_BYTES) {
     return NextResponse.json(
       { error: "Images must be smaller than 6 MB." },
       { status: 413 },
     );
   }
 
-  const bytes = await file.arrayBuffer();
-  if (!matchesImageSignature(new Uint8Array(bytes), file.type)) {
+  let processed;
+  try {
+    processed = await processRecipeCover(
+      new Uint8Array(await file.arrayBuffer()),
+      file.type,
+    );
+  } catch (error) {
     return NextResponse.json(
-      { error: "The file contents do not match the selected image type." },
+      {
+        error:
+          error instanceof InvalidImageError
+            ? error.message
+            : "The image could not be decoded safely.",
+      },
       { status: 415 },
     );
   }
 
-  const path = `${authorization.user.id}/${crypto.randomUUID()}.${extension}`;
+  const path = `${authorization.user.id}/${crypto.randomUUID()}.${processed.extension}`;
   if (isTestAuthenticationEnabled()) return NextResponse.json({ path });
 
   const client = await createClient();
   const { error } = await client.storage
-    .from("recipe-images")
-    .upload(path, bytes, {
-      contentType: file.type,
-      cacheControl: "3600",
+    .from(RECIPE_IMAGE_BUCKET)
+    .upload(path, processed.bytes, {
+      contentType: processed.mimeType,
+      cacheControl: String(RECIPE_IMAGE_CACHE_SECONDS),
       upsert: false,
     });
   if (error) {
     logServerError("image_upload_failed", error, {
-      mimeType: file.type,
-      bytes: file.size,
+      sourceMimeType: file.type,
+      sourceBytes: file.size,
+      outputBytes: processed.bytes.length,
+      outputWidth: processed.width,
+      outputHeight: processed.height,
     });
     return NextResponse.json(
       { error: "The image could not be uploaded." },
@@ -127,7 +157,9 @@ export async function DELETE(request: NextRequest) {
     );
   }
 
-  const { error } = await client.storage.from("recipe-images").remove([path]);
+  const { error } = await client.storage
+    .from(RECIPE_IMAGE_BUCKET)
+    .remove([path]);
   if (error) {
     logServerError("image_delete_failed", error);
     return NextResponse.json(

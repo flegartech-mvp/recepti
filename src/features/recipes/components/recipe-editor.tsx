@@ -31,6 +31,7 @@ import { RecipeNotesSection } from "@/features/recipes/components/recipe-notes-s
 import { RecipeStepsSection } from "@/features/recipes/components/recipe-steps-section";
 import { localStorageKey } from "@/features/settings/local-data";
 import { normalizeIngredientName } from "@/lib/domain";
+import { MAX_IMAGE_UPLOAD_BYTES } from "@/lib/images/constants";
 import { createRecipeSchema, type RecipeInput } from "@/lib/validation";
 import type { Ingredient, Recipe } from "@/types/domain";
 
@@ -44,6 +45,7 @@ const isUuid = (value: string | undefined) =>
 
 function initialValues(recipe?: Recipe, defaultServings = 2): EditorValues {
   return {
+    revision: recipe?.revision ?? null,
     title: recipe?.title ?? "",
     description: recipe?.description ?? "",
     category: recipe?.category ?? "dinner",
@@ -94,14 +96,13 @@ interface StoredEditorDraft {
   values: Partial<EditorValues>;
 }
 
-function readStoredDraft(
+export function readStoredDraft(
   stored: string,
   recipe?: Recipe,
 ): Partial<EditorValues> | null {
   const parsed = JSON.parse(stored) as
     Partial<EditorValues> | StoredEditorDraft;
   if ("values" in parsed) {
-    if (recipe && parsed.recipeUpdatedAt !== recipe.updatedAt) return null;
     return parsed.values;
   }
   return recipe ? null : parsed;
@@ -412,13 +413,31 @@ export function RecipeEditor({
         }
         const input = buildInput(values, imagePath, intent);
         const result = recipe
-          ? await updateRecipeAction(recipe.id, input)
+          ? await updateRecipeAction(recipe.id, input, values.revision ?? 0)
           : await createRecipeAction(input);
         if (!result.ok) {
-          const cleanupPending = uploadedPath
-            ? !(await removeUploadedImage(uploadedPath))
-            : false;
-          uploadedPath = null;
+          const conflict = result.code === "RECIPE_CONFLICT";
+          const cleanupPending =
+            uploadedPath && !conflict
+              ? !(await removeUploadedImage(uploadedPath))
+              : false;
+          if (!conflict) uploadedPath = null;
+          if (conflict) {
+            setImageFile(null);
+            const conflictValues = {
+              ...values,
+              imagePath,
+              revision: values.revision,
+            };
+            form.reset(conflictValues, { keepDirty: true });
+            localStorage.setItem(
+              draftKey,
+              JSON.stringify({
+                recipeUpdatedAt: recipe?.updatedAt ?? null,
+                values: conflictValues,
+              } satisfies StoredEditorDraft),
+            );
+          }
           if (result.fieldErrors) {
             setValidationMessages(
               Object.fromEntries(
@@ -437,7 +456,17 @@ export function RecipeEditor({
         }
         localStorage.removeItem(draftKey);
         setImageFile(null);
-        form.reset({ ...values, imagePath });
+        const committedRevision =
+          recipe &&
+          "revision" in result.data &&
+          typeof result.data.revision === "number"
+            ? result.data.revision
+            : values.revision;
+        form.reset({
+          ...values,
+          imagePath,
+          revision: committedRevision,
+        });
         if (
           recipe &&
           "storageCleanupPending" in result.data &&
@@ -484,7 +513,7 @@ export function RecipeEditor({
 
   const handleImageChange = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0] ?? null;
-    if (file && file.size > 6 * 1024 * 1024) {
+    if (file && file.size > MAX_IMAGE_UPLOAD_BYTES) {
       setFormMessage(t("Images must be smaller than 6 MB."));
       return;
     }

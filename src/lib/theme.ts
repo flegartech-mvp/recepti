@@ -3,6 +3,8 @@ export const APP_THEMES = [
   "dark",
   "pink",
   "pink-dark",
+  "blue",
+  "blue-dark",
   "system",
 ] as const;
 
@@ -37,6 +39,18 @@ export const THEME_CHOICES: ReadonlyArray<{
     label: "Berry dusk",
     description: "Aubergine, muted berry, and pale rose.",
     previewClassName: "theme-preview-pink-dark",
+  },
+  {
+    value: "blue",
+    label: "Porcelain blue",
+    description: "Cobalt, cool porcelain, and quiet slate.",
+    previewClassName: "theme-preview-blue",
+  },
+  {
+    value: "blue-dark",
+    label: "Midnight blue",
+    description: "Inky navy, cornflower, and pale porcelain.",
+    previewClassName: "theme-preview-blue-dark",
   },
   {
     value: "system",

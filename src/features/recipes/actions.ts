@@ -8,7 +8,18 @@ import {
   requireOwner,
 } from "@/lib/auth/authorization";
 import { createClient } from "@/lib/supabase/server";
-import { createRecipeSchema, type RecipeInput } from "@/lib/validation";
+import {
+  createRecipeSchema,
+  isValidUuid,
+  type RecipeInput,
+} from "@/lib/validation";
+
+function invalidRecipeId(
+  id: string,
+): Extract<ActionResult, { ok: false }> | null {
+  if (isTestAuthenticationEnabled() || isValidUuid(id)) return null;
+  return { ok: false, message: "The recipe identifier is invalid." };
+}
 
 export async function createRecipeAction(
   input: RecipeInput,
@@ -52,8 +63,17 @@ export async function createRecipeAction(
 export async function updateRecipeAction(
   id: string,
   input: RecipeInput,
-): Promise<ActionResult<{ id: string; storageCleanupPending: boolean }>> {
+  expectedRevision: number,
+): Promise<
+  ActionResult<{
+    id: string;
+    revision: number;
+    storageCleanupPending: boolean;
+  }>
+> {
   await requireOwner(`/recipes/${id}/edit`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
   const parsed = createRecipeSchema.safeParse(input);
   if (!parsed.success) {
     return {
@@ -62,8 +82,23 @@ export async function updateRecipeAction(
       fieldErrors: parsed.error.flatten().fieldErrors,
     };
   }
+  if (!Number.isInteger(expectedRevision) || expectedRevision < 1) {
+    return {
+      ok: false,
+      code: "RECIPE_CONFLICT",
+      message:
+        "This recipe version is no longer current. Your draft is still here; reload the recipe in another tab before deciding what to keep.",
+    };
+  }
   if (isTestAuthenticationEnabled()) {
-    return { ok: true, data: { id, storageCleanupPending: false } };
+    return {
+      ok: true,
+      data: {
+        id,
+        revision: expectedRevision + 1,
+        storageCleanupPending: false,
+      },
+    };
   }
 
   const client = await createClient();
@@ -80,16 +115,38 @@ export async function updateRecipeAction(
     };
   }
 
-  const { error } = await client.rpc("update_recipe", {
+  const { data: updateResult, error } = await client.rpc("update_recipe_v2", {
     p_recipe_id: id,
     p_recipe: parsed.data,
+    p_expected_revision: expectedRevision,
   });
-  if (error)
+  if (error) {
+    if (error.code === "40001") {
+      return {
+        ok: false,
+        code: "RECIPE_CONFLICT",
+        message:
+          "Someone saved a newer version of this recipe. Your draft is still here and was not overwritten.",
+      };
+    }
     return {
       ok: false,
       message:
         "The recipe could not be updated. Your previous version is unchanged.",
     };
+  }
+  const revision =
+    typeof updateResult === "object" &&
+    updateResult !== null &&
+    !Array.isArray(updateResult)
+      ? Number((updateResult as Record<string, unknown>).revision)
+      : Number.NaN;
+  if (!Number.isInteger(revision) || revision < 1) {
+    return {
+      ok: false,
+      message: "The recipe update returned an invalid revision.",
+    };
+  }
 
   const oldImagePath = existing?.image_path as string | null | undefined;
   let storageCleanupPending = false;
@@ -120,13 +177,15 @@ export async function updateRecipeAction(
   revalidatePath(`/recipes/${id}`);
   revalidatePath("/recipes");
   revalidatePath("/dashboard");
-  return { ok: true, data: { id, storageCleanupPending } };
+  return { ok: true, data: { id, revision, storageCleanupPending } };
 }
 
 export async function toggleFavoriteAction(
   id: string,
 ): Promise<ActionResult<{ favorite: boolean }>> {
   await requireOwner(`/recipes/${id}`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
   if (isTestAuthenticationEnabled())
     return { ok: true, data: { favorite: true } };
   const client = await createClient();
@@ -146,6 +205,8 @@ export async function markRecipeCookedAction(
   servings?: number,
 ): Promise<ActionResult> {
   await requireOwner(`/recipes/${id}`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
   const { error } = await client.rpc("mark_recipe_cooked", {
@@ -163,6 +224,8 @@ export async function deleteRecipeAction(
   id: string,
 ): Promise<ActionResult<{ storageCleanupPending: boolean }>> {
   await requireOwner(`/recipes/${id}`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
   if (isTestAuthenticationEnabled()) {
     return { ok: true, data: { storageCleanupPending: false } };
   }
@@ -200,6 +263,8 @@ export async function duplicateRecipeAction(
   id: string,
 ): Promise<ActionResult<{ id: string }>> {
   await requireOwner(`/recipes/${id}`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
   if (isTestAuthenticationEnabled())
     return { ok: true, data: { id: "r-pasta" } };
   const client = await createClient();
@@ -220,6 +285,8 @@ export async function addRecipeToPantryAction(
   id: string,
 ): Promise<ActionResult> {
   await requireOwner(`/recipes/${id}`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
   const { error } = await client.rpc("add_recipe_ingredients_to_pantry", {
@@ -239,6 +306,14 @@ export async function addMissingToShoppingAction(
   ingredientIds?: string[],
 ): Promise<ActionResult> {
   await requireOwner(`/recipes/${id}`);
+  const invalidId = invalidRecipeId(id);
+  if (invalidId) return invalidId;
+  if (
+    ingredientIds?.some((ingredientId) => !isValidUuid(ingredientId)) &&
+    !isTestAuthenticationEnabled()
+  ) {
+    return { ok: false, message: "An ingredient identifier is invalid." };
+  }
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
   const { error } = await client.rpc("add_recipe_missing_to_shopping", {

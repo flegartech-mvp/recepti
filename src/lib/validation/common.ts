@@ -4,6 +4,10 @@ import { parseQuantity } from "@/lib/domain/quantities";
 
 export const uuidSchema = z.string().uuid("Choose a valid record.");
 
+export function isValidUuid(value: string): boolean {
+  return uuidSchema.safeParse(value).success;
+}
+
 export function optionalTrimmedString(maxLength: number) {
   return z.preprocess(
     (value) =>

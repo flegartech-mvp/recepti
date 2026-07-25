@@ -1,14 +1,15 @@
 import { NextResponse, type NextRequest } from "next/server";
 
-import { safeInternalPath } from "@/lib/auth/redirects";
+import { applicationOrigin, safeInternalPath } from "@/lib/auth/redirects";
 import { getOwnerEmails, hasSupabaseEnvironment } from "@/lib/env";
 import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest) {
+  const origin = applicationOrigin(request.url);
   if (!hasSupabaseEnvironment()) {
     return NextResponse.redirect(
-      new URL("/auth/auth-code-error?reason=configuration", request.url),
+      new URL("/auth/auth-code-error?reason=configuration", origin),
     );
   }
 
@@ -17,12 +18,12 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     logServerError("auth_owner_configuration_invalid", error);
     return NextResponse.redirect(
-      new URL("/auth/auth-code-error?reason=configuration", request.url),
+      new URL("/auth/auth-code-error?reason=configuration", origin),
     );
   }
 
   const nextPath = safeInternalPath(request.nextUrl.searchParams.get("next"));
-  const callbackUrl = new URL("/auth/callback", request.nextUrl.origin);
+  const callbackUrl = new URL("/auth/callback", origin);
   callbackUrl.searchParams.set("next", nextPath);
 
   const client = await createClient();
@@ -39,7 +40,7 @@ export async function GET(request: NextRequest) {
       error ?? new Error("No OAuth URL"),
     );
     return NextResponse.redirect(
-      new URL("/auth/auth-code-error?reason=oauth", request.url),
+      new URL("/auth/auth-code-error?reason=oauth", origin),
     );
   }
 

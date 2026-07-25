@@ -120,7 +120,7 @@ test.describe("private cookbook authorization", () => {
     ).toBeVisible();
   });
 
-  test("persists the pink theme without a hydration flash", async ({
+  test("persists the porcelain blue theme without a hydration flash", async ({
     context,
     page,
     baseURL,
@@ -129,14 +129,16 @@ test.describe("private cookbook authorization", () => {
     await page.goto("/settings");
 
     await page.getByRole("tab", { name: "Preferences" }).click();
-    const blushTheme = page.getByRole("button", { name: /^Blush/ });
-    await blushTheme.click();
-    await expect(blushTheme).toHaveAttribute("aria-pressed", "true");
+    const porcelainTheme = page.getByRole("button", {
+      name: /^Porcelain blue/,
+    });
+    await porcelainTheme.click();
+    await expect(porcelainTheme).toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "Save preferences" }).click();
-    await expect(page.locator("html")).toHaveClass(/pink/);
+    await expect(page.locator("html")).toHaveClass(/blue/);
 
     await page.reload();
-    await expect(page.locator("html")).toHaveClass(/pink/);
+    await expect(page.locator("html")).toHaveClass(/blue/);
 
     await page.goto("/dashboard");
     const background = page.locator("[data-swirly-background]");

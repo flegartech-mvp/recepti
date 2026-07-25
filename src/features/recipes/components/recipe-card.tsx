@@ -30,7 +30,7 @@ export function RecipeCard({
   const { t, formatNumber } = useI18n();
   if (compact) {
     return (
-      <article className="group relative grid grid-cols-[4.5rem_1fr_auto] items-center gap-4 rounded-xl border border-border bg-card p-3 shadow-sm transition-[border-color,box-shadow] duration-200 hover:border-primary/40 hover:shadow-[0_8px_20px_var(--shadow)]">
+      <article className="group relative grid grid-cols-[4.5rem_1fr_auto] items-center gap-4 rounded-xl border border-border bg-card p-3 shadow-sm transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/40 hover:shadow-[0_8px_20px_var(--shadow)] active:translate-y-px">
         <RecipeImage recipe={recipe} className="aspect-square rounded-xl" />
         <div className="min-w-0">
           <div className="flex min-w-0 items-start gap-2">
@@ -69,7 +69,7 @@ export function RecipeCard({
   }
 
   return (
-    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_8px_24px_var(--shadow)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_14px_34px_var(--shadow)]">
+    <article className="group relative flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-card shadow-[0_8px_24px_var(--shadow)] transition-[border-color,box-shadow,transform] duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-[0_14px_34px_var(--shadow)] active:translate-y-px">
       <RecipeImage recipe={recipe} className="aspect-[4/3]" />
       <div className="flex flex-1 flex-col gap-4 p-5">
         <div className="space-y-2">

@@ -142,7 +142,7 @@ describe("settings and versioned export validation", () => {
     ).toBe(false);
   });
 
-  it.each(["pink", "pink-dark"] as const)(
+  it.each(["pink", "pink-dark", "blue", "blue-dark"] as const)(
     "accepts the complete %s theme preference",
     (theme) => {
       expect(settingsSchema.parse({ theme }).theme).toBe(theme);

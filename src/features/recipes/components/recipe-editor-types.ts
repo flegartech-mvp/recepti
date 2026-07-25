@@ -20,6 +20,7 @@ export interface EditorStep {
 }
 
 export interface EditorValues {
+  revision: number | null;
   title: string;
   description: string;
   category: MealCategory;

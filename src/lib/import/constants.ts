@@ -1,0 +1,1 @@
+export const MAX_COOKBOOK_IMPORT_BYTES = 10 * 1024 * 1024;

@@ -7,11 +7,11 @@ import {
   isTestAuthenticationEnabled,
 } from "@/lib/auth/authorization";
 import { createCookbookImportPreview } from "@/lib/data/cookbook-import";
+import { MAX_COOKBOOK_IMPORT_BYTES } from "@/lib/import/constants";
 import { logServerError } from "@/lib/observability";
 import { createClient } from "@/lib/supabase/server";
 import { cookbookExportSchema } from "@/lib/validation";
 
-const MAX_IMPORT_BYTES = 11 * 1024 * 1024;
 const importRequestSchema = z
   .object({
     action: z.enum(["preview", "import"]),
@@ -31,7 +31,7 @@ async function readBoundedJson(
   | { ok: false; response: NextResponse<{ error: string }> }
 > {
   const contentLength = Number(request.headers.get("content-length") ?? 0);
-  if (contentLength > MAX_IMPORT_BYTES) {
+  if (contentLength > MAX_COOKBOOK_IMPORT_BYTES) {
     return {
       ok: false,
       response: failure("Cookbook backups must be 10 MB or smaller.", 413),
@@ -53,7 +53,7 @@ async function readBoundedJson(
     const { done, value } = await reader.read();
     if (done) break;
     totalBytes += value.byteLength;
-    if (totalBytes > MAX_IMPORT_BYTES) {
+    if (totalBytes > MAX_COOKBOOK_IMPORT_BYTES) {
       await reader.cancel();
       return {
         ok: false,

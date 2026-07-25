@@ -6,13 +6,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { useI18n } from "@/components/i18n-provider";
+import { MAX_COOKBOOK_IMPORT_BYTES } from "@/lib/import/constants";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { CookbookImportPreview } from "@/lib/data/cookbook-import";
-
-const MAX_IMPORT_BYTES = 10 * 1024 * 1024;
 
 export function CookbookImport() {
   const { t, formatNumber } = useI18n();
@@ -57,7 +56,7 @@ export function CookbookImport() {
     setError("");
     setFileName(file?.name ?? "");
     if (!file) return;
-    if (file.size <= 0 || file.size > MAX_IMPORT_BYTES) {
+    if (file.size <= 0 || file.size > MAX_COOKBOOK_IMPORT_BYTES) {
       setError(t("Cookbook backups must be 10 MB or smaller."));
       return;
     }

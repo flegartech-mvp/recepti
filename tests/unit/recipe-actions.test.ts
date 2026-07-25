@@ -51,7 +51,9 @@ function recipeClient(options: {
   }));
   const rpc = vi
     .fn()
-    .mockResolvedValue(options.update ?? { data: null, error: null });
+    .mockResolvedValue(
+      options.update ?? { data: { revision: 2 }, error: null },
+    );
   const remove = vi
     .fn()
     .mockResolvedValue(options.cleanup ?? { data: null, error: null });
@@ -74,7 +76,7 @@ describe("updateRecipeAction image cleanup", () => {
     });
     mocks.createClient.mockResolvedValue(client);
 
-    const result = await updateRecipeAction(RECIPE_ID, draft);
+    const result = await updateRecipeAction(RECIPE_ID, draft, 1);
 
     expect(result).toEqual({
       ok: false,
@@ -96,11 +98,11 @@ describe("updateRecipeAction image cleanup", () => {
     });
     mocks.createClient.mockResolvedValue(client);
 
-    const result = await updateRecipeAction(RECIPE_ID, draft);
+    const result = await updateRecipeAction(RECIPE_ID, draft, 1);
 
     expect(result).toEqual({
       ok: true,
-      data: { id: RECIPE_ID, storageCleanupPending: true },
+      data: { id: RECIPE_ID, revision: 2, storageCleanupPending: true },
     });
     expect(rpc).toHaveBeenCalledOnce();
     expect(remove).toHaveBeenCalledWith(["owner/previous-cover.webp"]);
@@ -113,11 +115,11 @@ describe("updateRecipeAction image cleanup", () => {
     });
     mocks.createClient.mockResolvedValue(client);
 
-    const result = await updateRecipeAction(RECIPE_ID, draft);
+    const result = await updateRecipeAction(RECIPE_ID, draft, 1);
 
     expect(result).toEqual({
       ok: true,
-      data: { id: RECIPE_ID, storageCleanupPending: false },
+      data: { id: RECIPE_ID, revision: 2, storageCleanupPending: false },
     });
     expect(remove).not.toHaveBeenCalled();
   });
@@ -134,11 +136,11 @@ describe("updateRecipeAction image cleanup", () => {
     });
     mocks.createClient.mockResolvedValue(client);
 
-    const result = await updateRecipeAction(RECIPE_ID, draft);
+    const result = await updateRecipeAction(RECIPE_ID, draft, 1);
 
     expect(result).toEqual({
       ok: true,
-      data: { id: RECIPE_ID, storageCleanupPending: false },
+      data: { id: RECIPE_ID, revision: 2, storageCleanupPending: false },
     });
     expect(remove).not.toHaveBeenCalled();
   });
@@ -155,11 +157,32 @@ describe("updateRecipeAction image cleanup", () => {
     });
     mocks.createClient.mockResolvedValue(client);
 
-    const result = await updateRecipeAction(RECIPE_ID, draft);
+    const result = await updateRecipeAction(RECIPE_ID, draft, 1);
 
     expect(result).toEqual({
       ok: true,
-      data: { id: RECIPE_ID, storageCleanupPending: true },
+      data: { id: RECIPE_ID, revision: 2, storageCleanupPending: true },
+    });
+    expect(remove).not.toHaveBeenCalled();
+  });
+
+  it("returns a distinct conflict without touching the saved recipe or local upload", async () => {
+    const { client, remove } = recipeClient({
+      lookup: { data: { image_path: null }, error: null },
+      update: {
+        data: null,
+        error: { code: "40001", message: "stale revision" },
+      },
+    });
+    mocks.createClient.mockResolvedValue(client);
+
+    const result = await updateRecipeAction(RECIPE_ID, draft, 1);
+
+    expect(result).toEqual({
+      ok: false,
+      code: "RECIPE_CONFLICT",
+      message:
+        "Someone saved a newer version of this recipe. Your draft is still here and was not overwritten.",
     });
     expect(remove).not.toHaveBeenCalled();
   });

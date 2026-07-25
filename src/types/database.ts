@@ -7,11 +7,6 @@ export type Json =
   | Json[];
 
 export type Database = {
-  // Allows to automatically instantiate createClient with right options
-  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
-  __InternalSupabase: {
-    PostgrestVersion: "14.5";
-  };
   public: {
     Tables: {
       cooking_history: {
@@ -760,11 +755,11 @@ export type Database = {
         Args: { p_ingredient_ids?: string[]; p_recipe_id: string };
         Returns: number;
       };
-      bulk_upsert_pantry_items: { Args: { p_items: Json }; Returns: string[] };
       adjust_pantry_quantity: {
         Args: { p_delta: number; p_pantry_item_id: string };
         Returns: number;
       };
+      bulk_upsert_pantry_items: { Args: { p_items: Json }; Returns: string[] };
       create_recipe: { Args: { p_recipe: Json }; Returns: string };
       create_recipe_with_details: {
         Args: {
@@ -783,6 +778,7 @@ export type Database = {
       };
       duplicate_recipe: { Args: { p_recipe_id: string }; Returns: string };
       export_cookbook_data: { Args: never; Returns: Json };
+      export_cookbook_data_v1: { Args: never; Returns: Json };
       import_cookbook: {
         Args: { p_mode?: string; p_payload: Json };
         Returns: Json;
@@ -804,6 +800,21 @@ export type Database = {
       };
       owner_health_check: { Args: never; Returns: Json };
       save_user_settings: { Args: { p_settings: Json }; Returns: string };
+      search_ingredients: {
+        Args: { p_limit?: number; p_offset?: number; p_query: string };
+        Returns: {
+          aliases: string[];
+          canonical_name: string;
+          category: Database["public"]["Enums"]["ingredient_category"];
+          default_unit: string;
+          display_name: string;
+          id: string;
+          is_staple: boolean;
+          normalized_name: string;
+          notes: string;
+          recipe_count: number;
+        }[];
+      };
       search_key: { Args: { value: string }; Returns: string };
       search_recipes: {
         Args: {
@@ -850,6 +861,14 @@ export type Database = {
         Args: { p_recipe: Json; p_recipe_id: string };
         Returns: string;
       };
+      update_recipe_v2: {
+        Args: {
+          p_expected_revision: number;
+          p_recipe: Json;
+          p_recipe_id: string;
+        };
+        Returns: Json;
+      };
       update_recipe_with_details: {
         Args: {
           p_images?: Json;
@@ -862,7 +881,9 @@ export type Database = {
         Returns: string;
       };
       upsert_pantry_item: { Args: { p_item: Json }; Returns: string };
+      upsert_pantry_item_v2: { Args: { p_item: Json }; Returns: string };
       upsert_shopping_item: { Args: { p_item: Json }; Returns: string };
+      upsert_shopping_item_v2: { Args: { p_item: Json }; Returns: string };
     };
     Enums: {
       image_kind: "cover" | "gallery";
@@ -890,7 +911,14 @@ export type Database = {
       share_permission: "view" | "edit";
       storage_location: "fridge" | "freezer" | "pantry" | "counter" | "other";
       tag_type: "dietary" | "custom";
-      theme_preference: "light" | "dark" | "pink" | "pink-dark" | "system";
+      theme_preference:
+        | "light"
+        | "dark"
+        | "system"
+        | "pink"
+        | "pink-dark"
+        | "blue"
+        | "blue-dark";
     };
     CompositeTypes: {
       [_ in never]: never;
@@ -1044,7 +1072,15 @@ export const Constants = {
       share_permission: ["view", "edit"],
       storage_location: ["fridge", "freezer", "pantry", "counter", "other"],
       tag_type: ["dietary", "custom"],
-      theme_preference: ["light", "dark", "pink", "pink-dark", "system"],
+      theme_preference: [
+        "light",
+        "dark",
+        "system",
+        "pink",
+        "pink-dark",
+        "blue",
+        "blue-dark",
+      ],
     },
   },
 } as const;

@@ -9,6 +9,7 @@ import {
   demoShopping,
 } from "@/lib/data/demo";
 import { attachMakeabilityToRecipeSummaries } from "@/lib/data/recipe-makeability";
+import { attachSignedImageUrls } from "@/lib/data/storage-urls";
 import { rankRecipes } from "@/lib/domain";
 import {
   pantryStarterItems,
@@ -209,6 +210,7 @@ function mapRecipe(value: unknown): Recipe {
   const restMinutes = asNumber(row.rest_minutes);
   return {
     ...summary,
+    revision: asNumber(row.revision, 1),
     slug: asString(row.slug),
     imagePath: asNullableString(row.image_path),
     prepMinutes,
@@ -246,28 +248,6 @@ function mapIngredient(value: unknown): Ingredient {
     recipeCount:
       row.recipe_count === undefined ? undefined : asNumber(row.recipe_count),
   };
-}
-
-async function attachSignedImageUrls<
-  T extends { imagePath?: string | null; imageUrl?: string | null },
->(items: T[]): Promise<T[]> {
-  const paths = items
-    .map((item) => item.imagePath)
-    .filter((path): path is string => Boolean(path));
-  if (paths.length === 0) return items;
-  const client = await createClient();
-  const { data, error } = await client.storage
-    .from("recipe-images")
-    .createSignedUrls(paths, 60 * 60);
-  if (error) throw dataAccessError("create recipe image links", error);
-  const urlByPath = new Map(
-    (data ?? []).map((entry) => [entry.path, entry.signedUrl]),
-  );
-  return items.map((item) =>
-    item.imagePath
-      ? { ...item, imageUrl: urlByPath.get(item.imagePath) ?? null }
-      : item,
-  );
 }
 
 async function attachRecipeSummaryTags(
@@ -542,13 +522,18 @@ export async function getDashboardData(): Promise<DashboardData> {
 
   const client = await createClient();
   const [
-    metricsResult,
+    recipeCountResult,
+    favoriteCountResult,
     recentResult,
     cookedResult,
     pantryResult,
     matchingResult,
   ] = await Promise.all([
-    client.from("recipes").select("id,is_favorite", { count: "exact" }),
+    client.from("recipes").select("id", { count: "exact", head: true }),
+    client
+      .from("recipes")
+      .select("id", { count: "exact", head: true })
+      .eq("is_favorite", true),
     client
       .from("recipes")
       .select(
@@ -574,7 +559,8 @@ export async function getDashboardData(): Promise<DashboardData> {
       .eq("status", "published"),
   ]);
   if (
-    metricsResult.error ||
+    recipeCountResult.error ||
+    favoriteCountResult.error ||
     recentResult.error ||
     cookedResult.error ||
     pantryResult.error ||
@@ -597,10 +583,8 @@ export async function getDashboardData(): Promise<DashboardData> {
   }).filter((result) => result.category === "ready_to_cook").length;
 
   return {
-    recipeCount: metricsResult.count ?? metricsResult.data?.length ?? 0,
-    favoriteCount: (metricsResult.data ?? []).filter(
-      (recipe) => recipe.is_favorite,
-    ).length,
+    recipeCount: recipeCountResult.count ?? 0,
+    favoriteCount: favoriteCountResult.count ?? 0,
     pantryCount: pantry.length,
     makeableCount,
     recentRecipes,
@@ -800,7 +784,11 @@ export async function getRecipe(id: string): Promise<Recipe | null> {
   return recipe;
 }
 
-export async function listIngredients(query = ""): Promise<Ingredient[]> {
+export async function listIngredients(
+  query = "",
+  limit = 100,
+  offset = 0,
+): Promise<Ingredient[]> {
   await requireOwner("/ingredients");
   if (isTestAuthenticationEnabled()) {
     const normalized = normalizeIngredientSearch(query);
@@ -817,33 +805,26 @@ export async function listIngredients(query = ""): Promise<Ingredient[]> {
     });
   }
   const client = await createClient();
-  const pageSize = 500;
-  const rows: unknown[] = [];
-  for (let offset = 0; ; offset += pageSize) {
-    const request = client
-      .from("ingredients")
-      .select("*")
-      .order("display_name")
-      .order("id")
-      .range(offset, offset + pageSize - 1);
-    const { data, error } = await request;
-    if (error) throw new Error("Ingredients could not be loaded.");
-    const page = data ?? [];
-    rows.push(...page);
-    if (page.length < pageSize) break;
+  const boundedLimit = Math.min(100, Math.max(1, limit));
+  const boundedOffset = Math.max(0, offset);
+  if (query.trim()) {
+    const { data, error } = await client.rpc("search_ingredients", {
+      p_query: query,
+      p_limit: boundedLimit,
+      p_offset: boundedOffset,
+    });
+    if (error) throw new Error("Ingredients could not be searched.");
+    return (data ?? []).map(mapIngredient);
   }
-  const normalized = normalizeIngredientSearch(query);
-  return withStarterIngredients(rows.map(mapIngredient)).filter((item) => {
-    const searchable = [
-      item.canonicalName,
-      item.displayName,
-      item.normalizedName,
-      ...item.aliases,
-    ].map(normalizeIngredientSearch);
-    return (
-      !normalized || searchable.some((value) => value.includes(normalized))
-    );
-  });
+
+  const { data, error } = await client
+    .from("ingredients")
+    .select("*")
+    .order("display_name")
+    .order("id")
+    .range(boundedOffset, boundedOffset + boundedLimit - 1);
+  if (error) throw new Error("Ingredients could not be loaded.");
+  return withStarterIngredients((data ?? []).map(mapIngredient));
 }
 
 export async function listPantry(): Promise<PantryItem[]> {

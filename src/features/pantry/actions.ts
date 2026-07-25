@@ -9,6 +9,7 @@ import {
 } from "@/lib/auth/authorization";
 import { createClient } from "@/lib/supabase/server";
 import { pantryItemSchema, type PantryItemInput } from "@/lib/validation";
+import { isValidUuid } from "@/lib/validation/common";
 import { getIngredientDefinition } from "@/data/pantry-starters";
 
 export async function savePantryItemAction(
@@ -24,7 +25,7 @@ export async function savePantryItemAction(
   if (isTestAuthenticationEnabled())
     return { ok: true, data: { id: input.id ?? "p-1" } };
   const client = await createClient();
-  const { data, error } = await client.rpc("upsert_pantry_item", {
+  const { data, error } = await client.rpc("upsert_pantry_item_v2", {
     p_item: parsed.data,
   });
   if (error || !data)
@@ -74,7 +75,7 @@ export async function adjustPantryQuantityAction(
     const definition = getIngredientDefinition(id.slice("starter:".length));
     if (!definition || delta <= 0)
       return { ok: false, message: "That pantry starter cannot be adjusted." };
-    const { error } = await client.rpc("upsert_pantry_item", {
+    const { error } = await client.rpc("upsert_pantry_item_v2", {
       p_item: {
         ingredientName: definition.names.en,
         quantity: delta,
@@ -89,6 +90,8 @@ export async function adjustPantryQuantityAction(
     revalidatePath("/dashboard");
     return { ok: true, data: undefined };
   }
+  if (!isValidUuid(id))
+    return { ok: false, message: "Choose a valid pantry item." };
   const { error } = await client.rpc("adjust_pantry_quantity", {
     p_pantry_item_id: id,
     p_delta: delta,
@@ -104,13 +107,17 @@ export async function depletePantryItemAction(
   id: string,
 ): Promise<ActionResult> {
   await requireOwner("/pantry");
+  if (!isValidUuid(id))
+    return { ok: false, message: "Choose a valid pantry item." };
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
-  const { error } = await client
+  const { data, error } = await client
     .from("pantry_items")
     .update({ quantity: 0, is_depleted: true })
-    .eq("id", id);
-  if (error)
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+  if (error || !data)
     return { ok: false, message: "The item could not be marked depleted." };
   revalidatePath("/pantry");
   revalidatePath("/dashboard");
@@ -121,10 +128,17 @@ export async function deletePantryItemAction(
   id: string,
 ): Promise<ActionResult> {
   await requireOwner("/pantry");
+  if (!isValidUuid(id))
+    return { ok: false, message: "Choose a valid pantry item." };
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
-  const { error } = await client.from("pantry_items").delete().eq("id", id);
-  if (error)
+  const { data, error } = await client
+    .from("pantry_items")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+  if (error || !data)
     return { ok: false, message: "The pantry item could not be deleted." };
   revalidatePath("/pantry");
   revalidatePath("/dashboard");

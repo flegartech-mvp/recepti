@@ -19,9 +19,9 @@ export function ThemeSelector({
     <fieldset className="sm:col-span-2">
       <legend className="text-sm font-semibold">{t("Color theme")}</legend>
       <p className="mt-1 text-sm text-muted-foreground">
-        {t("Choose a calm garden palette or Nana's rose-inspired palette.")}
+        {t("Choose a garden, rose, or porcelain-blue palette.")}
       </p>
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {THEME_CHOICES.map((choice) => {
           const selected = choice.value === value;
           return (

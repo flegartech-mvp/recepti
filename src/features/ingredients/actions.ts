@@ -10,11 +10,14 @@ import {
 import { normalizeIngredientName } from "@/lib/domain";
 import { createClient } from "@/lib/supabase/server";
 import { ingredientSchema, type IngredientInput } from "@/lib/validation";
+import { isValidUuid } from "@/lib/validation/common";
 
 export async function saveIngredientAction(
   input: IngredientInput,
 ): Promise<ActionResult<{ id: string }>> {
   const user = await requireOwner("/ingredients");
+  if (input.id && !isValidUuid(input.id))
+    return { ok: false, message: "Choose a valid ingredient." };
   const parsed = ingredientSchema.safeParse(input);
   if (!parsed.success)
     return {
@@ -61,7 +64,7 @@ export async function mergeIngredientsAction(
   targetId: string,
 ): Promise<ActionResult> {
   await requireOwner("/ingredients");
-  if (sourceId === targetId)
+  if (sourceId === targetId || !isValidUuid(sourceId) || !isValidUuid(targetId))
     return { ok: false, message: "Choose two different ingredients." };
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
@@ -85,14 +88,21 @@ export async function deleteIngredientAction(
   id: string,
 ): Promise<ActionResult> {
   await requireOwner("/ingredients");
+  if (!isValidUuid(id))
+    return { ok: false, message: "Choose a valid ingredient." };
   if (isTestAuthenticationEnabled()) return { ok: true, data: undefined };
   const client = await createClient();
-  const { error } = await client.from("ingredients").delete().eq("id", id);
-  if (error)
+  const { data, error } = await client
+    .from("ingredients")
+    .delete()
+    .eq("id", id)
+    .select("id")
+    .maybeSingle();
+  if (error || !data)
     return {
       ok: false,
       message:
-        error.code === "23503"
+        error?.code === "23503"
           ? "This ingredient is still used by recipes, pantry items, or the shopping list. Merge it instead."
           : "The ingredient could not be deleted.",
     };

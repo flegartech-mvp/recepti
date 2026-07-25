@@ -4,7 +4,7 @@ import { resolve } from "node:path";
 const workerPath = resolve(process.cwd(), "public", "sw.js");
 const source = readFileSync(workerPath, "utf8");
 
-if (!source.includes('CACHE_NAME = "nanas-recipes-static-v4"'))
+if (!source.includes('CACHE_NAME = "nanas-recipes-static-v5"'))
   throw new Error("The service-worker cache version was not updated.");
 if (
   !source.includes('url.pathname.startsWith("/auth/")') ||

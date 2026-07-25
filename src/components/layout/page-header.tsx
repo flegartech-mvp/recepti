@@ -9,7 +9,7 @@ export function PageHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
+    <header className="section-enter flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
       {" "}
       <div className="min-w-0 space-y-2.5">
         {" "}

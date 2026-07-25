@@ -77,6 +77,7 @@ export interface RecipeStep {
 
 export interface Recipe {
   id: string;
+  revision: number;
   title: string;
   slug: string;
   description: string | null;

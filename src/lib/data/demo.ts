@@ -78,6 +78,7 @@ function recipeIngredient(
 export const demoRecipes: Recipe[] = [
   {
     id: "r-pasta",
+    revision: 1,
     title: "Creamy mushroom pasta",
     slug: "creamy-mushroom-pasta",
     description:
@@ -139,6 +140,7 @@ export const demoRecipes: Recipe[] = [
   },
   {
     id: "r-soup",
+    revision: 1,
     title: "Garden vegetable soup",
     slug: "garden-vegetable-soup",
     description: "A bright, simple bowl built from vegetables already at home.",
@@ -196,6 +198,7 @@ export const demoRecipes: Recipe[] = [
   },
   {
     id: "r-rice",
+    revision: 1,
     title: "Ginger chicken rice bowl",
     slug: "ginger-chicken-rice-bowl",
     description:
@@ -253,6 +256,7 @@ export const demoRecipes: Recipe[] = [
   },
   {
     id: "r-pancakes",
+    revision: 1,
     title: "Banana oat pancakes",
     slug: "banana-oat-pancakes",
     description: "Soft breakfast pancakes made with banana, oats, and egg.",
@@ -302,6 +306,7 @@ export const demoRecipes: Recipe[] = [
   },
   {
     id: "r-salad",
+    revision: 1,
     title: "Greek-style village salad",
     slug: "greek-style-village-salad",
     description:

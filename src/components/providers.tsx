@@ -18,10 +18,12 @@ export function AppProviders({
   children,
   initialLocale,
   hasLocalePreference,
+  nonce,
 }: {
   children: React.ReactNode;
   initialLocale: Locale;
   hasLocalePreference: boolean;
+  nonce?: string;
 }) {
   useEffect(() => {
     migrateLegacyLocalStorage(localStorage);
@@ -69,6 +71,7 @@ export function AppProviders({
         enableSystem
         enableColorScheme
         themes={[...APP_THEMES]}
+        nonce={nonce}
       >
         <TooltipProvider delayDuration={300}>
           {children}

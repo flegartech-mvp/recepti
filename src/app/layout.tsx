@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { headers } from "next/headers";
 
 import { AppProviders } from "@/components/providers";
 import { getServerI18n, getServerLocaleState } from "@/lib/i18n/server";
@@ -39,7 +40,11 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const { locale, hasPreference } = await getServerLocaleState();
+  const [{ locale, hasPreference }, requestHeaders] = await Promise.all([
+    getServerLocaleState(),
+    headers(),
+  ]);
+  const nonce = requestHeaders.get("x-nonce") ?? undefined;
   return (
     <html
       lang={locale}
@@ -51,6 +56,7 @@ export default async function RootLayout({
         <AppProviders
           initialLocale={locale}
           hasLocalePreference={hasPreference}
+          nonce={nonce}
         >
           {children}
         </AppProviders>

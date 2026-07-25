@@ -35,6 +35,16 @@ const captures = [
     theme: "pink-dark",
     viewport: { width: 390, height: 844 },
   },
+  {
+    name: "desktop-porcelain-blue",
+    theme: "blue",
+    viewport: { width: 1440, height: 1000 },
+  },
+  {
+    name: "phone-midnight-blue",
+    theme: "blue-dark",
+    viewport: { width: 390, height: 844 },
+  },
 ] as const;
 
 test("captures the nonna dashboard in both themes and viewports", async ({

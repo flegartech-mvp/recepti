@@ -4,8 +4,13 @@ import { type NextRequest, NextResponse } from "next/server";
 import { hasSupabaseEnvironment } from "@/lib/env";
 import type { Database } from "@/types/database";
 
-export async function refreshSession(request: NextRequest) {
-  let response = NextResponse.next({ request });
+export async function refreshSession(
+  request: NextRequest,
+  requestHeaders = request.headers,
+) {
+  let response = NextResponse.next({
+    request: { headers: requestHeaders },
+  });
 
   if (!hasSupabaseEnvironment()) return response;
 
@@ -19,7 +24,9 @@ export async function refreshSession(request: NextRequest) {
           cookiesToSet.forEach(({ name, value }) =>
             request.cookies.set(name, value),
           );
-          response = NextResponse.next({ request });
+          response = NextResponse.next({
+            request: { headers: requestHeaders },
+          });
           cookiesToSet.forEach(({ name, value, options }) => {
             response.cookies.set(name, value, options);
           });

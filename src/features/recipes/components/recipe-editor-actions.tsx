@@ -16,7 +16,7 @@ export function RecipeEditorActions({
 }: RecipeEditorActionsProps) {
   const { t } = useI18n();
   return (
-    <div className="mobile-editor-actions sticky z-10 grid grid-cols-2 gap-2 rounded-xl border border-border bg-surface/95 p-3 shadow-[0_14px_36px_var(--shadow)] backdrop-blur sm:flex sm:flex-wrap sm:justify-end sm:gap-3">
+    <div className="mobile-editor-actions sticky z-10 grid grid-cols-1 gap-2 rounded-xl border border-border bg-surface/95 p-3 shadow-[0_14px_36px_var(--shadow)] backdrop-blur min-[360px]:grid-cols-2 sm:flex sm:flex-wrap sm:justify-end sm:gap-3">
       <Button
         type="submit"
         name="intent"
@@ -43,7 +43,7 @@ export function RecipeEditorActions({
         name="intent"
         value="finish"
         disabled={pending}
-        className="col-span-2 w-full sm:w-auto"
+        className="w-full min-[360px]:col-span-2 sm:w-auto"
       >
         {pending ? (
           <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />

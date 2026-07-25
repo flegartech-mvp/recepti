@@ -7,6 +7,7 @@ ignoredBuiltDependencies:
   - unrs-resolver
 overrides:
   postcss: ^8.5.10
+  sharp: 0.35.2
 minimumReleaseAgeExclude:
   - "@supabase/auth-js@2.110.5"
   - "@supabase/functions-js@2.110.5"

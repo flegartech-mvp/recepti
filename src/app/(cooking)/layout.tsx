@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import { DecorativeBackground } from "@/components/layout/decorative-background";
+import { ThemePreferenceBoundary } from "@/components/theme-preference-boundary";
+import { getUserSettings } from "@/lib/data/settings";
 import { getServerI18n } from "@/lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -13,18 +15,21 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function CookingLayout({
+export default async function CookingLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const settings = await getUserSettings();
   return (
-    <div
-      data-cooking-layout
-      className="relative isolate min-h-dvh w-full flex-1 overflow-hidden bg-background text-foreground"
-    >
-      <DecorativeBackground />
-      <div className="relative z-[1]">{children}</div>
-    </div>
+    <ThemePreferenceBoundary theme={settings.theme}>
+      <div
+        data-cooking-layout
+        className="relative isolate min-h-dvh w-full flex-1 overflow-hidden bg-background text-foreground"
+      >
+        <DecorativeBackground />
+        <div className="relative z-[1]">{children}</div>
+      </div>
+    </ThemePreferenceBoundary>
   );
 }

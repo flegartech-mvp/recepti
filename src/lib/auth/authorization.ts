@@ -1,6 +1,7 @@
 import type { User } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { cache } from "react";
 
 import { getOwnerEmails, hasSupabaseEnvironment } from "@/lib/env";
 import { ApplicationError } from "@/lib/errors/application-error";
@@ -86,7 +87,7 @@ function testUser(role: "owner" | "guest" | "denied"): User {
   };
 }
 
-export async function getAuthorizationState(): Promise<AuthorizationState> {
+async function getAuthorizationStateUncached(): Promise<AuthorizationState> {
   if (isTestAuthenticationEnabled()) {
     const role = (await cookies()).get("nanas-recipes-e2e-role")?.value;
     if (role === "owner" || role === "guest" || role === "denied") {
@@ -144,6 +145,12 @@ export async function getAuthorizationState(): Promise<AuthorizationState> {
     ? { status: "owner", user, configured: true }
     : { status: "guest", user, configured: true };
 }
+
+/**
+ * React's server cache is scoped to the current render/request dispatcher.
+ * It avoids duplicate Supabase Auth lookups without retaining cross-user data.
+ */
+export const getAuthorizationState = cache(getAuthorizationStateUncached);
 
 export async function requireOwner(returnTo = "/dashboard"): Promise<User> {
   const state = await getAuthorizationState();

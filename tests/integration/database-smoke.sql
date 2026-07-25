@@ -151,6 +151,152 @@ begin
 end;
 $test$;
 
+do $test$
+declare
+  target_recipe_id uuid;
+  starting_revision integer;
+  committed_revision integer;
+  committed_title text;
+  update_result jsonb;
+begin
+  select id, revision
+  into target_recipe_id, starting_revision
+  from public.recipes
+  order by id
+  limit 1;
+
+  update_result := public.update_recipe_v2(
+    target_recipe_id,
+    jsonb_build_object(
+      'title', 'Concurrency-safe draft',
+      'status', 'draft',
+      'ingredients', '[]'::jsonb,
+      'steps', '[]'::jsonb
+    ),
+    starting_revision
+  );
+  committed_revision := (update_result ->> 'revision')::integer;
+
+  if committed_revision <= starting_revision then
+    raise exception 'Recipe revision did not advance after a valid update.';
+  end if;
+
+  begin
+    perform public.update_recipe_v2(
+      target_recipe_id,
+      jsonb_build_object(
+        'title', 'Stale overwrite',
+        'status', 'draft',
+        'ingredients', '[]'::jsonb,
+        'steps', '[]'::jsonb
+      ),
+      starting_revision
+    );
+    raise exception 'A stale recipe revision was accepted.';
+  exception
+    when serialization_failure then
+      null;
+  end;
+
+  select title
+  into committed_title
+  from public.recipes
+  where id = target_recipe_id;
+
+  if committed_title <> 'Concurrency-safe draft' then
+    raise exception 'The stale update overwrote the committed recipe.';
+  end if;
+end;
+$test$;
+
+do $test$
+declare
+  ingredient_id uuid;
+  pantry_first uuid;
+  pantry_second uuid;
+  shopping_first uuid;
+  shopping_second uuid;
+  merged_quantity numeric;
+  saved_theme public.theme_preference;
+begin
+  select id
+  into ingredient_id
+  from public.ingredients
+  order by id
+  limit 1;
+
+  pantry_first := public.upsert_pantry_item_v2(
+    jsonb_build_object(
+      'ingredientId', ingredient_id,
+      'quantity', 1,
+      'unit', 'test-unit',
+      'storageLocation', 'other'
+    )
+  );
+  pantry_second := public.upsert_pantry_item_v2(
+    jsonb_build_object(
+      'ingredientId', ingredient_id,
+      'quantity', 2,
+      'unit', 'test-unit',
+      'storageLocation', 'other'
+    )
+  );
+  select quantity into merged_quantity
+  from public.pantry_items
+  where id = pantry_first;
+  if pantry_first <> pantry_second or merged_quantity <> 3 then
+    raise exception 'Atomic pantry identity did not merge idempotently.';
+  end if;
+
+  shopping_first := public.upsert_shopping_item_v2(
+    jsonb_build_object(
+      'customName', '  Concurrent   custom item  ',
+      'quantity', 1,
+      'unit', 'packet'
+    )
+  );
+  shopping_second := public.upsert_shopping_item_v2(
+    jsonb_build_object(
+      'customName', 'concurrent custom item',
+      'quantity', 2,
+      'unit', 'PACKET'
+    )
+  );
+  select quantity into merged_quantity
+  from public.shopping_list_items
+  where id = shopping_first;
+  if shopping_first <> shopping_second or merged_quantity <> 3 then
+    raise exception 'Atomic shopping identity did not merge idempotently.';
+  end if;
+
+  update public.user_preferences
+  set theme = 'blue'
+  where user_id = private.current_user_id();
+  select theme into saved_theme
+  from public.user_preferences
+  where user_id = private.current_user_id();
+  if saved_theme <> 'blue' then
+    raise exception 'Blue theme preference did not persist.';
+  end if;
+
+  if not exists (
+    select 1
+    from public.search_ingredients('mushroom', 10, 0)
+    where canonical_name = 'mushroom'
+  ) then
+    raise exception 'Database ingredient search did not return the match.';
+  end if;
+
+  if to_regclass('public.pantry_items_active_identity_idx') is null
+    or to_regclass('public.shopping_items_active_ingredient_identity_idx') is null
+    or to_regclass('public.shopping_items_active_custom_identity_idx') is null
+    or to_regclass('public.recipes_image_path_reference_idx') is null
+  then
+    raise exception 'Release integrity indexes are missing.';
+  end if;
+end;
+$test$;
+
 -- Administrative multi-owner configuration normalizes and deduplicates input
 -- without revoking the existing owner. The runtime gate remains Google-only.
 reset role;

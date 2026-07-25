@@ -23,8 +23,8 @@ export const slMessages: Record<string, string> = {
   "Switch to dark mode": "Preklopi na temni način",
   "Switch color theme": "Preklopi barvno temo",
   "Color theme": "Barvna tema",
-  "Choose a calm garden palette or Nana's rose-inspired palette.":
-    "Izberite mirno vrtno paleto ali Nanino paleto v rožnatih odtenkih.",
+  "Choose a garden, rose, or porcelain-blue palette.":
+    "Izberite vrtno, rožnato ali porcelanasto modro paleto.",
   "Garden light": "Svetli vrt",
   "Warm ivory, sage, and fresh herb green.":
     "Topla slonovina, žajbelj in sveža zeliščna zelena.",
@@ -37,6 +37,12 @@ export const slMessages: Record<string, string> = {
   "Berry dusk": "Jagodni somrak",
   "Aubergine, muted berry, and pale rose.":
     "Jajčevec, umirjeni jagodni in bledo rožnati odtenki.",
+  "Porcelain blue": "Porcelanasto modra",
+  "Cobalt, cool porcelain, and quiet slate.":
+    "Kobaltna, hladna porcelanasta in umirjena skrilavčeva.",
+  "Midnight blue": "Polnočno modra",
+  "Inky navy, cornflower, and pale porcelain.":
+    "Črnilno mornarska, plavica in svetel porcelan.",
   "Follow device": "Sledi napravi",
   "Use the light or dark garden theme from this device.":
     "Uporabi svetlo ali temno vrtno temo te naprave.",
