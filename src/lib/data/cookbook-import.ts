@@ -11,7 +11,7 @@ export interface CookbookImportPreview {
   duplicateRecipeTitles: string[];
 }
 
-function titleKey(value: string): string {
+export function normalizeRecipeTitle(value: string): string {
   return value.normalize("NFKC").trim().toLocaleLowerCase("en-US");
 }
 
@@ -19,12 +19,12 @@ export function createCookbookImportPreview(
   payload: CookbookExport,
   existingRecipeTitles: readonly string[],
 ): CookbookImportPreview {
-  const existing = new Set(existingRecipeTitles.map(titleKey));
+  const existing = new Set(existingRecipeTitles.map(normalizeRecipeTitle));
   const seenInBackup = new Set<string>();
   const duplicates = new Set<string>();
 
   for (const recipe of payload.recipes) {
-    const key = titleKey(recipe.title);
+    const key = normalizeRecipeTitle(recipe.title);
     if (existing.has(key) || seenInBackup.has(key)) {
       duplicates.add(recipe.title);
     }

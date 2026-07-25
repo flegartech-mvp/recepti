@@ -21,6 +21,7 @@ import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { TabsContent } from "@/components/ui/tabs";
 import { CookbookImport } from "@/features/settings/components/cookbook-import";
+import { FamilyNotebookImport } from "@/features/settings/components/family-notebook-import";
 import { deleteAllCookbookDataAction } from "@/features/settings/actions";
 import {
   clearLocalCookbookData,
@@ -67,6 +68,16 @@ export function CookbookDataPanel() {
                 {t("Download JSON export")}
               </a>
             </Button>
+          </section>
+          <Separator />
+          <section
+            className="space-y-3"
+            aria-labelledby="family-notebook-import-title"
+          >
+            <h3 id="family-notebook-import-title" className="font-semibold">
+              {t("Family notebook recipes")}
+            </h3>
+            <FamilyNotebookImport />
           </section>
           <Separator />
           <section
