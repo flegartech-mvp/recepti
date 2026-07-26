@@ -40,7 +40,11 @@ The migration:
    snapshots in the private backup.
 6. Replaces per-user RLS and Storage policies with cookbook-membership checks.
 
-Any exception rolls back the entire migration.
+Apply the file with the Supabase CLI or another migration runner that wraps the
+file in one transaction. If a remote migration API executes statements
+individually, inspect `supabase_migrations.schema_migrations`, the three image
+constraints, cookbook/member counts, and `private.household_merge_backup`
+before retrying; an API error can otherwise hide a completed statement batch.
 
 ## Fifteen cover matches
 
@@ -78,10 +82,10 @@ Running it twice therefore does not create duplicate recipes or images.
 ## Deployment
 
 1. Take a Supabase database backup and confirm Storage recovery is available.
-2. Apply migrations through
+2. Confirm `OWNER_EMAILS` in the application includes every existing owner plus
+   `vukovic.nadia7@gmail.com`, then deploy the membership-aware application.
+3. Apply migrations through
    `20260726113040_shared_household_cookbook.sql`.
-3. Confirm `OWNER_EMAILS` in the application includes every existing owner plus
-   `vukovic.nadia7@gmail.com`, then deploy the compatible application.
 4. Verify `get_cookbook_context()`, cross-owner recipe CRUD, private image
    reads, and non-member denial.
 5. Run Supabase database and security advisors and review any private-schema
@@ -89,9 +93,11 @@ Running it twice therefore does not create duplicate recipes or images.
 
 ## Recovery and rollback
 
-The migration is transactional, so an apply-time failure needs no cleanup. For
-a post-deployment problem, prefer a forward-fix migration while keeping the
-membership-aware application deployed.
+With a transactional migration runner, an apply-time failure needs no cleanup.
+After any remote API error, audit the recorded migration and the objects listed
+above before deciding whether cleanup is needed. For a post-deployment problem,
+prefer a forward-fix migration while keeping the membership-aware application
+deployed.
 
 Do not roll back only the application to a version that creates user-prefixed
 uploads; the shared Storage insert policy requires cookbook-prefixed paths.
