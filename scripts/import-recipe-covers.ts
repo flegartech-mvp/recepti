@@ -118,9 +118,22 @@ async function main() {
     const client = createClient(supabaseUrl, serviceRoleKey, {
       auth: { autoRefreshToken: false, persistSession: false },
     });
+    const { data: cookbooks, error: cookbookError } = await client
+      .from("cookbooks")
+      .select("id,data_owner_user_id")
+      .eq("is_primary", true)
+      .limit(1);
+    if (cookbookError) throw cookbookError;
+    const cookbook = cookbooks?.[0];
+    if (!cookbook) {
+      throw new Error(
+        "The shared household cookbook has not been initialized.",
+      );
+    }
     const { data: recipes, error } = await client
       .from("recipes")
       .select("id,user_id,title,slug,image_path")
+      .eq("user_id", cookbook.data_owner_user_id)
       .order("title");
     if (error) throw error;
 
@@ -185,13 +198,13 @@ async function main() {
         .update(processed.bytes)
         .digest("hex")
         .slice(0, 12);
-      const storagePath = `${recipe.user_id}/covers/${normalizeRecipeCoverName(
+      const storagePath = `${cookbook.id}/covers/${normalizeRecipeCoverName(
         recipe.slug,
       )}-${digest}.webp`;
 
       const { data: existingObjects, error: listError } = await client.storage
         .from(RECIPE_IMAGE_BUCKET)
-        .list(`${recipe.user_id}/covers`, {
+        .list(`${cookbook.id}/covers`, {
           limit: 100,
           search: basename(storagePath),
         });

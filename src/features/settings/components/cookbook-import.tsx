@@ -43,7 +43,7 @@ export function CookbookImport() {
       throw new Error(
         typeof responseBody.error === "string"
           ? responseBody.error
-          : "The cookbook backup could not be read.",
+          : "The cookbook data export could not be read.",
       );
     }
     return responseBody;
@@ -57,7 +57,7 @@ export function CookbookImport() {
     setFileName(file?.name ?? "");
     if (!file) return;
     if (file.size <= 0 || file.size > MAX_COOKBOOK_IMPORT_BYTES) {
-      setError(t("Cookbook backups must be 10 MB or smaller."));
+      setError(t("Cookbook data exports must be 10 MB or smaller."));
       return;
     }
 
@@ -79,20 +79,20 @@ export function CookbookImport() {
       setError(
         cause instanceof Error
           ? cause.message
-          : t("Choose a valid JSON cookbook backup."),
+          : t("Choose a valid JSON cookbook data export."),
       );
     } finally {
       setPending(false);
     }
   };
 
-  const importBackup = async () => {
+  const importCookbookData = async () => {
     if (!payload || !preview) return;
     setPending(true);
     setError("");
     try {
       await request("import", payload);
-      toast.success(t("Cookbook backup imported"));
+      toast.success(t("Cookbook data imported"));
       setPayload(null);
       setPreview(null);
       setFileName("");
@@ -103,7 +103,7 @@ export function CookbookImport() {
       setError(
         cause instanceof Error
           ? cause.message
-          : t("The cookbook backup could not be imported."),
+          : t("The cookbook data could not be imported."),
       );
     } finally {
       setPending(false);
@@ -113,10 +113,12 @@ export function CookbookImport() {
   return (
     <div className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="cookbook-backup">{t("Cookbook backup file")}</Label>
+        <Label htmlFor="cookbook-data-export">
+          {t("Cookbook data export file")}
+        </Label>
         <Input
           ref={fileInput}
-          id="cookbook-backup"
+          id="cookbook-data-export"
           type="file"
           accept="application/json,.json"
           onChange={(event) => void chooseFile(event.target.files?.[0])}
@@ -135,7 +137,7 @@ export function CookbookImport() {
           role="status"
         >
           <LoaderCircle className="size-4 animate-spin" aria-hidden="true" />
-          {t("Checking backup…")}
+          {t("Checking data export…")}
         </p>
       ) : null}
 
@@ -192,7 +194,7 @@ export function CookbookImport() {
               <AlertTitle>{t("Private images stay separate")}</AlertTitle>
               <AlertDescription>
                 {t(
-                  "{count} image references will be skipped because JSON backups do not contain private image binaries.",
+                  "{count} image references will be skipped because JSON data exports do not contain private image files.",
                   { count: formatNumber(preview.imageReferencesSkipped) },
                 )}
               </AlertDescription>
@@ -211,7 +213,7 @@ export function CookbookImport() {
           </div>
           <Button
             type="button"
-            onClick={() => void importBackup()}
+            onClick={() => void importCookbookData()}
             disabled={
               pending ||
               confirmation !== "IMPORT NANA'S RECIPES" ||
@@ -219,7 +221,7 @@ export function CookbookImport() {
             }
           >
             <Upload className="size-4" aria-hidden="true" />
-            {t("Import cookbook backup")}
+            {t("Import cookbook data")}
           </Button>
         </div>
       ) : null}

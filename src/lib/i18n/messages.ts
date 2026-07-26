@@ -54,21 +54,118 @@ export const slMessages: Record<string, string> = {
   "Private by design": "Zasebno po zasnovi",
   "Public preview": "Javni predogled",
   "View demo": "Oglej si predstavitev",
-  "Owner sign in": "Prijava lastnika",
+  "Private cookbook sign in": "Prijava v zasebno kuharico",
   "Opening Google sign-in…": "Odpiranje prijave Google …",
-  "One household's private cookbook, shared as a preview.":
-    "Zasebna kuharica enega gospodinjstva, prikazana v javnem predogledu.",
-  "Explore a read-only sample, or sign in as the owner to manage recipes, pantry, shopping, and cooking sessions.":
-    "Oglejte si vzorec samo za branje ali pa se kot lastnik prijavite za upravljanje receptov, shrambe, nakupov in kuhanja.",
-  "The demo is public and read-only. Signing in does not create a personal cookbook; only the configured owner can access private data.":
-    "Predstavitev je javna in samo za branje. Prijava ne ustvari osebne kuharice; do zasebnih podatkov lahko dostopa le nastavljeni lastnik.",
+  "A private shared household cookbook with pantry-based recipe matching.":
+    "Zasebna skupna gospodinjska kuharica z iskanjem receptov glede na vsebino shrambe.",
+  "Explore an interactive sample, or sign in to manage your recipes, pantry, shopping list, and cooking sessions.":
+    "Raziščite interaktivni primer ali se prijavite za upravljanje svojih receptov, shrambe, nakupovalnega seznama in kuhanja.",
+  "Every allowlisted Google account joins the same household cookbook, pantry, shopping list, cooking history, settings, and private image library.":
+    "Vsak dovoljen Google račun se pridruži isti gospodinjski kuharici, shrambi, nakupovalnemu seznamu, zgodovini kuhanja, nastavitvam in zasebni zbirki slik.",
+  "Getting started": "Prvi koraki",
+  "Start cooking in a few minutes": "Začnite kuhati v nekaj minutah",
+  "Choose a small recipe shelf and the ingredients you usually keep. Your first real match comes next.":
+    "Izberite majhno zbirko receptov in sestavine, ki jih imate običajno doma. Nato sledi prvo pravo ujemanje.",
+  "Choose a starter recipe shelf": "Izberite začetno zbirko receptov",
+  "These editable recipes are useful examples, not locked demo content.":
+    "Te recepte lahko poljubno uredite. So uporabni primeri, ne zaklenjena predstavitvena vsebina.",
+  "Designed to match the recommended pantry selection.":
+    "Zasnovano za ujemanje s priporočenim izborom shrambe.",
+  "Select what you usually keep at home": "Izberite, kaj imate običajno doma",
+  "Common basics are preselected. Remove anything you do not have, then adjust quantities later.":
+    "Pogoste osnovne sestavine so že izbrane. Odstranite, česar nimate, količine pa lahko prilagodite pozneje.",
+  "Your first match comes next": "Sledi vaše prvo ujemanje",
+  "We will save your selection, run the real matcher, and explain anything that is missing.":
+    "Vaš izbor bomo shranili, zagnali pravi primerjalnik in razložili, kaj manjka.",
+  "Create starter cookbook": "Ustvari začetno kuharico",
+  "Creating cookbook…": "Ustvarjanje kuharice …",
+  "Your starter cookbook is ready.": "Vaša začetna kuharica je pripravljena.",
+  "Import structured JSON cookbook data":
+    "Uvozi strukturirane podatke kuharice JSON",
+  "Skip for now": "Za zdaj preskoči",
+  "Setup stopped safely": "Nastavitev se je varno ustavila",
+  "Your cookbook is ready": "Vaša kuharica je pripravljena",
+  "You already have recipes and pantry items. Open the matcher to see what you can cook.":
+    "Recepte in sestavine v shrambi že imate. Odprite primerjalnik in preverite, kaj lahko skuhate.",
+  "Show my matches": "Prikaži moja ujemanja",
+  "Get your first match in minutes": "Do prvega ujemanja v nekaj minutah",
+  "Add a small editable recipe collection, choose your usual pantry basics, and see what is ready to cook.":
+    "Dodajte majhno zbirko receptov, izberite običajne sestavine in preverite, kaj lahko skuhate.",
+  "Set up my cookbook": "Nastavi mojo kuharico",
+  "Your first matches are ready": "Vaša prva ujemanja so pripravljena",
+  "Recipes are ranked with your saved pantry. Open the first result to see the full match explanation.":
+    "Recepti so razvrščeni glede na shranjeno shrambo. Odprite prvi rezultat in si oglejte celotno razlago ujemanja.",
+  "Choose at least one starter recipe or pantry item.":
+    "Izberite vsaj en začetni recept ali sestavino za shrambo.",
+  "Check the starter cookbook selection.": "Preverite izbor začetne kuharice.",
+  "A selected starter recipe already exists. Refresh and review your cookbook.":
+    "Izbrani začetni recept že obstaja. Osvežite stran in preglejte kuharico.",
+  "The starter cookbook could not be created. Nothing was changed.":
+    "Začetne kuharice ni bilo mogoče ustvariti. Nič se ni spremenilo.",
+  "The starter cookbook returned an invalid result.":
+    "Začetna kuharica je vrnila neveljaven rezultat.",
   "Guest preview": "Predogled za goste",
   "You are viewing sample recipes. Only the cookbook owner can see or change private data.":
     "Ogledate si vzorčne recepte. Zasebne podatke lahko vidi ali spreminja le lastnik kuharice.",
+  "Interactive demo": "Interaktivna predstavitev",
+  "Try the kitchen, not just the recipe cards.":
+    "Preizkusite kuhinjo, ne le kartic receptov.",
+  "Change the pantry, inspect live recipe matches, scale servings, cook step by step, run timers, and build a temporary list.":
+    "Spreminjajte shrambo, preverite sprotna ujemanja receptov, prilagodite porcije, kuhajte po korakih, zaženite časovnike in sestavite začasni seznam.",
+  "Demo navigation": "Navigacija predstavitve",
+  "Kitchen demo": "Kuhinjska predstavitev",
+  "Temporary list": "Začasni seznam",
+  "Reset demo": "Ponastavi predstavitev",
+  "This workspace uses sample data and browser state only. It cannot read or change the private cookbook.":
+    "Ta delovni prostor uporablja le vzorčne podatke in stanje brskalnika. Zasebne kuharice ne more brati ali spreminjati.",
+  "Interactive demo reset.": "Interaktivna predstavitev je ponastavljena.",
+  "Sample pantry": "Vzorčna shramba",
+  "Toggle ingredients to change the recipe ranking instantly.":
+    "Vklopite ali izklopite sestavine in takoj spremenite razvrstitev receptov.",
+  "Use {name}": "Uporabi {name}",
+  "Quantity unknown": "Količina ni znana",
+  "Restore sample pantry": "Obnovi vzorčno shrambo",
+  "Sample pantry restored.": "Vzorčna shramba je obnovljena.",
+  "The same quantity-aware matcher used by the private cookbook ranks these sample recipes.":
+    "Te vzorčne recepte razvršča isti količinsko podprt primerjalnik kot v zasebni kuharici.",
+  "Open recipe": "Odpri recept",
+  "Open {title}": "Odpri {title}",
+  "Open any ranked recipe to scale servings, inspect its match, build a list, and enter cooking mode.":
+    "Odprite kateri koli razvrščeni recept, prilagodite porcije, preverite ujemanje, sestavite seznam in vstopite v način kuhanja.",
+  "Back to recipe ranking": "Nazaj na razvrstitev receptov",
+  "Interactive recipe": "Interaktivni recept",
+  "Pantry match": "Ujemanje s shrambo",
+  "Scale quantities for your table.": "Prilagodite količine svoji mizi.",
+  "Add missing to temporary list": "Dodaj manjkajoče na začasni seznam",
+  "Added to temporary list": "Dodano na začasni seznam",
+  "Missing ingredients added to the temporary list.":
+    "Manjkajoče sestavine so dodane na začasni seznam.",
+  "Browser-only cooking session": "Kuhanje samo v brskalniku",
+  "Cooking for {count}": "Kuhanje za {count}",
+  "Prep checklist": "Kontrolni seznam priprave",
+  "Prepare {name}": "Pripravi {name}",
+  "Follow one clear step at a time": "Sledite enemu jasnemu koraku naenkrat",
+  "This step has no timer. Move on when it is complete.":
+    "Ta korak nima časovnika. Ko je končan, nadaljujte.",
+  "Previous step": "Prejšnji korak",
+  "Next step": "Naslednji korak",
+  "Finish demo cook": "Končaj predstavitveno kuhanje",
+  "Cooking steps": "Koraki kuhanja",
+  "Demo cooking session finished.": "Predstavitveno kuhanje je končano.",
+  "Temporary shopping list": "Začasni nakupovalni seznam",
+  "Missing recipe ingredients land here without touching a private account.":
+    "Manjkajoče sestavine receptov se dodajo sem brez poseganja v zasebni račun.",
+  "{count} remaining": "Preostane: {count}",
+  "Mark {name} as purchased": "Označi {name} kot kupljeno",
+  "Quantity as needed": "Količina po potrebi",
+  "for {title}": "za {title}",
+  "Your demo list is empty": "Vaš predstavitveni seznam je prazen",
+  "Open a recipe with missing ingredients and add them from its match explanation.":
+    "Odprite recept z manjkajočimi sestavinami in jih dodajte iz razlage ujemanja.",
+  "The demo never shows household cookbook data. Signed-in household members share one private cookbook.":
+    "Predstavitev nikoli ne prikazuje podatkov iz gospodinjske kuharice. Prijavljeni člani gospodinjstva si delijo eno zasebno kuharico.",
   "Sample recipes": "Vzorčni recepti",
   "Preview only": "Samo predogled",
-  "Private cookbook data is never shown here.":
-    "Zasebni podatki kuharice tukaj niso nikoli prikazani.",
   "Back to home": "Nazaj na domov",
   "A cookbook that knows what's at home.": "Kuharica, ki ve, kaj je doma.",
   "Save every favorite, keep the pantry close, and find dinner without the usual guesswork.":
@@ -93,8 +190,8 @@ export const slMessages: Record<string, string> = {
   "See complete matches first, then honest missing-ingredient details.":
     "Najprej si oglejte popolna ujemanja, nato pa natančen seznam manjkajočih sestavin.",
   "This cookbook is private": "Ta kuharica je zasebna",
-  "This private cookbook is shared only with its configured owners. The Google account {email} is not on the owner list.":
-    "Ta zasebna kuharica je na voljo le nastavljenim lastnikom. Google račun {email} ni na seznamu lastnikov.",
+  "Nana's Recipes is a private household cookbook. The Google account {email} is not on this deployment's access allowlist. Sign out to choose another account.":
+    "Nanini recepti so zasebna gospodinjska kuharica. Google račun {email} ni na seznamu dovoljenih računov te namestitve. Odjavite se in izberite drug račun.",
   "Sign out and use another account": "Odjavi se in uporabi drug račun",
   "Sign-in did not finish": "Prijava ni bila dokončana",
   "Back to Nana's Recipes": "Nazaj na Nanine recepte",
@@ -257,8 +354,6 @@ export const slMessages: Record<string, string> = {
   "{title} is ready for the next move.":
     "Pri receptu {title} lahko nadaljujete z naslednjim korakom.",
   "1 hour": "1 ura",
-  "A calm private cookbook for recipes, pantry planning, and everyday cooking.":
-    "Mirna zasebna kuharica za recepte, načrtovanje shrambe in vsakodnevno kuhanje.",
   "A clean canonical list keeps recipe matching accurate without flattening meaningful differences.":
     "Urejen osnovni seznam ohranja natančno ujemanje receptov, ne da bi zabrisal pomembne razlike.",
   "A focused, step-by-step cooking view for your private Nana's Recipes cookbook.":
@@ -377,21 +472,21 @@ export const slMessages: Record<string, string> = {
   "Display and cooking defaults": "Prikaz in privzete nastavitve kuhanja",
   "Display name": "Prikazano ime",
   Done: "Končano",
-  "Download all owned recipes, ingredients, relationships, pantry, shopping, history, and settings as versioned JSON. Secrets and signed image URLs are excluded.":
-    "Prenesite vse svoje recepte, sestavine, povezave, shrambo, nakupe, zgodovino in nastavitve kot različico JSON. Skrivnosti in podpisani naslovi slik niso vključeni.",
+  "Download recipes, ingredients, pantry, shopping, history, and settings as versioned JSON. This is not a complete backup: private image files, secrets, and signed image URLs are excluded.":
+    "Prenesite recepte, sestavine, shrambo, nakupe, zgodovino in nastavitve kot različico JSON. To ni popolna varnostna kopija: zasebne slikovne datoteke, skrivnosti in podpisani naslovi slik niso vključeni.",
   "Download JSON export": "Prenesi izvoz JSON",
-  "Backup and restore": "Varnostno kopiranje in obnovitev",
-  "Export a versioned JSON backup or validate and merge a trusted Nana's Recipes backup.":
-    "Izvozite različico varnostne kopije JSON ali preverite in združite zaupanja vredno kopijo Naninih receptov.",
-  "Restore cookbook": "Obnovi kuharico",
-  "Cookbook backup file": "Datoteka varnostne kopije kuharice",
+  "Cookbook data export and import": "Izvoz in uvoz podatkov kuharice",
+  "Export versioned JSON cookbook data or validate and merge a trusted Nana's Recipes data export.":
+    "Izvozite različico podatkov kuharice JSON ali preverite in združite zaupanja vreden izvoz podatkov Naninih receptov.",
+  "Import cookbook data": "Uvozi podatke kuharice",
+  "Cookbook data export file": "Datoteka izvoza podatkov kuharice",
   "The file is validated before any database write. Imports merge safely and never replace existing recipes.":
     "Datoteka se preveri pred vsakim zapisom v podatkovno zbirko. Uvoz varno združuje in nikoli ne zamenja obstoječih receptov.",
-  "Cookbook backups must be 10 MB or smaller.":
-    "Varnostne kopije kuharice morajo biti velike največ 10 MB.",
-  "Checking backup…": "Preverjanje varnostne kopije …",
-  "Choose a valid JSON cookbook backup.":
-    "Izberite veljavno varnostno kopijo kuharice JSON.",
+  "Cookbook data exports must be 10 MB or smaller.":
+    "Izvozi podatkov kuharice morajo biti veliki največ 10 MB.",
+  "Checking data export…": "Preverjanje izvoza podatkov …",
+  "Choose a valid JSON cookbook data export.":
+    "Izberite veljaven izvoz podatkov kuharice JSON.",
   "Import stopped safely": "Uvoz je bil varno ustavljen",
   "Import preview": "Predogled uvoza",
   "Schema version": "Različica sheme",
@@ -399,13 +494,12 @@ export const slMessages: Record<string, string> = {
   "Import is blocked to prevent duplicate or accidental replacement: {titles}":
     "Uvoz je blokiran, da se prepreči podvajanje ali nenamerna zamenjava: {titles}",
   "Private images stay separate": "Zasebne slike ostanejo ločene",
-  "{count} image references will be skipped because JSON backups do not contain private image binaries.":
-    "{count} povezav do slik bo preskočenih, ker varnostne kopije JSON ne vsebujejo zasebnih slikovnih datotek.",
+  "{count} image references will be skipped because JSON data exports do not contain private image files.":
+    "{count} povezav do slik bo preskočenih, ker izvozi podatkov JSON ne vsebujejo zasebnih slikovnih datotek.",
   "Type IMPORT NANA'S RECIPES": "Vnesite IMPORT NANA'S RECIPES",
-  "Import cookbook backup": "Uvozi varnostno kopijo kuharice",
-  "Cookbook backup imported": "Varnostna kopija kuharice je uvožena",
-  "The cookbook backup could not be imported.":
-    "Varnostne kopije kuharice ni bilo mogoče uvoziti.",
+  "Cookbook data imported": "Podatki kuharice so uvoženi",
+  "The cookbook data could not be imported.":
+    "Podatkov kuharice ni bilo mogoče uvoziti.",
   "Duplicate recipe": "Podvoji recept",
   "e.g. ripe tomatoes": "npr. zreli paradižniki",
   "Edit {name}": "Uredi {name}",
@@ -425,7 +519,7 @@ export const slMessages: Record<string, string> = {
   "Expiration date": "Rok uporabnosti",
   Expired: "Rok je potekel",
   "Expires today": "Rok poteče danes",
-  "Export cookbook": "Izvozi kuharico",
+  "Export cookbook data": "Izvozi podatke kuharice",
   "Export validation is complete, but production import remains disabled until the migration transaction can be tested against a live Supabase project. No partial import control is shown.":
     "Preverjanje izvoza je dokončano, uvoz v produkcijo pa ostaja onemogočen, dokler selitvene transakcije ni mogoče preizkusiti na delujočem projektu Supabase. Delni uvoz ni na voljo.",
   "Fast entry": "Hitri vnos",
@@ -513,10 +607,10 @@ export const slMessages: Record<string, string> = {
   "Move step {number} up": "Premakni korak {number} navzgor",
   Name: "Ime",
   "Nana's Recipes": "Nanini recepti",
-  "Nana's Recipes - Your private cookbook":
-    "Nanini recepti – vaša zasebna kuharica",
-  "Nana's Recipes | Your private cookbook":
-    "Nanini recepti | Vaša zasebna kuharica",
+  "Nana's Recipes - Private household cookbook":
+    "Nanini recepti - zasebna gospodinjska kuharica",
+  "Nana's Recipes | Private household cookbook":
+    "Nanini recepti | Zasebna gospodinjska kuharica",
   "Nana's Recipes never converts incompatible culinary units automatically.":
     "Nanini recepti nikoli samodejno ne pretvarjajo nezdružljivih kuharskih enot.",
   "Nana's Recipes Owner": "Lastnik Naninih receptov",
@@ -583,8 +677,6 @@ export const slMessages: Record<string, string> = {
   "Recipe view": "Prikaz receptov",
   "Recipe was not saved": "Recept ni bil shranjen",
   "Recipe wording": "Besedilo v receptu",
-  "Recipes, pantry planning, and everyday cooking in one private place.":
-    "Recepti, načrtovanje shrambe in vsakodnevno kuhanje na enem zasebnem mestu.",
   "Remove {name}": "Odstrani {name}",
   "Remove image": "Odstrani sliko",
   "Remove ingredient {number}": "Odstrani sestavino {number}",
@@ -964,6 +1056,17 @@ export const slMessages: Record<string, string> = {
     "To je urejen referenčni katalog, ne vir zaloge ali cen v živo. Pred nakupom preverite razpoložljivost na strani trgovca.",
   "Inactive product": "Neaktiven izdelek",
   "Package size": "Velikost pakiranja",
+  "Package sizes": "Velikosti pakiranj",
+  "Plan package sizes for {name}": "Načrtuj pakiranja za {name}",
+  "Package plan for {item}": "Načrt pakiranj za {item}",
+  "Generic size combinations for planning only. Check the packages available in your shop.":
+    "Splošne kombinacije velikosti so namenjene le načrtovanju. Preverite pakiranja, ki so na voljo v vaši trgovini.",
+  "Total {quantity} {unit}": "Skupaj {quantity} {unit}",
+  "{quantity} {unit} extra": "{quantity} {unit} presežka",
+  "exact quantity": "točna količina",
+  "Package planning": "Načrtovanje pakiranj",
+  "Generic package-size guidance is available for {count} items.":
+    "Splošen predlog velikosti pakiranj je na voljo za {count} izdelkov.",
   Uncategorized: "Nerazvrščeno",
   EAN: "EAN",
   "Not provided": "Ni navedeno",

@@ -157,7 +157,7 @@ export async function requireOwner(returnTo = "/dashboard"): Promise<User> {
   if (state.status === "signed-out") {
     redirect(`/?next=${encodeURIComponent(returnTo)}`);
   }
-  if (state.status === "guest") redirect("/preview");
+  if (state.status === "guest") redirect("/private");
   if (state.status === "denied") redirect("/private");
   return state.user;
 }

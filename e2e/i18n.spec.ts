@@ -17,7 +17,7 @@ test("switches immediately and persists Slovenian without a reload", async ({
   await expect(page.locator("html")).toHaveAttribute("lang", "sl");
   await expect(
     page.getByRole("heading", {
-      name: "Zasebna kuharica enega gospodinjstva, prikazana v javnem predogledu.",
+      name: "Zasebna skupna gospodinjska kuharica z iskanjem receptov glede na vsebino shrambe.",
     }),
   ).toBeVisible();
   await expect
@@ -41,7 +41,7 @@ test("detects Slovenian on a first visit", async ({ browser, baseURL }) => {
   await expect(page.locator("html")).toHaveAttribute("lang", "sl");
   await expect(
     page.getByRole("heading", {
-      name: "Zasebna kuharica enega gospodinjstva, prikazana v javnem predogledu.",
+      name: "Zasebna skupna gospodinjska kuharica z iskanjem receptov glede na vsebino shrambe.",
     }),
   ).toBeVisible();
   await context.close();
@@ -153,10 +153,7 @@ test("renders every main owner page in Slovenian without horizontal overflow", a
     ["/shopping-list", "Nakupovalni seznam", "heading"],
     ["/cook-with-what-i-have", "Kaj lahko skuham?", "heading"],
     ["/ingredients", "Katalog sestavin", "heading"],
-    ["/products", "Katalog izdelkov", "heading"],
     ["/settings", "Nastavitve", "heading"],
-    ["/settings/catalog", "Upravljanje kataloga", "heading"],
-    ["/products/lidl-si-11008519", "Mozzarella XXL", "heading"],
     ["/recipes/r-pasta", "Creamy mushroom pasta", "heading"],
     ["/recipes/r-pasta/cook", "Način kuhanja", "text"],
   ] as const;
@@ -180,12 +177,17 @@ test("renders every main owner page in Slovenian without horizontal overflow", a
 
   await page.goto("/shopping-list");
   await expect(
-    page.getByText("Možnosti v katalogih", { exact: true }),
+    page.getByText("Načrtovanje pakiranj", { exact: true }),
   ).toBeVisible();
-  await expect(page.getByText("100 g Parmezan", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText(
+      "Splošen predlog velikosti pakiranj je na voljo za 2 izdelkov.",
+      { exact: true },
+    ),
+  ).toBeVisible();
   await expect(
     page.getByRole("button", {
-      name: "Poišči možnosti v katalogih za Piščančje prsi",
+      name: "Načrtuj pakiranja za Piščančje prsi",
       exact: true,
     }),
   ).toBeVisible();

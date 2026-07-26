@@ -34,14 +34,14 @@ async function readBoundedJson(
   if (contentLength > MAX_COOKBOOK_IMPORT_BYTES) {
     return {
       ok: false,
-      response: failure("Cookbook backups must be 10 MB or smaller.", 413),
+      response: failure("Cookbook data exports must be 10 MB or smaller.", 413),
     };
   }
 
   if (!request.body) {
     return {
       ok: false,
-      response: failure("Choose a valid JSON cookbook backup.", 400),
+      response: failure("Choose a valid JSON cookbook data export.", 400),
     };
   }
 
@@ -57,7 +57,10 @@ async function readBoundedJson(
       await reader.cancel();
       return {
         ok: false,
-        response: failure("Cookbook backups must be 10 MB or smaller.", 413),
+        response: failure(
+          "Cookbook data exports must be 10 MB or smaller.",
+          413,
+        ),
       };
     }
     chunks.push(value);
@@ -80,7 +83,7 @@ async function readBoundedJson(
   } catch {
     return {
       ok: false,
-      response: failure("Choose a valid JSON cookbook backup.", 400),
+      response: failure("Choose a valid JSON cookbook data export.", 400),
     };
   }
 }
@@ -98,7 +101,7 @@ export async function POST(request: NextRequest) {
   if (!parsed.success) {
     return failure(
       parsed.error.issues[0]?.message ??
-        "The cookbook backup failed schema validation.",
+        "The cookbook data export failed schema validation.",
       400,
     );
   }
@@ -160,7 +163,7 @@ export async function POST(request: NextRequest) {
       recipeCount: preview.recipes,
     });
     return failure(
-      "The cookbook backup was rejected. The transaction was rolled back and nothing was imported.",
+      "The cookbook data export was rejected. The transaction was rolled back and nothing was imported.",
       400,
     );
   }

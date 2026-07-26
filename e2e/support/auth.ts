@@ -1,6 +1,7 @@
 import type { BrowserContext } from "@playwright/test";
 
-export type TestAuthenticationRole = "signed-out" | "owner" | "denied";
+export type TestAuthenticationRole =
+  "signed-out" | "owner" | "guest" | "denied";
 
 export async function authenticateAs(
   context: BrowserContext,

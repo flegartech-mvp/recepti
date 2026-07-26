@@ -1,9 +1,11 @@
 # Database architecture
 
 The cookbook uses Supabase PostgreSQL for structured data and a private
-Supabase Storage bucket for recipe images. The schema is multi-user at the data
-layer, while the application currently admits only Google accounts in the
-server-only `OWNER_EMAILS` environment allowlist.
+Supabase Storage bucket for recipe images. The deployment may admit several
+Google accounts through the server-only `OWNER_EMAILS` environment allowlist,
+and every admitted identity joins one membership-controlled household cookbook.
+The existing `user_id` columns store the canonical cookbook data owner for
+backward-compatible RPCs; RLS authorizes through `cookbook_members`.
 
 The SQL migrations are authoritative:
 
@@ -18,14 +20,17 @@ The SQL migrations are authoritative:
 | `202607150007_settings_and_export_contract.sql`               | Typed settings plus the versioned camelCase export/import contract                   |
 | `202607150008_strict_owner_gate.sql`                          | Database owner allowlist, staple sync, and transactional recipe/image deletion       |
 | `20260720101308_revoke_trigger_function_rpc_access.sql`       | Removes app-role access to internal trigger functions                                |
-| `20260720122740_household_catalogue_preferences.sql`          | Household retailer and catalogue preference contract                                 |
-| `20260720153928_retailer_source_of_truth.sql`                 | Validated retailer identities and settings synchronization                           |
-| `20260723172145_export_cookbook_v2.sql`                       | Complete retailer-preference export/import schema version 2                          |
+| `20260720122740_household_catalogue_preferences.sql`          | Legacy retailer preference fields retained for migration compatibility               |
+| `20260720153928_retailer_source_of_truth.sql`                 | Legacy retailer identities retained for existing deployments                         |
+| `20260723172145_export_cookbook_v2.sql`                       | Schema version 2 export compatibility, including legacy settings                     |
 | `20260723172200_atomic_mutations.sql`                         | Race-safe pantry quantity and recipe favorite quick actions                          |
 | `20260723172227_owner_diagnostics_and_security_hardening.sql` | Owner diagnostics, privilege fixes, honest defaults, and covering indexes            |
 | `20260723172548_owner_health_invoker_storage_policy.sql`      | Owner-only bucket metadata policy and caller-privilege health RPC                    |
-| `20260724085818_multi_owner_pink_theme.sql`                   | Additive multi-owner administration and pink preference enum values                  |
+| `20260724085818_multi_owner_pink_theme.sql`                   | Additive multi-account access administration and pink preference enum values         |
 | `20260724095616_enforce_multi_owner_configuration.sql`        | Removes the obsolete single-owner configuration entry point                          |
+| `20260725213000_release_integrity_and_blue_theme.sql`         | Blue theme persistence, stronger recipe updates, and additive pantry upserts         |
+| `20260726100911_first_use_cookbook_bootstrap.sql`             | Transactional starter recipes and pantry setup using existing owner-scoped RPCs      |
+| `20260726113040_shared_household_cookbook.sql`                | Shared membership, reversible consolidation, household RLS and Storage namespaces    |
 
 [`src/types/database.ts`](../src/types/database.ts) mirrors this contract in the
 generated Supabase `Database` format.
@@ -133,7 +138,7 @@ Every update increments `revision` and refreshes `updated_at`. The lower-level
 update RPC can compare a supplied revision and raises a serialization-style
 error if the recipe changed after the editor loaded it.
 
-`visibility` is future-facing metadata only. In the current migration set,
+`visibility` is dormant metadata only. In the current migration set,
 `shared` and `public` do not make a recipe readable by anyone else.
 
 ### `ingredients`
@@ -211,45 +216,41 @@ Appendable cooking sessions with recipe, time, optional servings, and notes.
 Insert/update/delete triggers recompute `recipes.cooked_count` and
 `last_cooked_at`, keeping cached dashboard values consistent.
 
-### `recipe_shares`
+### Dormant `recipe_shares` metadata
 
-Future-facing owner metadata with a recipe, optional recipient user, optional
+Inactive owner metadata with a recipe, optional recipient user, optional
 normalized recipient email, permission, acceptance time, and timestamps. The
 recipient check requires at least one recipient identifier and rejects sharing
 with the owner by user ID.
 
-The current RLS policy is deliberately owner-only. Recipients cannot read these
-grants or recipes yet; changing `visibility` or inserting a share row does not
-activate sharing.
+Recipe-share recipients cannot read these grants or recipes; changing
+`visibility` or inserting a share row does not activate public sharing.
+Household access is instead represented explicitly by `cookbook_members`.
 
 ## Row-level security
 
-RLS is enabled on all 14 public data tables. `anon` has no table privileges;
+RLS is enabled on every public data table. `anon` has no table privileges;
 authenticated users receive CRUD privileges subject to policy checks. The
 migrations do not use permissive `using (true)` policies.
 
-| Table group                             | RLS condition                                            |
-| --------------------------------------- | -------------------------------------------------------- |
-| `profiles`                              | `user_id = auth.uid()` and `id = auth.uid()`             |
-| Preferences, recipes, ingredients, tags | Direct `user_id = auth.uid()` ownership                  |
-| Ingredient substitutions                | Caller owns the row and both ingredient endpoints        |
-| Recipe ingredients                      | Caller owns the row, parent recipe, and ingredient       |
-| Recipe steps/images/history             | Caller owns the row and parent recipe                    |
-| Recipe tags                             | Caller owns the row, recipe, and tag                     |
-| Pantry items                            | Caller owns the row and ingredient                       |
-| Shopping items                          | Caller owns the row and any referenced ingredient/recipe |
-| Recipe shares                           | Recipe owner only; no recipient or public read policy    |
+| Table group                     | RLS condition                                             |
+| ------------------------------- | --------------------------------------------------------- |
+| `profiles`                      | `user_id = auth.uid()` and `id = auth.uid()`              |
+| `cookbooks`, `cookbook_members` | Current allowlisted Google identity is an enrolled member |
+| Shared cookbook tables          | Row uses the member's canonical `data_owner_user_id`      |
+| Recipe/pantry child tables      | Membership RLS plus composite parent foreign keys         |
+| Recipe shares                   | Household members only; no recipient or public policy     |
 
 Every row above is also subject to migration 008's restrictive
 `private.is_app_owner()` policy. PostgreSQL combines it with the detailed
-ownership policy using AND, so an authenticated non-owner cannot create a
-separate namespace or upload to `recipe-images`. The helper also requires
+membership policy using AND, so an authenticated non-owner cannot create a
+namespace or upload to `recipe-images`. The helper also requires
 Google in the JWT's signed `app_metadata.provider/providers`; matching the
 allowlist with an Email-provider token is insufficient.
 
-Composite foreign keys independently reject cross-owner relationships.
-`WITH CHECK` mirrors ownership rules for inserts and updates, so a caller cannot
-reassign a row to another identity.
+Composite foreign keys independently keep every aggregate inside the canonical
+household data owner. `WITH CHECK` prevents a member from assigning rows to an
+unrelated identity.
 
 PostgreSQL cannot read Vercel's `OWNER_EMAILS`, so the project administrator
 runs `private.configure_owner_emails(text[])` after the migrations. The
@@ -266,8 +267,9 @@ allowlist, and the JWT must identify Google as a provider. Never expose
 All public application RPCs from migration `003` onward are
 `SECURITY INVOKER` with an empty fixed `search_path`. Consequently, they run
 with the authenticated caller's rights and remain subject to the same RLS
-policies as direct table operations. They derive the owner from `auth.uid()` via
-`private.current_user_id()` and reject unauthenticated calls.
+policies as direct table operations. `private.current_user_id()` resolves the
+authenticated membership to the cookbook's canonical data owner and rejects
+unauthenticated or unenrolled calls.
 
 Execute permission is revoked from `public` and `anon` and granted only to
 `authenticated`. Transactional does not mean privileged: each RPC call is one
@@ -380,7 +382,7 @@ the recipe statistics in the same transaction.
 Search is owner-scoped and covers recipe text, cuisine, canonical/display
 ingredient names, aliases, and tags. Dietary filtering checks dietary tags.
 Supported sorts are `newest`, `oldest`, `alphabetical`, `recently_cooked`,
-`most_cooked`, and `shortest`. The limit is clamped to 1–100, offset is
+`most_cooked`, and `shortest`. The limit is clamped to 1-100, offset is
 non-negative, and each row includes a windowed `total_count`.
 
 ## Pantry, shopping, and catalog RPCs
@@ -471,7 +473,7 @@ Atomically upserts the caller's typed preferences and returns the preferences
 row ID. The camelCase payload supports `theme`, `defaultServings`,
 `measurementPreference`, `stapleIngredientIds`, `additionalStapleNames`, and
 `reduceMotion`. Missing scalar values use app defaults; the two staple arrays
-must be JSON arrays when present. Default servings are limited to 1–100 here,
+must be JSON arrays when present. Default servings are limited to 1-100 here,
 selected ingredient IDs must belong to the caller, and additional names are
 lowercased, whitespace-normalized, deduplicated, and length-checked.
 
@@ -627,7 +629,8 @@ present, even when empty; nullable values remain JSON `null`.
 The envelope intentionally omits owner IDs, profile/Auth data, recipe shares,
 ingredient substitutions, generated search/revision fields, pantry depletion
 internals, and shopping-item notes. Image paths are metadata only: Auth tokens,
-secrets, signed URLs, and private Storage object bytes are never exported.
+secrets, signed URLs, and private Storage object bytes are never exported. The
+JSON file is a cookbook data export, not a complete backup.
 
 ### `import_cookbook`
 
@@ -638,7 +641,7 @@ secrets, signed URLs, and private Storage object bytes are never exported.
 The public adapter accepts current `schemaVersion: 2` exports, older
 `schemaVersion: 1` Nana's Recipes envelopes, and the legacy relational
 `schema_version: 1` backup shape. Version 2 requires the complete settings
-snapshot, including retailer preferences. Current envelopes must include JSON arrays for `ingredients`,
+snapshot, including legacy retailer settings retained for backwards compatibility. Current envelopes must include JSON arrays for `ingredients`,
 `tags`, `recipes`, `pantryItems`, `shoppingListItems`, and `cookingHistory`;
 recipe ingredients, steps, and tag IDs are nested within each recipe. Modes are
 `merge` and `replace`.
@@ -654,7 +657,7 @@ Image metadata and binaries are not restored: imported recipe cover and step
 paths are stripped, and the result reports `images_skipped`. The current
 envelope has no share or substitution collections, and those relationships are
 not recreated from it. The profile remains Auth-owned; settings, including
-retailer preferences in version 2, are restored transactionally, and staple IDs
+legacy settings in version 2 are restored transactionally, and staple IDs
 are re-derived from imported ingredient flags.
 
 Application code should validate the same strict shape with Zod before calling
@@ -685,14 +688,15 @@ also check MIME, extension, and byte size before upload.
 Every Storage policy requires:
 
 - `bucket_id = 'recipe-images'`;
-- the first object-path segment equals `auth.uid()`;
-- `storage.objects.owner_id` equals the authenticated user ID.
+- the caller is an allowlisted Google household member;
+- new objects start with the shared cookbook UUID;
+- legacy member-UUID namespaces remain readable and removable after migration.
 
 Both of these shapes satisfy the current policy:
 
 ```text
-<uid>/<random-uuid>.<ext>
-<uid>/<recipe-id>/<random-uuid>.<ext>
+<cookbook-id>/<random-uuid>.<ext>
+<cookbook-id>/covers/<recipe-slug>-<content-hash>.webp
 ```
 
 Nested recipe folders are an organizational convention, not a policy

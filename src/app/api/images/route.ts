@@ -35,6 +35,19 @@ function isSupportedMimeType(value: string): value is SupportedImageMimeType {
   return SUPPORTED_IMAGE_MIME_TYPES.some((mimeType) => mimeType === value);
 }
 
+async function getImageNamespace() {
+  const client = await createClient();
+  const { data, error } = await client.rpc("get_cookbook_context");
+  const context = data?.[0];
+  if (error || !context?.id) {
+    logServerError("cookbook_context_lookup_failed", error, {
+      operation: "resolve shared image namespace",
+    });
+    return null;
+  }
+  return { client, namespace: context.id };
+}
+
 export async function POST(request: NextRequest) {
   const authorization = await getAuthorizationState();
   if (authorization.status !== "owner")
@@ -81,10 +94,20 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  const path = `${authorization.user.id}/${crypto.randomUUID()}.${processed.extension}`;
-  if (isTestAuthenticationEnabled()) return NextResponse.json({ path });
-
-  const client = await createClient();
+  if (isTestAuthenticationEnabled()) {
+    return NextResponse.json({
+      path: `${authorization.user.id}/${crypto.randomUUID()}.${processed.extension}`,
+    });
+  }
+  const imageContext = await getImageNamespace();
+  if (!imageContext) {
+    return NextResponse.json(
+      { error: "The shared cookbook could not be resolved." },
+      { status: 503 },
+    );
+  }
+  const { client, namespace } = imageContext;
+  const path = `${namespace}/${crypto.randomUUID()}.${processed.extension}`;
   const { error } = await client.storage
     .from(RECIPE_IMAGE_BUCKET)
     .upload(path, processed.bytes, {
@@ -115,13 +138,22 @@ export async function DELETE(request: NextRequest) {
   const path = new URL(request.url).searchParams.get("path");
   if (
     !path ||
-    !path.startsWith(`${authorization.user.id}/`) ||
+    !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}\//u.test(
+      path,
+    ) ||
     path.includes("..")
   ) {
     return NextResponse.json({ error: "Invalid image path." }, { status: 400 });
   }
   if (isTestAuthenticationEnabled()) return NextResponse.json({ ok: true });
   const client = await createClient();
+  const { data: canManagePath, error: pathAccessError } = await client.rpc(
+    "can_manage_recipe_image_path",
+    { p_path: path },
+  );
+  if (pathAccessError || !canManagePath) {
+    return NextResponse.json({ error: "Invalid image path." }, { status: 400 });
+  }
 
   // Cleanup is allowed only for an unreferenced object. This matters when a
   // recipe mutation commits but its response is interrupted: a best-effort

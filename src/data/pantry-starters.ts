@@ -36,7 +36,7 @@ const defineIngredient = (
 });
 
 /**
- * Small, versioned household vocabulary used before an owner has created any
+ * Small, versioned pantry vocabulary used before an owner has created any
  * database ingredients. English names are stable canonical identities;
  * Slovenian names and aliases are presentation and search terms.
  */

@@ -14,7 +14,7 @@ test.describe("private cookbook authorization", () => {
 
     await expect(
       page.getByRole("heading", {
-        name: "One household's private cookbook, shared as a preview.",
+        name: "A private shared household cookbook with pantry-based recipe matching.",
       }),
     ).toBeVisible();
     await expect(page.getByRole("link", { name: "View demo" })).toHaveAttribute(
@@ -22,10 +22,12 @@ test.describe("private cookbook authorization", () => {
       "/preview",
     );
     await expect(
-      page.getByRole("button", { name: "Owner sign in" }),
+      page.getByRole("button", { name: "Private cookbook sign in" }),
     ).toBeVisible();
     await expect(
-      page.getByText(/does not create a personal cookbook/i),
+      page.getByText(
+        /every allowlisted Google account joins the same household cookbook/i,
+      ),
     ).toBeVisible();
     await expect(page.getByText(/create account/i)).toHaveCount(0);
   });
@@ -38,7 +40,9 @@ test.describe("private cookbook authorization", () => {
     await authenticateAs(context, baseURL, "signed-out");
     await page.goto("/");
 
-    await page.getByRole("button", { name: "Owner sign in" }).click();
+    await page
+      .getByRole("button", { name: "Private cookbook sign in" })
+      .click();
 
     await expect(page).toHaveURL(
       /\/auth\/auth-code-error\?reason=configuration$/,
@@ -48,7 +52,7 @@ test.describe("private cookbook authorization", () => {
     ).toBeVisible();
   });
 
-  test("offers a public read-only preview without authentication", async ({
+  test("offers an isolated interactive preview without authentication", async ({
     context,
     page,
     baseURL,
@@ -58,12 +62,84 @@ test.describe("private cookbook authorization", () => {
     await page.goto("/preview");
 
     await expect(
-      page.getByRole("heading", { name: "Guest preview" }),
+      page.getByRole("heading", {
+        name: "Try the kitchen, not just the recipe cards.",
+      }),
     ).toBeVisible();
-    await expect(page.getByText("Preview only").first()).toBeVisible();
     await expect(
-      page.getByText(/Private cookbook data is never shown/),
+      page.getByRole("heading", { name: "Sample pantry" }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", { name: "What can I cook?" }),
+    ).toBeVisible();
+
+    await page.getByRole("checkbox", { name: "Use Mushrooms" }).click();
+    const pastaResult = page
+      .getByRole("article")
+      .filter({ hasText: "Creamy mushroom pasta" });
+    await expect(
+      pastaResult.getByText("Almost ready", { exact: true }),
+    ).toBeVisible();
+    await pastaResult.getByRole("button", { name: /Open Creamy/ }).click();
+
+    await expect(
+      page.getByRole("heading", { name: "Creamy mushroom pasta" }),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Increase servings" }).click();
+    await expect(page.getByText("2.5 servings")).toBeVisible();
+    await page
+      .getByRole("button", { name: "Add missing to temporary list" })
+      .click();
+    await page.getByRole("button", { name: /Temporary list/ }).click();
+    await expect(page.getByText("Mushrooms", { exact: true })).toBeVisible();
+
+    await page.getByRole("button", { name: "Back to recipe ranking" }).click();
+    await page
+      .getByRole("article")
+      .filter({ hasText: "Creamy mushroom pasta" })
+      .getByRole("button", { name: /Open Creamy/ })
+      .click();
+    await page.getByRole("button", { name: "Start cooking" }).click();
+    await expect(
+      page.getByText("Follow one clear step at a time"),
+    ).toBeVisible();
+    await page.getByRole("button", { name: "Start", exact: true }).click();
+    await expect(page.getByText("Running", { exact: true })).toBeVisible();
+  });
+
+  test("keeps the interactive preview usable on mobile", async ({
+    context,
+    page,
+    baseURL,
+  }) => {
+    await authenticateAs(context, baseURL, "signed-out");
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/preview");
+
+    await expect(
+      page.getByRole("heading", { name: "Sample pantry" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Switch to dark mode" }),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("button", { name: "Switch language to Slovenian" }),
+    ).toBeVisible();
+    await page.getByRole("checkbox", { name: "Use Mushrooms" }).click();
+    await page
+      .getByRole("article")
+      .filter({ hasText: "Creamy mushroom pasta" })
+      .getByRole("button", { name: /Open Creamy/ })
+      .click();
+    await expect(
+      page.getByRole("button", { name: "Start cooking" }),
+    ).toBeVisible();
+
+    const dimensions = await page.evaluate(() => ({
+      clientWidth: document.documentElement.clientWidth,
+      scrollWidth: document.documentElement.scrollWidth,
+    }));
+    expect(dimensions.scrollWidth).toBeLessThanOrEqual(dimensions.clientWidth);
   });
 
   test("redirects a logged-out visitor away from a protected page", async ({
@@ -78,7 +154,7 @@ test.describe("private cookbook authorization", () => {
     await expect(page).toHaveURL(/\/?\?next=%2Fdashboard$/);
     await expect(
       page.getByRole("heading", {
-        name: "One household's private cookbook, shared as a preview.",
+        name: "A private shared household cookbook with pantry-based recipe matching.",
       }),
     ).toBeVisible();
   });
@@ -88,7 +164,7 @@ test.describe("private cookbook authorization", () => {
     page,
     baseURL,
   }) => {
-    await authenticateAs(context, baseURL, "denied");
+    await authenticateAs(context, baseURL, "guest");
 
     await page.goto("/dashboard");
 
@@ -97,6 +173,14 @@ test.describe("private cookbook authorization", () => {
       page.getByRole("heading", { name: "This cookbook is private" }),
     ).toBeVisible();
     await expect(page.getByText("visitor@example.test")).toBeVisible();
+    await expect(
+      page.getByRole("button", {
+        name: "Sign out and use another account",
+      }),
+    ).toBeVisible();
+
+    await page.goto("/preview");
+    await expect(page).toHaveURL(/\/private$/);
   });
 
   test("shows the owner dashboard", async ({ context, page, baseURL }) => {
@@ -144,6 +228,18 @@ test.describe("private cookbook authorization", () => {
     const background = page.locator("[data-swirly-background]");
     await expect(background).toBeVisible();
     await expect(background).toHaveCSS("pointer-events", "none");
+
+    const themeToggle = page.getByRole("button", {
+      name: "Switch to dark mode",
+    });
+    await themeToggle.click();
+    await expect(page.locator("html")).toHaveClass(/\bblue-dark\b/);
+    await expect(
+      page.getByRole("button", { name: "Switch to light mode" }),
+    ).toBeVisible();
+
+    await page.getByRole("button", { name: "Switch to light mode" }).click();
+    await expect(page.locator("html")).toHaveClass(/\bblue\b/);
   });
 
   test("allows only the owner to view configuration diagnostics", async ({

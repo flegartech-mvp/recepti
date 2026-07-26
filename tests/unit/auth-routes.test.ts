@@ -158,7 +158,7 @@ describe("Google OAuth callback", () => {
     );
   });
 
-  it("sends a valid non-owner Google account to the safe preview", async () => {
+  it("sends a valid non-owner Google account to the private access page", async () => {
     auth.getUser.mockResolvedValueOnce({
       data: {
         user: {
@@ -176,7 +176,7 @@ describe("Google OAuth callback", () => {
     );
 
     expect(response.headers.get("location")).toBe(
-      "https://recepti-rho.vercel.app/preview",
+      "https://recepti-rho.vercel.app/private",
     );
   });
 

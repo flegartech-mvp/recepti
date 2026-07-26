@@ -5,6 +5,7 @@ import {
   type Locator,
   type Page,
 } from "@playwright/test";
+import path from "node:path";
 
 import { authenticateAs } from "./support/auth";
 
@@ -15,6 +16,9 @@ const mobileViewports = [
   { width: 430, height: 932 },
   { width: 768, height: 1024 },
   { width: 1024, height: 768 },
+  { width: 1280, height: 800 },
+  { width: 1440, height: 900 },
+  { width: 1920, height: 1080 },
 ] as const;
 
 const coreRoutes = [
@@ -25,9 +29,7 @@ const coreRoutes = [
   "/cook-with-what-i-have",
   "/shopping-list",
   "/ingredients",
-  "/products",
   "/settings",
-  "/settings/catalog",
   "/recipes/r-pasta",
 ] as const;
 
@@ -148,7 +150,7 @@ async function expectMobileNavigationClearance(page: Page) {
   await expectWithinViewport(navigation, page, "mobile navigation");
 }
 
-test("keeps the app shell mobile-native from 320px through tablet layouts", async ({
+test("keeps the app shell aligned from 320px through desktop layouts", async ({
   context,
   page,
   baseURL,
@@ -213,18 +215,20 @@ test("keeps the app shell mobile-native from 320px through tablet layouts", asyn
         "desktop navigation Home link at 1024px",
       );
     }
+
+    await page.screenshot({
+      path: path.join(
+        process.cwd(),
+        `output/playwright/dashboard-${viewport.width}x${viewport.height}.png`,
+      ),
+      fullPage: true,
+    });
   }
 
   await expect(page.locator('meta[name="viewport"]')).toHaveAttribute(
     "content",
     /viewport-fit=cover/,
   );
-  const inputMode = await page.evaluate(() => ({
-    coarsePointer: window.matchMedia("(pointer: coarse)").matches,
-    touchPoints: navigator.maxTouchPoints,
-  }));
-  expect(inputMode.coarsePointer).toBe(true);
-  expect(inputMode.touchPoints).toBeGreaterThan(0);
   expect(browserErrors).toEqual([]);
 });
 
@@ -526,7 +530,7 @@ test("keeps mobile authentication and the persistent theme control accessible", 
 
   await expect(
     page.getByRole("heading", {
-      name: "One household's private cookbook, shared as a preview.",
+      name: "A private shared household cookbook with pantry-based recipe matching.",
     }),
   ).toBeVisible();
   const themeToggle = page.getByRole("button", {

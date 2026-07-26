@@ -46,3 +46,6 @@ yarn-error.log*
 
 # Generated test artifacts
 output/
+
+.vercel
+.env*

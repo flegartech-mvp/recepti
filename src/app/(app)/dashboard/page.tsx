@@ -1,13 +1,15 @@
 import Link from "next/link";
 import {
+  ArrowRight,
   BookOpenText,
   ChefHat,
   Heart,
   Plus,
   Refrigerator,
+  ShoppingBasket,
   Shuffle,
   Sparkles,
-  Store,
+  WandSparkles,
 } from "lucide-react";
 
 import { PageContainer } from "@/components/layout/page-container";
@@ -63,6 +65,36 @@ export default async function DashboardPage() {
           </Link>
         </div>
       </section>
+
+      {data.recipeCount === 0 || data.pantryCount === 0 ? (
+        <section className="grid gap-5 rounded-2xl border border-primary/25 bg-primary-soft p-6 shadow-[0_10px_28px_var(--shadow)] md:grid-cols-[1fr_auto] md:items-center sm:p-8">
+          <div className="flex items-start gap-4">
+            <span className="grid size-11 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground">
+              <WandSparkles className="size-5" aria-hidden="true" />
+            </span>
+            <div>
+              <h2 className="text-2xl font-semibold tracking-tight">
+                {t("Get your first match in minutes")}
+              </h2>
+              <p className="mt-2 max-w-2xl leading-relaxed text-muted-foreground">
+                {t(
+                  "Add a small editable recipe collection, choose your usual pantry basics, and see what is ready to cook.",
+                )}
+              </p>
+            </div>
+          </div>
+          <Link
+            href="/getting-started"
+            className={buttonVariants({
+              size: "lg",
+              className: "w-full md:w-auto",
+            })}
+          >
+            {t("Set up my cookbook")}
+            <ArrowRight className="size-4" aria-hidden="true" />
+          </Link>
+        </section>
+      ) : null}
 
       <section
         className="grid grid-cols-2 gap-px overflow-hidden rounded-2xl border border-border bg-border shadow-[0_10px_28px_var(--shadow)] xl:grid-cols-4"
@@ -133,14 +165,14 @@ export default async function DashboardPage() {
               {t("Add pantry ingredient")}
             </Link>
             <Link
-              href="/products"
+              href="/shopping-list"
               className={buttonVariants({
                 variant: "ghost",
                 className: "justify-start",
               })}
             >
-              <Store className="size-4" aria-hidden="true" />
-              {t("Find grocery products")}
+              <ShoppingBasket className="size-4" aria-hidden="true" />
+              {t("Open shopping list")}
             </Link>
             {surprise ? (
               <Link

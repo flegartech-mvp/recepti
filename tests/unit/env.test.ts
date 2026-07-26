@@ -3,7 +3,6 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   getOwnerEmails,
   getPublicEnvironment,
-  getRetailerEnvironment,
   getSiteUrl,
   hasSupabaseEnvironment,
   parseOwnerEmails,
@@ -53,13 +52,5 @@ describe("environment validation", () => {
 
     expect(hasSupabaseEnvironment()).toBe(false);
     expect(() => getPublicEnvironment()).toThrow(/Supabase configuration/);
-  });
-
-  it("requires a server secret before retailer imports can be enabled", () => {
-    vi.stubEnv("RETAILER_IMPORTS_ENABLED", "1");
-    vi.stubEnv("RETAILER_SYNC_SECRET", undefined);
-    expect(() => getRetailerEnvironment()).toThrow(
-      /Retailer feed environment configuration is invalid/,
-    );
   });
 });

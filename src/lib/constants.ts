@@ -6,6 +6,10 @@ import type {
 } from "@/types/domain";
 
 export const PRODUCT_NAME = "Nana's Recipes";
+export const PRODUCT_POSITIONING =
+  "A private shared household cookbook with pantry-based recipe matching.";
+export const PRODUCT_ACCESS_MODEL =
+  "Every allowlisted Google account joins the same household cookbook, pantry, shopping list, cooking history, settings, and private image library.";
 
 export const UNITS = [
   "g",

@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { OwnerSignInForm } from "@/components/auth/owner-sign-in-form";
 import { getAuthorizationState } from "@/lib/auth/authorization";
 import { safeInternalPath } from "@/lib/auth/redirects";
+import { PRODUCT_ACCESS_MODEL, PRODUCT_POSITIONING } from "@/lib/constants";
 import { getServerI18n } from "@/lib/i18n/server";
 export const dynamic = "force-dynamic";
 export default async function LandingPage({
@@ -34,7 +35,7 @@ export default async function LandingPage({
 
   const state = await getAuthorizationState();
   if (state.status === "owner") redirect("/dashboard");
-  if (state.status === "guest") redirect("/preview");
+  if (state.status === "guest") redirect("/private");
   if (state.status === "denied") redirect("/private");
   const { t } = await getServerI18n();
   return (
@@ -62,12 +63,12 @@ export default async function LandingPage({
           {" "}
           <h1 className="text-balance text-4xl font-semibold leading-[1.03] tracking-[-0.045em] sm:text-5xl lg:text-6xl">
             {" "}
-            {t("One household's private cookbook, shared as a preview.")}{" "}
+            {t(PRODUCT_POSITIONING)}{" "}
           </h1>{" "}
           <p className="mt-6 max-w-[48ch] text-lg leading-relaxed text-muted-foreground sm:text-xl">
             {" "}
             {t(
-              "Explore a read-only sample, or sign in as the owner to manage recipes, pantry, shopping, and cooking sessions.",
+              "Explore an interactive sample, or sign in to manage your recipes, pantry, shopping list, and cooking sessions.",
             )}{" "}
           </p>{" "}
           <div className="mt-8 flex flex-col gap-3 sm:flex-row">
@@ -84,14 +85,12 @@ export default async function LandingPage({
             </Button>
             <OwnerSignInForm
               nextPath={nextPath}
-              label={t("Owner sign in")}
+              label={t("Private cookbook sign in")}
               loadingLabel={t("Opening Google sign-in…")}
             />
           </div>
           <p className="mt-3 max-w-lg text-sm text-muted-foreground">
-            {t(
-              "The demo is public and read-only. Signing in does not create a personal cookbook; only the configured owner can access private data.",
-            )}
+            {t(PRODUCT_ACCESS_MODEL)}
           </p>
           {!state.configured && (
             <Alert className="mt-6 max-w-lg border-notice bg-notice/40">

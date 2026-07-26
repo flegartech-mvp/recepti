@@ -13,11 +13,16 @@ export async function generateMetadata() {
   return { title: t("What can I cook?") };
 }
 
-export default async function RecipeMatcherPage() {
-  const [recipes, pantry, ingredients, { t }] = await Promise.all([
+export default async function RecipeMatcherPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ guided?: string }>;
+}) {
+  const [recipes, pantry, ingredients, parameters, { t }] = await Promise.all([
     listRecipesForMatching(),
     listPantry(),
     listIngredients(),
+    searchParams,
     getServerI18n(),
   ]);
   return (
@@ -28,7 +33,12 @@ export default async function RecipeMatcherPage() {
           "Choose what is available and get a deterministic, quantity-aware ranking with honest missing-ingredient details.",
         )}
       />
-      <RecipeMatcher recipes={recipes} pantry={pantry} catalog={ingredients} />
+      <RecipeMatcher
+        recipes={recipes}
+        pantry={pantry}
+        catalog={ingredients}
+        guided={parameters.guided === "1"}
+      />
     </PageContainer>
   );
 }

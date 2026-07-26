@@ -19,8 +19,8 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "db:seed": "tsx scripts/seed.ts",
-    "catalog:validate": "tsx scripts/validate-catalogue.ts",
     "covers:import": "tsx scripts/import-recipe-covers.ts",
+    "docs:validate": "tsx scripts/validate-documentation.ts",
     "service-worker:validate": "tsx scripts/validate-service-worker.ts"
   },
   "dependencies": {

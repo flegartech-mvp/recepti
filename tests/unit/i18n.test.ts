@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import { normalizeLocale } from "@/lib/i18n/config";
+import { PRODUCT_ACCESS_MODEL, PRODUCT_POSITIONING } from "@/lib/constants";
 import {
   formatDate,
   formatList,
@@ -29,9 +30,38 @@ describe("English and Slovenian localization", () => {
     expect(translate("sl", "Add custom ingredient")).toBe(
       "Dodaj sestavino po meri",
     );
-    expect(translate("sl", "Catalogue options")).toBe("Možnosti v katalogih");
     expect(translate("sl", "Compare {name}", { name: "Mleko" })).toBe(
       "Primerjaj Mleko",
+    );
+  });
+
+  it("localizes generic package planning", () => {
+    expect(translate("sl", "Package planning")).toBe("Načrtovanje pakiranj");
+    expect(
+      translate("sl", "Plan package sizes for {name}", { name: "Parmezan" }),
+    ).toBe("Načrtuj pakiranja za Parmezan");
+  });
+
+  it("localizes the interactive public demo", () => {
+    expect(translate("sl", "Sample pantry")).toBe("Vzorčna shramba");
+    expect(translate("sl", "Temporary shopping list")).toBe(
+      "Začasni nakupovalni seznam",
+    );
+    expect(translate("sl", "Start cooking")).toBe("Začni kuhati");
+    expect(translate("sl", "Use {name}", { name: "Česen" })).toBe(
+      "Uporabi Česen",
+    );
+  });
+
+  it("keeps the shared household identity explicit in both locales", () => {
+    expect(PRODUCT_POSITIONING).toBe(
+      "A private shared household cookbook with pantry-based recipe matching.",
+    );
+    expect(translate("sl", PRODUCT_POSITIONING)).toBe(
+      "Zasebna skupna gospodinjska kuharica z iskanjem receptov glede na vsebino shrambe.",
+    );
+    expect(translate("sl", PRODUCT_ACCESS_MODEL)).toContain(
+      "Vsak dovoljen Google račun se pridruži isti gospodinjski kuharici",
     );
   });
 

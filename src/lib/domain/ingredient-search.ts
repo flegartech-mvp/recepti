@@ -2,7 +2,6 @@ import {
   findIngredientDefinition,
   type SupportedLocale,
 } from "@/data/pantry-starters";
-import type { RetailerProduct } from "@/lib/retailers/types";
 import type { Ingredient } from "@/types/domain";
 
 const NON_WORD = /[^a-z0-9]+/g;
@@ -24,7 +23,6 @@ export interface IngredientSearchResult {
   displayName: string;
   secondaryText: string | null;
   ingredientSlug: string | null;
-  matchingProductNames: string[];
   score: number;
 }
 
@@ -59,16 +57,6 @@ function textScore(query: string, candidate: string): number {
   return query.length >= 3 ? subsequenceScore(query, candidate) : 0;
 }
 
-function productText(product: RetailerProduct): string[] {
-  return [
-    product.name,
-    product.brand ?? "",
-    product.retailerName,
-    product.category ?? "",
-    ...(product.aliases ?? []),
-  ];
-}
-
 function identityKey(ingredient: Ingredient): string {
   const definition = findIngredientDefinition(ingredient);
   if (definition) return `slug:${definition.slug}`;
@@ -92,12 +80,10 @@ export function searchIngredients(
   queryValue: string,
   options: {
     locale?: SupportedLocale;
-    products?: readonly RetailerProduct[];
     limit?: number;
   } = {},
 ): IngredientSearchResult[] {
   const locale = options.locale ?? "en";
-  const products = options.products ?? [];
   const query = normalizeIngredientSearch(queryValue);
   const deduplicated = new Map<string, IngredientSearchResult>();
 
@@ -116,11 +102,6 @@ export function searchIngredients(
       ...ingredient.aliases,
       ...(definition?.aliases ?? []),
     ].filter(Boolean);
-    const matchingProducts = products.filter((product) =>
-      ingredientSlug
-        ? product.ingredientSlugs.includes(ingredientSlug)
-        : product.ingredientIds.includes(ingredient.id),
-    );
     const primaryNameScore = Math.max(
       0,
       ...primaryNames.map((name) =>
@@ -134,17 +115,7 @@ export function searchIngredients(
         return score === 1_000 ? 950 : Math.max(0, score - 100);
       }),
     );
-    const retailerScore = Math.max(
-      0,
-      ...matchingProducts.flatMap((product) =>
-        productText(product).map((text) =>
-          Math.max(0, textScore(query, normalizeIngredientSearch(text)) - 180),
-        ),
-      ),
-    );
-    const score = query
-      ? Math.max(primaryNameScore, aliasScore, retailerScore)
-      : 1;
+    const score = query ? Math.max(primaryNameScore, aliasScore) : 1;
     if (score <= 0) continue;
 
     const otherNames = [
@@ -164,16 +135,6 @@ export function searchIngredients(
       displayName: localizedName,
       secondaryText: otherNames.slice(0, 2).join(" · ") || null,
       ingredientSlug,
-      matchingProductNames: matchingProducts
-        .filter((product) =>
-          query
-            ? productText(product).some(
-                (text) => textScore(query, normalizeIngredientSearch(text)) > 0,
-              )
-            : false,
-        )
-        .slice(0, 2)
-        .map((product) => `${product.retailerName}: ${product.name}`),
       score,
     };
     const previous = deduplicated.get(result.key);

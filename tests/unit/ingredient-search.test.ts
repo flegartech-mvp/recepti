@@ -10,7 +10,6 @@ import {
   normalizeIngredientSearch,
   searchIngredients,
 } from "@/lib/domain/ingredient-search";
-import type { RetailerProduct } from "@/lib/retailers/types";
 
 describe("shared ingredient search", () => {
   const catalog = pantryStarters.map(ingredientDefinitionToIngredient);
@@ -52,27 +51,8 @@ describe("shared ingredient search", () => {
     ).toBe(true);
   });
 
-  it("ranks a direct localized prefix ahead of alias and product prefixes", () => {
-    const results = searchIngredients(catalog, "mle", {
-      locale: "sl",
-      products: [
-        {
-          id: "ground-cinnamon",
-          name: "Mleti cimet",
-          retailerSlug: "hofer-si",
-          retailerName: "HOFER",
-          ingredientIds: [],
-          ingredientSlugs: ["cinnamon"],
-          price: null,
-          currency: "EUR",
-          unitLabel: "40 g",
-          packageQuantity: 40,
-          packageUnit: "g",
-          isPromotional: false,
-          isLoyaltyPrice: false,
-        },
-      ],
-    });
+  it("ranks a direct localized prefix ahead of aliases", () => {
+    const results = searchIngredients(catalog, "mle", { locale: "sl" });
     expect(results[0]?.displayName).toBe("Mleko");
   });
 
@@ -94,29 +74,6 @@ describe("shared ingredient search", () => {
         (result) => result.ingredientSlug === "eggs",
       ),
     ).toHaveLength(1);
-  });
-
-  it("finds an ingredient through an associated retailer product", () => {
-    const product: RetailerProduct = {
-      id: "verified-example",
-      name: "MILFINA Slovensko čajno maslo",
-      brand: "MILFINA",
-      retailerSlug: "hofer-si",
-      retailerName: "HOFER",
-      ingredientIds: [],
-      ingredientSlugs: ["butter"],
-      price: null,
-      currency: "EUR",
-      unitLabel: "250 g",
-      packageQuantity: 250,
-      packageUnit: "g",
-      isPromotional: false,
-      isLoyaltyPrice: false,
-    };
-    expect(
-      searchIngredients(catalog, "milfina", { products: [product] })[0]
-        ?.ingredientSlug,
-    ).toBe("butter");
   });
 
   it("returns no canonical match for a genuinely custom ingredient", () => {

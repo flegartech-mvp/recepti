@@ -3,10 +3,9 @@
 import { useEffect, useState, useTransition } from "react";
 import { useTheme } from "next-themes";
 import Link from "next/link";
-import { LoaderCircle, Save, Store } from "lucide-react";
+import { LoaderCircle, Save } from "lucide-react";
 import { toast } from "sonner";
 
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useI18n } from "@/components/i18n-provider";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -42,10 +41,12 @@ export function SettingsPanel({
   profile,
   initialSettings,
   ingredients,
+  initialTab = "profile",
 }: {
   profile: { email: string; name: string; avatarUrl: string | null };
   initialSettings: SettingsValues;
   ingredients: Ingredient[];
+  initialTab?: "profile" | "data";
 }) {
   const { setTheme } = useTheme();
   const { t } = useI18n();
@@ -99,12 +100,11 @@ export function SettingsPanel({
   };
 
   return (
-    <Tabs defaultValue="profile" className="space-y-6">
+    <Tabs defaultValue={initialTab} className="space-y-6">
       <TabsList className="h-auto w-full justify-start overflow-x-auto p-1 sm:w-auto">
         <TabsTrigger value="profile">{t("Profile")}</TabsTrigger>
         <TabsTrigger value="preferences">{t("Preferences")}</TabsTrigger>
         <TabsTrigger value="staples">{t("Staples")}</TabsTrigger>
-        <TabsTrigger value="retailers">{t("Retailers")}</TabsTrigger>
         <TabsTrigger value="data">{t("Data")}</TabsTrigger>
       </TabsList>
 
@@ -277,152 +277,6 @@ export function SettingsPanel({
               <Save className="size-4" />
               {t("Save staples")}
             </Button>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
-      <TabsContent value="retailers">
-        <Card className="recipe-paper">
-          <CardHeader>
-            <Store className="size-6 text-primary" aria-hidden="true" />
-            <CardTitle>
-              <h2>{t("Retailer preferences")}</h2>
-            </CardTitle>
-            <CardDescription>
-              {t(
-                "Choose which retailer catalogues are used for product and package matching.",
-              )}
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-6">
-            <fieldset className="space-y-3">
-              <legend className="text-sm font-semibold">
-                {t("Enabled retailers")}
-              </legend>
-              {(
-                [
-                  ["spar-si", "SPAR Slovenija"],
-                  ["hofer-si", "HOFER Slovenija"],
-                  ["lidl-si", "Lidl Slovenija"],
-                ] as const
-              ).map(([slug, name]) => (
-                <label
-                  key={slug}
-                  className="flex min-h-11 items-center gap-3 rounded-lg border border-border bg-background px-3"
-                >
-                  <Checkbox
-                    checked={settings.enabledRetailers.includes(slug)}
-                    onCheckedChange={(checked) =>
-                      setSettings((current) => ({
-                        ...current,
-                        enabledRetailers: checked
-                          ? [...new Set([...current.enabledRetailers, slug])]
-                          : current.enabledRetailers.filter(
-                              (item) => item !== slug,
-                            ),
-                        preferredRetailer:
-                          !checked && current.preferredRetailer === slug
-                            ? null
-                            : current.preferredRetailer,
-                      }))
-                    }
-                  />
-                  <span className="font-medium">{name}</span>
-                </label>
-              ))}
-            </fieldset>
-            <div className="grid gap-6 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label>{t("Preferred retailer")}</Label>
-                <Select
-                  value={settings.preferredRetailer ?? "none"}
-                  onValueChange={(value) =>
-                    setSettings({
-                      ...settings,
-                      preferredRetailer:
-                        value === "none"
-                          ? null
-                          : (value as SettingsValues["preferredRetailer"]),
-                    })
-                  }
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">{t("No preference")}</SelectItem>
-                    {settings.enabledRetailers.map((slug) => (
-                      <SelectItem key={slug} value={slug}>
-                        {slug === "spar-si"
-                          ? "SPAR Slovenija"
-                          : slug === "hofer-si"
-                            ? "HOFER Slovenija"
-                            : "Lidl Slovenija"}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="preferred-brands">
-                  {t("Preferred brands")}
-                </Label>
-                <Input
-                  id="preferred-brands"
-                  value={settings.preferredBrands.join(", ")}
-                  onChange={(event) =>
-                    setSettings({
-                      ...settings,
-                      preferredBrands: event.target.value
-                        .split(",")
-                        .map((brand) => brand.trim())
-                        .filter(Boolean)
-                        .slice(0, 50),
-                    })
-                  }
-                  placeholder={t("Comma-separated brand names")}
-                />
-              </div>
-              <div className="space-y-2 sm:col-span-2">
-                <Label htmlFor="excluded-brands">{t("Excluded brands")}</Label>
-                <Input
-                  id="excluded-brands"
-                  value={settings.excludedBrands.join(", ")}
-                  onChange={(event) =>
-                    setSettings({
-                      ...settings,
-                      excludedBrands: event.target.value
-                        .split(",")
-                        .map((brand) => brand.trim())
-                        .filter(Boolean)
-                        .slice(0, 50),
-                    })
-                  }
-                  placeholder={t("Comma-separated brand names")}
-                />
-              </div>
-            </div>
-            <Alert>
-              <AlertTitle>{t("Live prices are not available")}</AlertTitle>
-              <AlertDescription>
-                {t(
-                  "The catalogue supports retailer, brand, ingredient, and package matching only. Cheapest-basket, loyalty-price, and promotion optimization stay disabled until maintained price data is available.",
-                )}
-              </AlertDescription>
-            </Alert>
-            <div className="flex flex-wrap gap-3">
-              <Button onClick={save} disabled={pending}>
-                {pending ? (
-                  <LoaderCircle className="size-4 animate-spin" />
-                ) : (
-                  <Save className="size-4" />
-                )}
-                {t("Save retailer preferences")}
-              </Button>
-              <Button asChild variant="outline">
-                <Link href="/settings/catalog">{t("Manage catalogue")}</Link>
-              </Button>
-            </div>
           </CardContent>
         </Card>
       </TabsContent>

@@ -40,11 +40,11 @@ export function CookbookDataPanel() {
       <Card>
         <CardHeader>
           <CardTitle>
-            <h2>{t("Backup and restore")}</h2>
+            <h2>{t("Cookbook data export and import")}</h2>
           </CardTitle>
           <CardDescription>
             {t(
-              "Export a versioned JSON backup or validate and merge a trusted Nana's Recipes backup.",
+              "Export versioned JSON cookbook data or validate and merge a trusted Nana's Recipes data export.",
             )}
           </CardDescription>
         </CardHeader>
@@ -54,11 +54,11 @@ export function CookbookDataPanel() {
             aria-labelledby="export-cookbook-title"
           >
             <h3 id="export-cookbook-title" className="font-semibold">
-              {t("Export cookbook")}
+              {t("Export cookbook data")}
             </h3>
             <p className="text-sm leading-relaxed text-muted-foreground">
               {t(
-                "Download all owned recipes, ingredients, relationships, pantry, shopping, history, and settings as versioned JSON. Secrets and signed image URLs are excluded.",
+                "Download recipes, ingredients, pantry, shopping, history, and settings as versioned JSON. This is not a complete backup: private image files, secrets, and signed image URLs are excluded.",
               )}
             </p>
             <Button asChild>
@@ -74,7 +74,7 @@ export function CookbookDataPanel() {
             aria-labelledby="import-cookbook-title"
           >
             <h3 id="import-cookbook-title" className="font-semibold">
-              {t("Restore cookbook")}
+              {t("Import cookbook data")}
             </h3>
             <CookbookImport />
           </section>

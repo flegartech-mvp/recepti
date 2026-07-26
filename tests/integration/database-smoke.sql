@@ -101,11 +101,27 @@ begin
       'public.owner_health_check()',
       'execute'
     )
+    or has_function_privilege(
+      'anon',
+      'public.bootstrap_personal_cookbook(jsonb,jsonb)',
+      'execute'
+    )
+    or not has_function_privilege(
+      'authenticated',
+      'public.bootstrap_personal_cookbook(jsonb,jsonb)',
+      'execute'
+    )
   then
     raise exception 'Internal function or health RPC privileges are unsafe.';
   end if;
 end;
 $test$;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"00000000-0000-4000-8000-000000000001","role":"authenticated","email":"owner@example.test","app_metadata":{"provider":"google","providers":["google"]}}',
+  true
+);
 
 do $test$
 declare
@@ -397,6 +413,86 @@ begin
     when insufficient_privilege then
       null;
   end;
+end;
+$test$;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"00000000-0000-4000-8000-000000000002","role":"authenticated","email":"member@example.test","app_metadata":{"provider":"google","providers":["google"]}}',
+  true
+);
+
+do $test$
+declare
+  canonical_owner uuid;
+  household_id uuid;
+  visible_recipes integer;
+  created_recipe_id uuid;
+  stored_owner uuid;
+begin
+  select context.id, context.data_owner_user_id
+  into household_id, canonical_owner
+  from public.get_cookbook_context() context;
+
+  if household_id is null
+    or canonical_owner <> '00000000-0000-4000-8000-000000000001'::uuid
+  then
+    raise exception 'The second owner did not resolve the shared cookbook.';
+  end if;
+
+  select count(*) into visible_recipes from public.recipes;
+  if visible_recipes < 5 then
+    raise exception
+      'The second owner could not read the first owner''s recipes.';
+  end if;
+
+  created_recipe_id := public.create_recipe(
+    jsonb_build_object(
+      'title', 'Second owner shared draft',
+      'category', 'other',
+      'difficulty', 'easy',
+      'servings', 2,
+      'status', 'draft',
+      'ingredients', '[]'::jsonb,
+      'steps', '[]'::jsonb
+    )
+  );
+
+  select recipe.user_id
+  into stored_owner
+  from public.recipes recipe
+  where recipe.id = created_recipe_id;
+
+  if stored_owner <> canonical_owner then
+    raise exception
+      'A second-owner write did not use the canonical cookbook owner.';
+  end if;
+
+  if not public.can_manage_recipe_image_path(
+    household_id::text || '/covers/shared.webp'
+  ) then
+    raise exception
+      'A household member could not manage the cookbook image namespace.';
+  end if;
+end;
+$test$;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"00000000-0000-4000-8000-000000000001","role":"authenticated","email":"owner@example.test","app_metadata":{"provider":"google","providers":["google"]}}',
+  true
+);
+
+do $test$
+begin
+  if not exists (
+    select 1
+    from public.recipes
+    where title = 'Second owner shared draft'
+  ) then
+    raise exception
+      'The first owner could not read the second owner''s recipe.';
+  end if;
 end;
 $test$;
 
@@ -820,6 +916,83 @@ begin
     when insufficient_privilege then
       null;
   end;
+end;
+$test$;
+
+select set_config(
+  'request.jwt.claims',
+  '{"sub":"00000000-0000-4000-8000-000000000001","role":"authenticated","email":"owner@example.test","app_metadata":{"provider":"google","providers":["google"]}}',
+  true
+);
+
+do $test$
+declare
+  bootstrap_result jsonb;
+begin
+  bootstrap_result := public.bootstrap_personal_cookbook(
+    jsonb_build_array(
+      jsonb_build_object(
+        'title', 'Bootstrap smoke recipe',
+        'description', 'Transactional onboarding smoke test.',
+        'imagePath', null,
+        'category', 'other',
+        'cuisine', null,
+        'difficulty', 'easy',
+        'prepMinutes', 2,
+        'cookMinutes', 0,
+        'restMinutes', 0,
+        'servings', 1,
+        'sourceName', 'Database smoke test',
+        'sourceUrl', null,
+        'notes', null,
+        'isFavorite', false,
+        'status', 'published',
+        'dietaryTags', '[]'::jsonb,
+        'customTags', '["starter"]'::jsonb,
+        'ingredients',
+          jsonb_build_array(
+            jsonb_build_object(
+              'canonicalName', 'Bread',
+              'displayName', 'Bread',
+              'quantity', 1,
+              'unit', 'piece'
+            )
+          ),
+        'steps',
+          jsonb_build_array(
+            jsonb_build_object(
+              'instruction', 'Serve the bread.',
+              'timerMinutes', null
+            )
+          )
+      )
+    ),
+    jsonb_build_array(
+      jsonb_build_object(
+        'ingredientName', 'Bread',
+        'quantity', 1,
+        'unit', 'piece',
+        'storageLocation', 'counter',
+        'lowStock', false,
+        'isDepleted', false
+      )
+    )
+  );
+
+  if (bootstrap_result ->> 'recipes_created')::integer <> 1
+    or (bootstrap_result ->> 'pantry_items_added')::integer <> 1
+    or (bootstrap_result ->> 'first_recipe_id') is null
+    or not exists (
+      select 1
+      from public.recipes recipe
+      where recipe.title = 'Bootstrap smoke recipe'
+        and recipe.user_id = auth.uid()
+    )
+  then
+    raise exception
+      'Transactional first-use cookbook bootstrap failed: %.',
+      bootstrap_result;
+  end if;
 end;
 $test$;
 

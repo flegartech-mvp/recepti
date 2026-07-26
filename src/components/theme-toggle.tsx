@@ -11,6 +11,7 @@ import {
   TooltipContent,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
+import { getNextTheme, isDarkTheme } from "@/lib/theme";
 import { cn } from "@/lib/utils";
 
 const subscribeToHydration = () => () => {};
@@ -27,19 +28,11 @@ export function ThemeToggle({ className }: { className?: string }) {
   );
 
   const label = mounted
-    ? resolvedTheme === "dark" || resolvedTheme === "pink-dark"
+    ? isDarkTheme(resolvedTheme)
       ? t("Switch to light mode")
       : t("Switch to dark mode")
     : t("Switch color theme");
-  const isDark = resolvedTheme === "dark" || resolvedTheme === "pink-dark";
-  const nextTheme =
-    theme === "pink" || theme === "pink-dark"
-      ? isDark
-        ? "pink"
-        : "pink-dark"
-      : isDark
-        ? "light"
-        : "dark";
+  const nextTheme = getNextTheme(theme, resolvedTheme);
 
   return (
     <Tooltip>

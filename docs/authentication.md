@@ -1,14 +1,20 @@
-# Authentication and owner authorization
+# Authentication and household cookbook authorization
 
 Nana's Recipes uses Google OAuth through Supabase Auth, the current `@supabase/ssr`
-cookie pattern, a server-only owner allowlist, and PostgreSQL row-level security.
+cookie pattern, a server-only access allowlist, and PostgreSQL row-level security.
 These are complementary controls:
 
 - `OWNER_EMAILS` decides which Google addresses may enter this private deployment.
 - Server Components, Server Actions, and Route Handlers re-check the verified
   user and its signed Google provider metadata before protected work.
 - Restrictive RLS requires the same allowlisted email and Google claim, then
-  ensures the identity can access only rows whose `user_id` equals `auth.uid()`.
+  requires a `cookbook_members` row for the shared household.
+
+Every allowlisted Google identity joins the same private household cookbook.
+Recipes, pantry items, shopping lists, images, cooking history, and app settings
+are shared. Profiles remain per-account. Membership is provisioned by the Auth
+trigger; public invitations and self-service membership changes are not
+implemented.
 
 The browser receives the Supabase project URL and publishable/anon key. It never
 receives `OWNER_EMAILS`, a database password, or a Supabase secret/service-role
@@ -23,7 +29,7 @@ sequenceDiagram
   participant Supabase as Supabase Auth
   participant Google
 
-  Browser->>Nana: Owner sign in with Google
+  Browser->>Nana: Private cookbook sign in with Google
   Nana->>Supabase: signInWithOAuth(redirectTo=/auth/callback)
   Supabase->>Google: OAuth authorization
   Google->>Supabase: authorization response
@@ -235,7 +241,7 @@ select private.configure_owner_emails(
 | State                                                  | Result                                                                     |
 | ------------------------------------------------------ | -------------------------------------------------------------------------- |
 | No valid session                                       | Public landing page; protected routes redirect to `/?next=...`             |
-| Verified Google session and email is in `OWNER_EMAILS` | Owner routes and mutations are available                                   |
+| Verified Google session and email is in `OWNER_EMAILS` | Personal cookbook routes and mutations are available                       |
 | Non-Google session or a different email                | `/private` explains the cookbook is private and offers sign-out            |
 | Supabase public environment missing                    | Landing page shows setup guidance; sign-in routes to a configuration error |
 | `OWNER_EMAILS` missing after sign-in                   | The authenticated account is denied rather than implicitly trusted         |
@@ -250,9 +256,10 @@ select private.configure_owner_emails(
 ```
 
 Migration 008 combines that private JWT-email allowlist, the signed Google
-provider claim, and per-identity row ownership. A non-owner or non-Google
-authenticated session therefore cannot read the owner's rows, create its own
-Nana's Recipes rows, execute owner workflows, or upload into the private recipe bucket.
+provider claim, and per-identity row ownership. A non-allowlisted or non-Google
+authenticated session therefore cannot read cookbook rows, create its own
+Nana's Recipes rows, execute protected workflows, or upload into the private
+recipe bucket.
 If the SQL allowlist and `OWNER_EMAILS` drift, access fails closed for any
 address absent from either layer.
 
@@ -285,8 +292,8 @@ safeguard. The test path does not alter production Google OAuth or RLS.
 - Keep `private.configure_owner_emails(...)` aligned with `OWNER_EMAILS`.
 - Keep RLS enabled and apply every migration before deploying application code.
 - Keep production and preview redirect allowlists narrower than `https://**`.
-- Leave recipe visibility/share metadata owner-only until recipient RLS and UI
-  are deliberately implemented and tested.
+- Treat recipe visibility/share fields as dormant metadata. They do not enable
+  sharing and are not part of the current personal-cookbook product.
 - Rotate the Google secret and Supabase keys if they are ever exposed.
 - Verify logout, expired-session handling, the denied-account page, and a direct
   cross-user database request before launch.

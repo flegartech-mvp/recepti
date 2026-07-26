@@ -1,9 +1,14 @@
 import { z } from "zod";
 
-import { RETAILER_SLUGS } from "@/lib/retailers/types";
 import { APP_THEMES } from "@/lib/theme";
 
 import { normalizedUniqueStringArray, uuidSchema } from "./common";
+
+/**
+ * Kept only so existing schema-v2 exports and deployed save_user_settings RPCs
+ * remain compatible after the retailer catalogue UI was removed.
+ */
+const LEGACY_RETAILER_SLUGS = ["spar-si", "hofer-si", "lidl-si"] as const;
 
 export const settingsSchema = z
   .object({
@@ -16,10 +21,10 @@ export const settingsSchema = z
     additionalStapleNames: normalizedUniqueStringArray(100, 120).default([]),
     reduceMotion: z.boolean().default(false),
     enabledRetailers: z
-      .array(z.enum(RETAILER_SLUGS))
+      .array(z.enum(LEGACY_RETAILER_SLUGS))
       .max(3)
-      .default([...RETAILER_SLUGS]),
-    preferredRetailer: z.enum(RETAILER_SLUGS).nullable().default(null),
+      .default([...LEGACY_RETAILER_SLUGS]),
+    preferredRetailer: z.enum(LEGACY_RETAILER_SLUGS).nullable().default(null),
     allowLoyaltyPrices: z.boolean().default(false),
     allowSplitBasket: z.boolean().default(true),
     preferPromotions: z.boolean().default(true),

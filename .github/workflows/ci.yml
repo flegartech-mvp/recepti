@@ -52,8 +52,8 @@ jobs:
       - name: Unit tests
         run: pnpm test
 
-      - name: Validate retailer catalogue
-        run: pnpm catalog:validate
+      - name: Validate documentation
+        run: pnpm docs:validate
 
       - name: Validate service-worker assets
         run: pnpm service-worker:validate

@@ -44,7 +44,7 @@ pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm test
-pnpm catalog:validate
+pnpm docs:validate
 pnpm service-worker:validate
 pnpm test:e2e
 pnpm build
@@ -94,7 +94,7 @@ pnpm exec supabase migration list
 
 The ordered migrations under `supabase/migrations/` are authoritative. Apply
 them in timestamp order through
-`20260724095616_enforce_multi_owner_configuration.sql`. Do not reproduce them manually
+`20260726113040_shared_household_cookbook.sql`. Do not reproduce them manually
 in the Dashboard, and do not use `db push --include-seed`: `supabase/seed.sql`
 is realistic development data and must not populate production.
 
@@ -103,7 +103,11 @@ addresses that will be assigned to Vercel `OWNER_EMAILS`:
 
 ```sql
 select private.configure_owner_emails(
-  array['owner@example.com', 'second-owner@example.com']
+  array[
+    'owner@example.com',
+    'second-owner@example.com',
+    'vukovic.nadia7@gmail.com'
+  ]
 );
 ```
 
@@ -115,8 +119,8 @@ policies. After the push, verify in Supabase Dashboard that:
 
 - `recipe-images` exists and is private;
 - its database object limit is 8 MiB with JPEG, PNG, and WebP allowed;
-- Storage policies require the first path segment and object owner to match
-  `auth.uid()`;
+- Storage policies require shared cookbook membership; new paths begin with the
+  cookbook UUID and legacy member UUID paths remain accessible;
 - RLS is enabled on every public user-data table;
 - `anon` cannot read application tables or execute owner RPCs.
 - an authenticated Google email outside `private.owner_allowlist` cannot create
@@ -176,7 +180,7 @@ Set these in Project Settings -> Environment Variables:
 | ------------------------------- | ------------------------------ | ---------------------------------------------------- | ---------------------------- | ------------------------------------------------- |
 | `NEXT_PUBLIC_SUPABASE_URL`      | Hosted or local URL            | Hosted/staging URL                                   | Hosted production URL        | Public project endpoint                           |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Matching publishable/anon key  | Matching key                                         | Matching production key      | Safe for the browser only because RLS is enforced |
-| `OWNER_EMAILS`                  | Owner Google emails            | Owner/test-owner emails                              | Exact owner Google allowlist | Server-only; never rename with `NEXT_PUBLIC_`     |
+| `OWNER_EMAILS`                  | Allowed Google emails          | Allowed test emails                                  | Exact household membership   | Server-only; admitted accounts share one cookbook |
 | `NEXT_PUBLIC_SITE_URL`          | `http://localhost:3000`        | Usually omit, or use one exact stable preview origin | Exact canonical HTTPS origin | No path; Nana's Recipes appends `/auth/callback`  |
 | `E2E_TEST_MODE`                 | Playwright sets it temporarily | **Do not set**                                       | **Do not set**               | Local automated tests only                        |
 
@@ -253,12 +257,12 @@ Vercel CLI commands are documented in
 
 ## Production checklist
 
-- [ ] Formatting, lint, typecheck, unit, catalogue, service-worker, Playwright,
+- [ ] Formatting, lint, typecheck, unit, service-worker, Playwright,
       local Supabase integration, SQL lint, and production build checks pass
       from the release commit.
 - [ ] Local `db reset --local` and `pnpm test:db` pass.
 - [ ] Hosted migration history contains every checked-in migration through
-      `20260724095616_enforce_multi_owner_configuration`.
+      `20260726113040_shared_household_cookbook`.
 - [ ] The database owner allowlist matches Production `OWNER_EMAILS`.
 - [ ] `/settings/diagnostics` passes as the owner and redirects logged-out and
       non-owner identities.
@@ -275,7 +279,7 @@ Vercel CLI commands are documented in
       or a browser-exposed variable.
 - [ ] Owner login, denied-account behavior, logout, and expired-session recovery
       have been checked manually.
-- [ ] Cross-user RLS isolation has been checked with `pnpm test:db`.
+- [ ] Cross-owner shared CRUD and non-member RLS denial pass with `pnpm test:db`.
 - [ ] Image upload, replacement, deletion, export, and destructive reset have
       been exercised with disposable data.
 - [ ] Import preview, duplicate blocking, confirmation, and atomic merge have
@@ -317,7 +321,7 @@ them.
 
 Run `pnpm exec supabase migration list` against the linked project. Apply every
 checked-in migration through
-`20260724095616_enforce_multi_owner_configuration` before deploying the
+`20260726113040_shared_household_cookbook` before deploying the
 matching application.
 
 ### OAuth fails or returns to the wrong hostname
@@ -356,8 +360,8 @@ Supabase projects until exactly one `supabase_db_*` container remains.
   project their environment selects.
 - Keep the production Supabase Dashboard and Vercel project access limited to
   trusted operators with MFA.
-- Back up PostgreSQL and private Storage separately. JSON export includes
-  structured data and image paths, not image bytes.
+- Back up PostgreSQL and private Storage separately. The cookbook data export
+  includes structured data and image paths, not private image files.
 - Review Supabase Auth and Vercel logs after authorization failures without
   copying tokens, cookies, or OAuth codes into tickets.
 - Rotate exposed Google credentials or Supabase keys and invalidate affected

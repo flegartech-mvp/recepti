@@ -78,6 +78,25 @@ insert into auth.users (
   now(), now()
 ) on conflict (id) do nothing;
 select private.configure_owner_emails(array['owner@example.test'], true);
+insert into auth.users (
+  id, instance_id, aud, role, email, encrypted_password, email_confirmed_at,
+  raw_app_meta_data, raw_user_meta_data, created_at, updated_at
+) values (
+  '00000000-0000-4000-8000-000000000002',
+  '00000000-0000-0000-0000-000000000000',
+  'authenticated', 'authenticated', 'member@example.test', '', now(),
+  '{"provider":"google","providers":["google"]}'::jsonb,
+  '{"full_name":"Household Member"}'::jsonb,
+  now(), now()
+) on conflict (id) do nothing;
+select private.configure_owner_emails(
+  array[
+    'owner@example.test',
+    'member@example.test',
+    'vukovic.nadia7@gmail.com'
+  ],
+  false
+);
 set app.seed_user_id = '00000000-0000-4000-8000-000000000001';
 ${readFileSync(seedPath, "utf8")}
 ${readFileSync(testPath, "utf8")}

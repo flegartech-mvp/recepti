@@ -50,7 +50,7 @@ export async function GET(request: NextRequest) {
   }
 
   if (!isOwnerEmail(user.email, ownerEmails)) {
-    return NextResponse.redirect(new URL("/preview", origin));
+    return NextResponse.redirect(new URL("/private", origin));
   }
 
   return NextResponse.redirect(new URL(nextPath, origin));

@@ -10,11 +10,16 @@ export async function generateMetadata() {
   return { title: t("Settings") };
 }
 
-export default async function SettingsPage() {
-  const [user, settings, ingredients, { t }] = await Promise.all([
+export default async function SettingsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string }>;
+}) {
+  const [user, settings, ingredients, parameters, { t }] = await Promise.all([
     requireOwner("/settings"),
     getUserSettings(),
     listIngredients(),
+    searchParams,
     getServerI18n(),
   ]);
   const name =
@@ -37,6 +42,7 @@ export default async function SettingsPage() {
         profile={{ email: user.email ?? "", name, avatarUrl }}
         initialSettings={settings}
         ingredients={ingredients}
+        initialTab={parameters.tab === "data" ? "data" : "profile"}
       />
     </PageContainer>
   );

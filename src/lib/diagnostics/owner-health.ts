@@ -37,9 +37,9 @@ const remediation = {
   schema:
     "Apply the reviewed Supabase migrations in order, then rerun diagnostics.",
   storage:
-    "Apply the storage migration and verify the private recipe-images bucket and owner-scoped policies.",
+    "Apply the storage migration and verify the private recipe-images bucket and household membership policies.",
   agreement:
-    "Make OWNER_EMAILS, the signed Google identity, and the PostgreSQL owner allowlist agree.",
+    "Make OWNER_EMAILS, the signed Google identity, the PostgreSQL allowlist, and cookbook membership agree.",
 } as const;
 
 function check(

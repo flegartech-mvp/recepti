@@ -5,12 +5,10 @@ import { Check, Plus, Search } from "lucide-react";
 
 import { useI18n } from "@/components/i18n-provider";
 import { Input } from "@/components/ui/input";
-import { groceryProducts } from "@/data/grocery-products";
 import {
   searchIngredients,
   type IngredientSearchResult,
 } from "@/lib/domain/ingredient-search";
-import type { RetailerProduct } from "@/lib/retailers/types";
 import { cn } from "@/lib/utils";
 import type { Ingredient } from "@/types/domain";
 
@@ -18,7 +16,6 @@ export function IngredientAutocomplete({
   id,
   value,
   catalog,
-  products = groceryProducts,
   placeholder,
   ariaLabel,
   disabled = false,
@@ -31,7 +28,6 @@ export function IngredientAutocomplete({
   id?: string;
   value: string;
   catalog: readonly Ingredient[];
-  products?: readonly RetailerProduct[];
   placeholder?: string;
   ariaLabel?: string;
   disabled?: boolean;
@@ -51,10 +47,9 @@ export function IngredientAutocomplete({
     () =>
       searchIngredients(catalog, value, {
         locale,
-        products,
         limit: 10,
       }),
-    [catalog, locale, products, value],
+    [catalog, locale, value],
   );
   const customValue = value.trim();
   const showCustom =
@@ -159,9 +154,9 @@ export function IngredientAutocomplete({
                 <span className="block font-medium [overflow-wrap:anywhere]">
                   {result.displayName}
                 </span>
-                {(result.secondaryText || result.matchingProductNames[0]) && (
+                {result.secondaryText && (
                   <span className="block text-xs text-muted-foreground [overflow-wrap:anywhere]">
-                    {result.matchingProductNames[0] ?? result.secondaryText}
+                    {result.secondaryText}
                   </span>
                 )}
               </span>

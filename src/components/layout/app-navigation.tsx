@@ -12,7 +12,6 @@ import {
   Refrigerator,
   Settings,
   ShoppingBasket,
-  Store,
 } from "lucide-react";
 import { Logo } from "@/components/brand/logo";
 import { useI18n } from "@/components/i18n-provider";
@@ -37,7 +36,6 @@ const primaryItems = [
   { href: "/shopping-list", label: "List", icon: ShoppingBasket },
 ];
 const secondaryItems = [
-  { href: "/products", label: "Products", icon: Store },
   { href: "/ingredients", label: "Ingredients", icon: PackageSearch },
   { href: "/favorites", label: "Favorites", icon: Heart },
   { href: "/settings", label: "Settings", icon: Settings },

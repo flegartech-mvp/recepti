@@ -3,10 +3,6 @@ import { PageHeader } from "@/components/layout/page-header";
 import { ShoppingListManager } from "@/features/shopping/components/shopping-list-manager";
 import { listIngredients, listShoppingItems } from "@/lib/data/queries";
 import { getServerI18n } from "@/lib/i18n/server";
-import {
-  getRetailerPreferences,
-  listComparisonProducts,
-} from "@/lib/retailers/queries";
 
 export async function generateMetadata() {
   const { t } = await getServerI18n();
@@ -19,10 +15,6 @@ export default async function ShoppingListPage() {
     listIngredients(),
     getServerI18n(),
   ]);
-  const [comparisonProducts, retailerPreferences] = await Promise.all([
-    listComparisonProducts(ingredients),
-    getRetailerPreferences(),
-  ]);
   return (
     <PageContainer className="max-w-5xl">
       <PageHeader
@@ -31,12 +23,7 @@ export default async function ShoppingListPage() {
           "Collect missing ingredients, check them off in the shop, then move purchases into the pantry safely.",
         )}
       />
-      <ShoppingListManager
-        initialItems={items}
-        catalog={ingredients}
-        comparisonProducts={comparisonProducts}
-        retailerPreferences={retailerPreferences}
-      />
+      <ShoppingListManager initialItems={items} catalog={ingredients} />
     </PageContainer>
   );
 }

@@ -1,19 +1,13 @@
 "use client";
 
 import {
-  ArrowLeft,
-  Bell,
-  ChefHat,
   ChevronLeft,
   ChevronRight,
   CircleCheckBig,
   Clock3,
   CloudOff,
   ListChecks,
-  MonitorUp,
-  Timer as TimerIcon,
 } from "lucide-react";
-import Link from "next/link";
 import {
   useCallback,
   useEffect,
@@ -25,20 +19,20 @@ import {
 
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useI18n } from "@/components/i18n-provider";
-import { LanguageSwitcher } from "@/components/language-switcher";
-import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
 import { markRecipeCookedAction } from "@/features/recipes/actions";
 import { useOnlineStatus } from "@/lib/pwa/use-online-status";
 import type { Recipe } from "@/types/domain";
 
 import { formatTimer } from "./cooking-format";
+import { CookingComplete } from "./cooking-complete";
+import { CookingHeader } from "./cooking-header";
+import { CookingProgress } from "./cooking-progress";
+import { CookingTools } from "./cooking-tools";
 import { FullStepList } from "./full-step-list";
-import { IngredientChecklist } from "./ingredient-checklist";
 import { TimerControls } from "./timer-controls";
 import { type CookingTimer, useCookingSession } from "./use-cooking-session";
-import { type WakeLockStatus, useWakeLock } from "./use-wake-lock";
+import { useWakeLock } from "./use-wake-lock";
 
 interface CookingModeProps {
   recipe: Recipe;
@@ -46,33 +40,8 @@ interface CookingModeProps {
 
 type NotificationState = NotificationPermission | "unsupported";
 
-function wakeLockCopy(status: WakeLockStatus): {
-  label: string;
-  description: string;
-} {
-  if (status === "active")
-    return {
-      label: "Screen awake",
-      description: "Screen sleep is being prevented",
-    };
-  if (status === "requesting")
-    return {
-      label: "Keeping awake",
-      description: "Requesting screen wake lock",
-    };
-  if (status === "unsupported")
-    return {
-      label: "Wake unavailable",
-      description: "This browser does not support screen wake lock",
-    };
-  return {
-    label: "Keep screen awake",
-    description: "Tap to retry the screen wake lock",
-  };
-}
-
 export function CookingMode({ recipe }: CookingModeProps) {
-  const { t, formatNumber, plural } = useI18n();
+  const { t, formatNumber } = useI18n();
   const isOnline = useOnlineStatus();
   const {
     currentStepIndex,
@@ -159,11 +128,6 @@ export function CookingMode({ recipe }: CookingModeProps) {
     () => new Set(checkedIngredientIds),
     [checkedIngredientIds],
   );
-  const progress =
-    recipe.steps.length > 0
-      ? ((currentStepIndex + 1) / recipe.steps.length) * 100
-      : 0;
-  const wakeCopy = wakeLockCopy(wakeLockStatus);
 
   const goToStep = useCallback(
     (index: number) => {
@@ -207,41 +171,7 @@ export function CookingMode({ recipe }: CookingModeProps) {
   }, [finishSession, recipe.id, recipe.servings, t]);
 
   if (isComplete) {
-    return (
-      <main className="grid min-h-dvh place-items-center px-5 py-12">
-        <div className="safe-top-control fixed z-20 flex items-center gap-2">
-          <LanguageSwitcher />
-          <ThemeToggle />
-        </div>
-        <section className="organic-shadow bg-card border-border/80 w-full max-w-xl rounded-2xl border p-7 text-center sm:p-12">
-          <div className="bg-accent text-primary-text mx-auto grid size-16 place-items-center rounded-full">
-            <CircleCheckBig className="size-8" aria-hidden="true" />
-          </div>
-          <p className="text-primary-text mt-6 text-sm font-semibold tracking-[0.16em] uppercase">
-            {t("Cooked with Nana's Recipes")}
-          </p>
-          <h1 className="mt-2 text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-            {t("Dinner is served.")}
-          </h1>
-          <p className="text-muted-foreground mx-auto mt-3 max-w-md leading-7">
-            {t(
-              "{title} has been added to your cooking history. The kitchen session was cleared for next time.",
-              {
-                title: recipe.title,
-              },
-            )}
-          </p>
-          <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Button asChild className="min-h-12 px-5">
-              <Link href={`/recipes/${recipe.id}`}>{t("Back to recipe")}</Link>
-            </Button>
-            <Button asChild variant="outline" className="min-h-12 px-5">
-              <Link href="/dashboard">{t("Go to dashboard")}</Link>
-            </Button>
-          </div>
-        </section>
-      </main>
-    );
+    return <CookingComplete recipe={recipe} />;
   }
 
   return (
@@ -250,52 +180,12 @@ export function CookingMode({ recipe }: CookingModeProps) {
         {timerAnnouncement}
       </p>
 
-      <header className="safe-top border-border/70 bg-surface/92 sticky top-0 z-40 border-b shadow-sm backdrop-blur-xl">
-        <div className="safe-inline mx-auto flex min-h-16 max-w-7xl items-center gap-3">
-          <Button
-            asChild
-            variant="ghost"
-            size="icon"
-            className="size-11"
-            aria-label={t("Exit cooking mode")}
-          >
-            <Link href={`/recipes/${recipe.id}`}>
-              <ArrowLeft aria-hidden="true" />
-            </Link>
-          </Button>
-          <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-2">
-              <ChefHat
-                className="text-primary-text size-4"
-                aria-hidden="true"
-              />
-              <span className="text-muted-foreground text-xs font-semibold tracking-[0.15em] uppercase">
-                {t("Cooking mode")}
-              </span>
-            </div>
-            <p className="line-clamp-2 text-sm leading-tight font-semibold [overflow-wrap:anywhere] sm:text-base">
-              {recipe.title}
-            </p>
-          </div>
-          <LanguageSwitcher />
-          <ThemeToggle />
-          <Button
-            type="button"
-            variant={wakeLockStatus === "active" ? "secondary" : "ghost"}
-            className="min-h-11 px-3"
-            onClick={() => void requestWakeLock()}
-            disabled={
-              wakeLockStatus === "requesting" ||
-              wakeLockStatus === "unsupported"
-            }
-            aria-label={t(wakeCopy.description)}
-            title={t(wakeCopy.description)}
-          >
-            <MonitorUp aria-hidden="true" />
-            <span className="hidden sm:inline">{t(wakeCopy.label)}</span>
-          </Button>
-        </div>
-      </header>
+      <CookingHeader
+        recipeId={recipe.id}
+        title={recipe.title}
+        wakeLockStatus={wakeLockStatus}
+        requestWakeLock={requestWakeLock}
+      />
 
       <main className="mobile-cooking-content safe-inline mx-auto w-full max-w-7xl pt-6 sm:pt-8">
         {!isOnline ? (
@@ -311,36 +201,10 @@ export function CookingMode({ recipe }: CookingModeProps) {
         ) : null}
         <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_23rem] xl:gap-8">
           <div className="min-w-0 space-y-5">
-            <section aria-labelledby="cooking-progress-title" className="px-1">
-              <div className="mb-2 flex items-end justify-between gap-4">
-                <div>
-                  <p
-                    id="cooking-progress-title"
-                    className="text-muted-foreground text-xs font-semibold tracking-[0.15em] uppercase"
-                  >
-                    {t("Recipe progress")}
-                  </p>
-                  <p className="mt-1 text-sm font-medium">
-                    {recipe.steps.length > 0
-                      ? t("Step {current} of {total}", {
-                          current: formatNumber(currentStepIndex + 1),
-                          total: formatNumber(recipe.steps.length),
-                        })
-                      : t("No steps yet")}
-                  </p>
-                </div>
-                <span className="text-muted-foreground font-mono text-sm tabular-nums">
-                  {formatNumber(Math.round(progress))}%
-                </span>
-              </div>
-              <Progress
-                value={progress}
-                className="h-2"
-                aria-label={t("Recipe is {percentage}% through its steps", {
-                  percentage: formatNumber(Math.round(progress)),
-                })}
-              />
-            </section>
+            <CookingProgress
+              currentStepIndex={currentStepIndex}
+              stepCount={recipe.steps.length}
+            />
 
             {currentStep ? (
               <article
@@ -476,99 +340,17 @@ export function CookingMode({ recipe }: CookingModeProps) {
             </section>
           </div>
 
-          <aside
-            className="space-y-5 lg:sticky lg:top-24"
-            aria-label={t("Cooking tools")}
-          >
-            <section
-              className="bg-card border-border/80 rounded-2xl border p-4 sm:p-5"
-              aria-labelledby="ingredient-checklist-title"
-            >
-              <div className="mb-4 flex items-start justify-between gap-3">
-                <div>
-                  <h2 id="ingredient-checklist-title" className="font-semibold">
-                    {t("Ingredients")}
-                  </h2>
-                  <p className="text-muted-foreground mt-0.5 text-sm">
-                    {t("{checked} of {total} prepared", {
-                      checked: formatNumber(checkedIds.size),
-                      total: formatNumber(recipe.ingredients.length),
-                    })}
-                  </p>
-                </div>
-                <span className="bg-secondary text-secondary-foreground rounded-full px-2.5 py-1 font-mono text-xs tabular-nums">
-                  {plural(recipe.servings, {
-                    one: "{count} serving",
-                    two: "{count} servings-two",
-                    few: "{count} servings-few",
-                    other: "{count} servings",
-                  })}
-                </span>
-              </div>
-              <IngredientChecklist
-                ingredients={recipe.ingredients}
-                checkedIds={checkedIds}
-                onCheckedChange={toggleIngredient}
-              />
-            </section>
-
-            <section
-              className="bg-card border-border/80 rounded-2xl border p-4 sm:p-5"
-              aria-labelledby="active-timers-title"
-            >
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <h2 id="active-timers-title" className="font-semibold">
-                    {t("Timers")}
-                  </h2>
-                  <p className="text-muted-foreground mt-0.5 text-sm">
-                    {t("Independent timers stay active between steps.")}
-                  </p>
-                </div>
-                <TimerIcon
-                  className="text-primary-text mt-0.5 size-5"
-                  aria-hidden="true"
-                />
-              </div>
-
-              {activeTimers.length > 0 ? (
-                <div className="mt-4 space-y-3">
-                  {activeTimers.map((timer) => (
-                    <TimerControls
-                      key={timer.stepId}
-                      timer={timer}
-                      compact
-                      onStart={startTimer}
-                      onPause={pauseTimer}
-                      onReset={resetTimer}
-                    />
-                  ))}
-                </div>
-              ) : (
-                <p className="text-muted-foreground bg-muted/55 mt-4 rounded-xl px-3 py-4 text-sm leading-6">
-                  {t(
-                    "Start a step timer and it will appear here while you move through the recipe.",
-                  )}
-                </p>
-              )}
-
-              {notificationState !== "granted" &&
-              notificationState !== "unsupported" ? (
-                <Button
-                  type="button"
-                  variant="ghost"
-                  className="mt-3 min-h-11 w-full justify-start"
-                  onClick={() => void requestNotifications()}
-                  disabled={notificationState === "denied"}
-                >
-                  <Bell aria-hidden="true" />
-                  {notificationState === "denied"
-                    ? t("Notifications blocked in browser")
-                    : t("Enable timer notifications")}
-                </Button>
-              ) : null}
-            </section>
-          </aside>
+          <CookingTools
+            recipe={recipe}
+            checkedIds={checkedIds}
+            activeTimers={activeTimers}
+            notificationState={notificationState}
+            toggleIngredient={toggleIngredient}
+            startTimer={startTimer}
+            pauseTimer={pauseTimer}
+            resetTimer={resetTimer}
+            requestNotifications={requestNotifications}
+          />
         </div>
       </main>
 

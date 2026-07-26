@@ -1,24 +1,43 @@
 # Nana's Recipes
 
-Nana's Recipes includes a warm Italian nonna-kitchen design system and a private, curated household catalogue for SPAR, HOFER, and Lidl. Products live in `src/data/grocery-products.ts`: add or adjust them there whenever you want. They are reference values, never live retailer data.
+Nana's Recipes is a private shared household cookbook with pantry-based recipe
+matching. It saves recipes, tracks one household pantry, and helps the household
+decide what to cook from ingredients already at home.
 
-See [Retailer catalogue and package matching](docs/retailer-catalogue.md) for the product format, ingredient matching rules, package conversions, and maintenance steps.
+Each Google account admitted by the server-only `OWNER_EMAILS` access allowlist
+joins the same household. Recipes, pantry items, shopping lists, images, cooking
+history, and app settings are shared between members. Profiles remain
+per-account. `OWNER_EMAILS` is the administrator-managed membership boundary;
+there is no public invitation flow.
 
-Nana's Recipes is a private digital cookbook for saving recipes, keeping a real pantry,
-and deciding what to cook from ingredients already at home. Its interface uses
-a warm herb-and-blush visual system with persistent light, dark, pink, and
-pink-dark themes,
-responsive navigation, a focused cooking mode, and deliberately conservative
-ingredient/quantity logic.
+The public `/preview` route is an isolated, browser-only product demo. It uses
+sample data and never reads or writes the household cookbook.
 
-The current release is owner-only: Google handles identity through Supabase
-Auth, the server requires a signed Google provider claim plus the normalized
-email in server-only `OWNER_EMAILS`, and PostgreSQL RLS repeats that deployment gate before
-isolating every user's rows. The data model remains multi-user so sharing can
-be added later without weakening today's private boundary.
+Shopping items with known quantities can show generic package-size
+combinations. These suggestions are calculated locally and do not claim
+retailer availability, current prices, promotions, or loyalty discounts.
+
+The interface uses a warm Italian nonna-kitchen design system with garden, pink,
+and blue light/dark theme pairs, responsive navigation, a focused cooking mode,
+and deliberately conservative ingredient/quantity logic.
+
+## Product boundary
+
+| Capability                    | Current contract                                                                   |
+| ----------------------------- | ---------------------------------------------------------------------------------- |
+| Household cookbook            | Shared recipes, pantry, shopping, images, settings, and cooking history            |
+| Multiple allowlisted accounts | One membership-controlled data set; profiles remain per Google identity            |
+| Public demo                   | Isolated sample data stored only in browser state                                  |
+| Package-size planning         | Generic local guidance without retailer products, prices, or availability          |
+| Household collaboration       | Not implemented; there are no memberships, invitations, roles, or shared ownership |
 
 ## Product highlights
 
+- Focused first-use setup with three editable starter recipes, categorized
+  pantry basics, a transactional save, and a guided handoff to the real matcher.
+- Isolated public demo with an interactive sample pantry, live recipe ranking,
+  match explanations, serving scaling, browser-only shopping mutations, mobile
+  cooking steps, and working timers without private database access.
 - A useful dashboard with recipe, favorite, pantry, and ready-to-cook metrics;
   recent recipes; recent cooking history; quick actions; and “Surprise me.”
 - Searchable recipe library with URL-backed filters, sorting, grid/list views,
@@ -42,32 +61,22 @@ be added later without weakening today's private boundary.
   atomic move-to-pantry workflow.
 - Owner-managed ingredient catalog with aliases, accent-preserving identity,
   categories, staples, safe deletion constraints, and transactional merging.
-- Settings for Google profile, four visual themes, reduced motion, servings,
-  measurement preference, staples, versioned JSON export, previewed merge-only
+- Settings for Google profile, 7 theme choices, reduced motion, servings,
+  measurement preference, staples, versioned cookbook data export, previewed merge-only
   import, sign-out, and strongly confirmed cookbook deletion.
 - Installable PWA metadata and a safe offline fallback that caches only public
-  static assets—not authenticated HTML, private APIs, or recipe images.
+  static assets, not authenticated HTML, private APIs, or recipe images.
 
 Dietary labels are organizational metadata, not allergy or medical-safety
 guarantees. Nana's Recipes never invents substitutions or converts incompatible culinary
 units such as cups to grams.
 
-## Screenshots
+## Visual verification
 
-These captures come from the running application, not design mockups:
-
-| Desktop landing                                                               | Mobile dark mode                                                                              |
-| ----------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| ![Nana's Recipes desktop landing page](output/playwright/landing-desktop.png) | ![Nana's Recipes mobile landing page in dark mode](output/playwright/landing-mobile-dark.png) |
-
-| Desktop dashboard                                                            | Mobile dashboard dark mode                                                                   |
-| ---------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| ![Nana's Recipes desktop dashboard](output/playwright/dashboard-desktop.png) | ![Nana's Recipes mobile dashboard in dark mode](output/playwright/dashboard-mobile-dark.png) |
-
-When the interface changes, recapture the running site at a desktop viewport
-and a common phone viewport, preserve both light/dark coverage, and replace the
-files above. Do not substitute Figma frames or static mockups for verification
-captures.
+Playwright captures screenshots, videos, and traces under `output/playwright/`
+when browser tests run. These generated diagnostics are intentionally not
+presented as repository screenshots unless the referenced files are checked in.
+`pnpm docs:validate` rejects missing local Markdown image and file references.
 
 ## Technology
 
@@ -142,18 +151,22 @@ to their parent rows. Core aggregates include:
 - recipes, ordered ingredients and steps, tags, and private image metadata;
 - canonical ingredients and directional substitution metadata;
 - pantry lots, shopping items, and cooking history;
-- future-facing share metadata that remains owner-only under current RLS.
+- dormant share metadata that remains owner-only and does not enable sharing.
 
 The ordered migrations create the schema, indexes, triggers, RLS policies,
 private Storage bucket, recipe/search workflows, pantry/catalog workflows,
-shopping upsert, settings/export, the strict owner gate, retailer preferences,
-atomic quick actions, the owner health contract, multi-owner administration,
-and pink themes. The current head is
-`20260724095616_enforce_multi_owner_configuration.sql`. See
+shopping upsert, settings/export, the strict owner gate, legacy export compatibility,
+atomic quick actions, the owner health contract, multi-account access administration,
+theme families, first-use bootstrap, and shared household membership. The
+current head is `20260726113040_shared_household_cookbook.sql`. See
 [Database architecture](docs/database.md) for the full ER model, RPC semantics,
 delete behavior, export envelope, and migration workflow.
+[Shared household migration](docs/shared-household-migration.md) documents the
+data consolidation, all 15 cover matches, deployment order, and recovery path.
+[Code organization](docs/code-organization.md) documents feature boundaries and
+the 400–500 line decomposition-review guideline.
 
-## Authentication and owner-only access
+## Authentication and household access
 
 The protection layers have different jobs:
 
@@ -163,12 +176,12 @@ The protection layers have different jobs:
    `OWNER_EMAILS` allowlist.
 3. Supabase SSR refreshes cookie-backed claims.
 4. PostgreSQL RLS requires the same Google claim, the configured database owner
-   email, and `auth.uid()` ownership on every row/object.
+   email, and membership in the shared cookbook for every row/object.
 
 A different authenticated Google account receives the polished `/private`
-page and can sign out; it cannot read the owner's data through PostgREST. Safe
-relative `next` redirects are preserved without accepting external redirect
-targets.
+page and can sign out; it cannot create a cookbook or read any allowlisted
+account's data through PostgREST. Safe relative `next` redirects are preserved
+without accepting external redirect targets.
 
 Google and Supabase use two different callbacks. Configure them precisely by
 following [Authentication and owner authorization](docs/authentication.md).
@@ -176,7 +189,7 @@ following [Authentication and owner authorization](docs/authentication.md).
 The owner-only `/settings/diagnostics` page checks the signed identity,
 server owner configuration, PostgreSQL allowlist, required tables/RPCs,
 migration-dependent contracts, RLS, and private Storage access. It shows safe
-booleans and remediation only—never environment values, tokens, private rows,
+booleans and remediation only, never environment values, tokens, private rows,
 or Storage object names.
 
 ## Prerequisites
@@ -210,7 +223,7 @@ the values printed by `pnpm dlx supabase status`:
 NEXT_PUBLIC_SUPABASE_URL=http://127.0.0.1:54321
 NEXT_PUBLIC_SUPABASE_ANON_KEY=<local-publishable-or-anon-key>
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
-OWNER_EMAILS=owner@example.com,second-owner@example.com
+OWNER_EMAILS=owner@example.com,second-owner@example.com,vukovic.nadia7@gmail.com
 E2E_TEST_MODE=0
 ```
 
@@ -355,7 +368,7 @@ Preview when the variable is absent.
 | `pnpm format`                  | Format the repository with Prettier                        |
 | `pnpm format:check`            | Check formatting without changing files                    |
 | `pnpm db:seed`                 | Apply optional data to an existing local Auth profile      |
-| `pnpm catalog:validate`        | Validate retailer and package metadata                     |
+| `pnpm docs:validate`           | Verify documentation against source and local files        |
 | `pnpm service-worker:validate` | Validate cache branding and public assets                  |
 
 `.github/workflows/ci.yml` runs the same lockfile-based quality gate on pushes
@@ -389,7 +402,7 @@ pnpm format:check
 pnpm lint
 pnpm typecheck
 pnpm test
-pnpm catalog:validate
+pnpm docs:validate
 pnpm service-worker:validate
 pnpm exec supabase start
 pnpm exec supabase db reset --local
@@ -401,21 +414,22 @@ pnpm build
 Real Google OAuth remains a manual check because automated credentials would
 weaken the production boundary.
 
-## Export and import status
+## Cookbook data export and import status
 
 `GET /api/export` is owner-protected, uncached, and validates the database
 result against a strict camelCase `schemaVersion: 2`, `product: "Nana's Recipes"`
-envelope before download. It contains ingredients, tags, nested recipes,
+envelope before download. This JSON data export contains ingredients, tags, nested recipes,
 pantry, shopping, cooking history, and the complete settings snapshot,
-including retailer preferences, without Auth secrets or owner IDs. Private
-image paths are metadata; image binaries require a separate Storage backup.
+including legacy settings fields, without Auth secrets or owner IDs. Private
+image paths are metadata; private image files are not included, so this is not
+a complete cookbook backup.
 
-Settings exposes a preview-first import for valid Nana's Recipes backups.
+Settings exposes a preview-first import for valid Nana's Recipes data exports.
 Imports are merge-only, block duplicate recipe titles case-insensitively,
 require the exact `IMPORT NANA'S RECIPES` confirmation, and execute through one
 transactional database RPC. Existing rows are never overwritten or deleted.
-Private image references are reported and skipped because the JSON backup does
-not contain image bytes. See the exact envelope and limitations in
+Private image references are reported and skipped because the JSON data export
+does not contain private image files. See the exact envelope and limitations in
 [database.md](docs/database.md).
 
 ## Vercel deployment
@@ -440,7 +454,7 @@ troubleshooting are in [Deployment guide](docs/deployment.md).
 
 - [ ] Every release-gate command passes from the deploy commit.
 - [ ] Hosted migration history includes every checked-in migration through
-      `20260724095616_enforce_multi_owner_configuration`.
+      `20260726113040_shared_household_cookbook`.
 - [ ] `private.configure_owner_emails(...)` matches Vercel `OWNER_EMAILS`.
 - [ ] `recipe-images` is private and all table/Storage RLS policies are active.
 - [ ] Supabase Site URL and production callback are exact HTTPS URLs.
@@ -466,7 +480,7 @@ troubleshooting are in [Deployment guide](docs/deployment.md).
   the application.
 - Mutation inputs and export output are schema-validated. User text is rendered
   as text, and source URLs accept safe HTTP(S) values only.
-- Image paths are collision-resistant and owner-prefixed; the bucket is private.
+- Image paths are collision-resistant and cookbook-prefixed; the bucket is private.
 - Security headers include CSP, frame denial, MIME sniffing protection, a strict
   referrer policy, and a restricted Permissions Policy.
 - The PWA deliberately avoids caching private responses on shared devices.
@@ -510,7 +524,7 @@ Google. Vercel environment changes require a new deployment.
 
 Run `pnpm exec supabase migration list` for the linked project and apply every
 checked-in migration through
-`20260724095616_enforce_multi_owner_configuration` before deploying the
+`20260726113040_shared_household_cookbook` before deploying the
 corresponding code. Then open `/settings/diagnostics` as the owner and confirm
 every check passes.
 
@@ -521,10 +535,11 @@ no larger than 6 MiB whose extension matches its MIME type and file signature.
 
 ## Known limitations
 
-- The product is intentionally owner-only. Sharing and public visibility have
-  schema foundations but no recipient policies or UI.
+- The product is intentionally personal. Household memberships, invitations,
+  roles, shared ownership, recipe sharing, and public recipes are not implemented.
+  Dormant schema metadata does not expose data or represent a roadmap promise.
 - Import supports safe merge only; it does not provide replace/overwrite mode.
-- JSON export does not contain private image bytes, Auth/profile data, share
+- The cookbook data export does not contain private image files, Auth/profile data, share
   grants, or ingredient-substitution relationships.
 - Offline support is a safe fallback and installable shell, not offline access
   to private recipes or queued mutations.
@@ -535,10 +550,8 @@ no larger than 6 MiB whose extension matches its MIME type and file signature.
 
 ## Future enhancements
 
-- Deliberate recipient RLS and private recipe sharing.
 - Optional duplicate-resolution and explicitly confirmed replace-import tools.
-- A combined structured-data and private-image backup archive.
-- Household pantry collaboration with explicit membership roles.
+- An optional ZIP backup containing the structured data export and private images.
 - A first-class directional substitution editor and safety notes.
 - Optional URL import or assisted authoring behind the same validation and
   ownership boundaries.

@@ -40,7 +40,7 @@ export default async function PrivatePage() {
             </h1>
             <p className="max-w-md leading-relaxed text-muted-foreground">
               {t(
-                "This private cookbook is shared only with its configured owners. The Google account {email} is not on the owner list.",
+                "Nana's Recipes is a private household cookbook. The Google account {email} is not on this deployment's access allowlist. Sign out to choose another account.",
                 { email: state.user.email ?? "" },
               )}
             </p>

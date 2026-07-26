@@ -9,6 +9,65 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      cookbook_members: {
+        Row: {
+          cookbook_id: string;
+          joined_at: string;
+          role: Database["public"]["Enums"]["cookbook_member_role"];
+          user_id: string;
+        };
+        Insert: {
+          cookbook_id: string;
+          joined_at?: string;
+          role?: Database["public"]["Enums"]["cookbook_member_role"];
+          user_id: string;
+        };
+        Update: {
+          cookbook_id?: string;
+          joined_at?: string;
+          role?: Database["public"]["Enums"]["cookbook_member_role"];
+          user_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "cookbook_members_cookbook_id_fkey";
+            columns: ["cookbook_id"];
+            isOneToOne: false;
+            referencedRelation: "cookbooks";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      cookbooks: {
+        Row: {
+          created_at: string;
+          created_by: string;
+          data_owner_user_id: string;
+          id: string;
+          is_primary: boolean;
+          name: string;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string;
+          created_by: string;
+          data_owner_user_id: string;
+          id?: string;
+          is_primary?: boolean;
+          name?: string;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string;
+          created_by?: string;
+          data_owner_user_id?: string;
+          id?: string;
+          is_primary?: boolean;
+          name?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       cooking_history: {
         Row: {
           cooked_at: string;
@@ -744,6 +803,10 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      can_manage_recipe_image_path: {
+        Args: { p_path: string };
+        Returns: boolean;
+      };
       add_recipe_ingredients_to_pantry: {
         Args: {
           p_location?: Database["public"]["Enums"]["storage_location"];
@@ -761,6 +824,10 @@ export type Database = {
       };
       bulk_upsert_pantry_items: { Args: { p_items: Json }; Returns: string[] };
       create_recipe: { Args: { p_recipe: Json }; Returns: string };
+      bootstrap_personal_cookbook: {
+        Args: { p_pantry_items: Json; p_recipes: Json };
+        Returns: Json;
+      };
       create_recipe_with_details: {
         Args: {
           p_images?: Json;
@@ -779,6 +846,15 @@ export type Database = {
       duplicate_recipe: { Args: { p_recipe_id: string }; Returns: string };
       export_cookbook_data: { Args: never; Returns: Json };
       export_cookbook_data_v1: { Args: never; Returns: Json };
+      get_cookbook_context: {
+        Args: never;
+        Returns: {
+          data_owner_user_id: string;
+          id: string;
+          name: string;
+          role: Database["public"]["Enums"]["cookbook_member_role"];
+        }[];
+      };
       import_cookbook: {
         Args: { p_mode?: string; p_payload: Json };
         Returns: Json;
@@ -886,6 +962,7 @@ export type Database = {
       upsert_shopping_item_v2: { Args: { p_item: Json }; Returns: string };
     };
     Enums: {
+      cookbook_member_role: "owner" | "editor";
       image_kind: "cover" | "gallery";
       ingredient_category:
         | "produce"
@@ -1046,6 +1123,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      cookbook_member_role: ["owner", "editor"],
       image_kind: ["cover", "gallery"],
       ingredient_category: [
         "produce",

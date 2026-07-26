@@ -6,14 +6,16 @@ import { useI18n } from "@/components/i18n-provider";
 export function Logo({
   compact = false,
   className,
+  href = "/dashboard",
 }: {
   compact?: boolean;
   className?: string;
+  href?: string;
 }) {
   const { t } = useI18n();
   return (
     <Link
-      href="/dashboard"
+      href={href}
       className={cn(
         "group inline-flex min-h-11 items-center gap-2.5 rounded-lg text-foreground focus-visible:ring-3 focus-visible:ring-ring focus-visible:outline-none",
         className,

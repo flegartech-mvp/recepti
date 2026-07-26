@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 
 import { AppProviders } from "@/components/providers";
+import { PRODUCT_POSITIONING } from "@/lib/constants";
 import { getServerI18n, getServerLocaleState } from "@/lib/i18n/server";
 
 import "./globals.css";
@@ -13,12 +14,10 @@ export async function generateMetadata(): Promise<Metadata> {
       process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000",
     ),
     title: {
-      default: t("Nana's Recipes | Your private cookbook"),
+      default: t("Nana's Recipes | Private household cookbook"),
       template: `%s | ${t("Nana's Recipes")}`,
     },
-    description: t(
-      "A calm private cookbook for recipes, pantry planning, and everyday cooking.",
-    ),
+    description: t(PRODUCT_POSITIONING),
     applicationName: t("Nana's Recipes"),
     robots: { index: false, follow: false },
     manifest: "/manifest.webmanifest",
