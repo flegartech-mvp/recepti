@@ -94,7 +94,7 @@ pnpm exec supabase migration list
 
 The ordered migrations under `supabase/migrations/` are authoritative. Apply
 them in timestamp order through
-`20260726113040_shared_household_cookbook.sql`. Do not reproduce them manually
+`20260726153500_shared_member_recipe_delete.sql`. Do not reproduce them manually
 in the Dashboard, and do not use `db push --include-seed`: `supabase/seed.sql`
 is realistic development data and must not populate production.
 
@@ -262,7 +262,7 @@ Vercel CLI commands are documented in
       from the release commit.
 - [ ] Local `db reset --local` and `pnpm test:db` pass.
 - [ ] Hosted migration history contains every checked-in migration through
-      `20260726113040_shared_household_cookbook`.
+      `20260726153500_shared_member_recipe_delete`.
 - [ ] The database owner allowlist matches Production `OWNER_EMAILS`.
 - [ ] `/settings/diagnostics` passes as the owner and redirects logged-out and
       non-owner identities.
@@ -321,7 +321,7 @@ them.
 
 Run `pnpm exec supabase migration list` against the linked project. Apply every
 checked-in migration through
-`20260726113040_shared_household_cookbook` before deploying the
+`20260726153500_shared_member_recipe_delete` before deploying the
 matching application.
 
 ### OAuth fails or returns to the wrong hostname

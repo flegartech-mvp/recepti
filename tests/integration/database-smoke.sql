@@ -428,7 +428,9 @@ declare
   household_id uuid;
   visible_recipes integer;
   created_recipe_id uuid;
+  deletable_recipe_id uuid;
   stored_owner uuid;
+  deleted_paths text[];
 begin
   select context.id, context.data_owner_user_id
   into household_id, canonical_owner
@@ -473,6 +475,31 @@ begin
   ) then
     raise exception
       'A household member could not manage the cookbook image namespace.';
+  end if;
+
+  deletable_recipe_id := public.create_recipe(
+    jsonb_build_object(
+      'title', 'Second owner deletion check',
+      'category', 'other',
+      'difficulty', 'easy',
+      'servings', 2,
+      'status', 'draft',
+      'ingredients', '[]'::jsonb,
+      'steps', '[]'::jsonb
+    )
+  );
+
+  deleted_paths := public.delete_recipe_with_images(deletable_recipe_id);
+
+  if cardinality(deleted_paths) <> 0
+    or exists (
+      select 1
+      from public.recipes
+      where id = deletable_recipe_id
+    )
+  then
+    raise exception
+      'A shared household member could not delete a canonical-owner recipe.';
   end if;
 end;
 $test$;

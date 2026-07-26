@@ -538,6 +538,18 @@ test("keeps mobile authentication and the persistent theme control accessible", 
   });
   await expectTouchTarget(themeToggle, "logged-out theme toggle");
   await expectWithinViewport(themeToggle, page, "logged-out theme toggle");
+  await expect(
+    page.getByAltText(
+      "Abstract open cookbook with botanical and ingredient shapes",
+    ),
+  ).toBeVisible();
+  await page.screenshot({
+    path: path.join(
+      process.cwd(),
+      "output/playwright/landing-abstract-mobile.png",
+    ),
+    fullPage: true,
+  });
   await themeToggle.click();
   await expect(page.locator("html")).toHaveClass(/dark/);
   await page.reload();

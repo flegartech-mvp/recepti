@@ -7,6 +7,7 @@ import {
   Check,
   ChefHat,
   Copy,
+  Ellipsis,
   Heart,
   LoaderCircle,
   Minus,
@@ -30,7 +31,6 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-  AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -66,6 +66,7 @@ export function RecipeDetailControls({
   const { t, formatList, formatNumber, plural } = useI18n();
   const [pending, startTransition] = useTransition();
   const [favorite, setFavorite] = useState(recipe.isFavorite);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [servings, setServings] = useState(recipe.servings);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const storageKey = localStorageKey(`cooking-checklist:${recipe.id}`);
@@ -181,9 +182,12 @@ export function RecipeDetailControls({
         </Button>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost">{t("More")}</Button>
+            <Button variant="outline" disabled={pending}>
+              <Ellipsis className="size-4" aria-hidden="true" />
+              {t("More")}
+            </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="w-64">
             <DropdownMenuItem onSelect={() => window.print()}>
               <Printer className="size-4" />
               {t("Print recipe")}
@@ -215,18 +219,16 @@ export function RecipeDetailControls({
               <PackagePlus className="size-4" />
               {t("Add ingredients to pantry")}
             </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button
-              variant="ghost"
-              className="text-destructive hover:text-destructive"
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => setDeleteDialogOpen(true)}
             >
               <Trash2 className="size-4" aria-hidden="true" />
-              {t("Delete")}
-            </Button>
-          </AlertDialogTrigger>
+              {t("Delete recipe")}
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+        <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{t("Delete this recipe?")}</AlertDialogTitle>
@@ -238,8 +240,18 @@ export function RecipeDetailControls({
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>{t("Keep recipe")}</AlertDialogCancel>
-              <AlertDialogAction variant="destructive" onClick={deleteRecipe}>
-                {t("Delete recipe")}
+              <AlertDialogAction
+                variant="destructive"
+                onClick={deleteRecipe}
+                disabled={pending}
+              >
+                {pending && (
+                  <LoaderCircle
+                    className="size-4 animate-spin"
+                    aria-hidden="true"
+                  />
+                )}
+                {t(pending ? "Deleting…" : "Delete recipe")}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

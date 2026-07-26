@@ -110,9 +110,9 @@ export default async function LandingPage({
           <div className="organic-shadow relative aspect-[4/5] overflow-hidden rounded-2xl border border-border bg-surface-tint">
             {" "}
             <Image
-              src="/images/nanas-recipes-hero.webp"
+              src="/images/nanas-recipes-hero-abstract.webp"
               alt={t(
-                "Fresh herb pasta beside a mint ceramic bowl, basil, and a recipe notebook",
+                "Abstract open cookbook with botanical and ingredient shapes",
               )}
               fill
               priority

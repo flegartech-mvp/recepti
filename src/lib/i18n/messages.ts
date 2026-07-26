@@ -176,6 +176,8 @@ export const slMessages: Record<string, string> = {
     "Ta različica še nima povezave s Supabase. V datoteko .env.local dodajte NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY in OWNER_EMAILS, nato v Supabase Auth omogočite Google.",
   "Fresh herb pasta beside a mint ceramic bowl, basil, and a recipe notebook":
     "Testenine s svežimi zelišči ob metini skledi, baziliki in zvezku z recepti",
+  "Abstract open cookbook with botanical and ingredient shapes":
+    "Abstraktna odprta kuharska knjiga z rastlinskimi oblikami in sestavinami",
   "Dinner, made simpler": "Preprostejša večerja",
   "Nana's Recipes compares saved recipes with the pantry.":
     "Nanini recepti primerjajo shranjene recepte z vsebino shrambe.",
@@ -459,6 +461,7 @@ export const slMessages: Record<string, string> = {
   "Delete all data": "Izbriši vse podatke",
   "Delete pantry item?": "Izbrišem izdelek iz shrambe?",
   "Delete recipe": "Izbriši recept",
+  "Deleting…": "Brisanje…",
   "Delete this recipe?": "Izbrišem ta recept?",
   "Deletion is blocked if this ingredient is used anywhere. Merge duplicates to preserve recipe links.":
     "Brisanje ni dovoljeno, če je sestavina kjer koli uporabljena. Podvojene sestavine združite, da ohranite povezave z recepti.",

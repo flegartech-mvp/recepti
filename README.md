@@ -158,7 +158,7 @@ private Storage bucket, recipe/search workflows, pantry/catalog workflows,
 shopping upsert, settings/export, the strict owner gate, legacy export compatibility,
 atomic quick actions, the owner health contract, multi-account access administration,
 theme families, first-use bootstrap, and shared household membership. The
-current head is `20260726113040_shared_household_cookbook.sql`. See
+current head is `20260726153500_shared_member_recipe_delete.sql`. See
 [Database architecture](docs/database.md) for the full ER model, RPC semantics,
 delete behavior, export envelope, and migration workflow.
 [Shared household migration](docs/shared-household-migration.md) documents the
@@ -454,7 +454,7 @@ troubleshooting are in [Deployment guide](docs/deployment.md).
 
 - [ ] Every release-gate command passes from the deploy commit.
 - [ ] Hosted migration history includes every checked-in migration through
-      `20260726113040_shared_household_cookbook`.
+      `20260726153500_shared_member_recipe_delete`.
 - [ ] `private.configure_owner_emails(...)` matches Vercel `OWNER_EMAILS`.
 - [ ] `recipe-images` is private and all table/Storage RLS policies are active.
 - [ ] Supabase Site URL and production callback are exact HTTPS URLs.
@@ -524,7 +524,7 @@ Google. Vercel environment changes require a new deployment.
 
 Run `pnpm exec supabase migration list` for the linked project and apply every
 checked-in migration through
-`20260726113040_shared_household_cookbook` before deploying the
+`20260726153500_shared_member_recipe_delete` before deploying the
 corresponding code. Then open `/settings/diagnostics` as the owner and confirm
 every check passes.
 

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import path from "node:path";
 
 import { authenticateAs } from "./support/auth";
 
@@ -204,11 +205,19 @@ test("marks a recipe as cooked", async ({ page }) => {
 test("requires confirmation before deleting a recipe", async ({ page }) => {
   await page.goto("/recipes/r-pasta");
 
-  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await page.getByRole("button", { name: "More", exact: true }).click();
+  await page.getByRole("menuitem", { name: "Delete recipe" }).click();
   const confirmation = page.getByRole("alertdialog");
   await expect(
     confirmation.getByRole("heading", { name: "Delete this recipe?" }),
   ).toBeVisible();
+  await page.screenshot({
+    path: path.join(
+      process.cwd(),
+      "output/playwright/recipe-delete-dialog.png",
+    ),
+    fullPage: true,
+  });
   await confirmation.getByRole("button", { name: "Delete recipe" }).click();
 
   await expect(page).toHaveURL(/\/recipes$/);

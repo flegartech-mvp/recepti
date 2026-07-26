@@ -14,6 +14,40 @@ function collectBrowserErrors(page: Page) {
 }
 
 test.describe("responsive owner experience", () => {
+  test("renders the abstract cookbook hero without desktop overflow", async ({
+    context,
+    page,
+    baseURL,
+  }) => {
+    const browserErrors = collectBrowserErrors(page);
+    await authenticateAs(context, baseURL, "signed-out");
+    await page.setViewportSize({ width: 1440, height: 900 });
+    await page.emulateMedia({ colorScheme: "light", reducedMotion: "reduce" });
+
+    await page.goto("/");
+
+    await expect(
+      page.getByAltText(
+        "Abstract open cookbook with botanical and ingredient shapes",
+      ),
+    ).toBeVisible();
+    expect(
+      await page.evaluate(
+        () =>
+          document.documentElement.scrollWidth <=
+          document.documentElement.clientWidth,
+      ),
+    ).toBe(true);
+    expect(browserErrors).toEqual([]);
+    await page.screenshot({
+      path: path.join(
+        process.cwd(),
+        "output/playwright/landing-abstract-desktop.png",
+      ),
+      fullPage: true,
+    });
+  });
+
   test("renders the desktop dashboard without overflow or browser errors", async ({
     context,
     page,
