@@ -373,6 +373,13 @@ begin
 end;
 $bootstrap_household$;
 
+-- The ownership rewrite intentionally defers composite foreign keys while the
+-- parent and child user_id values move together. Flush and validate those
+-- queued trigger events before altering the affected tables below. This is
+-- required for populated databases; an empty installation has no queued
+-- events and would not expose the ordering requirement.
+set constraints all immediate;
+
 alter table public.recipes
   add constraint recipes_image_path_check check (
     image_path is null or (
